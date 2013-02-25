@@ -26,11 +26,11 @@ public:
                          Interaction *V,
                          SingleParticleOperator *h);
     cx_vec getCoefficients();
+    void setInititalState(cx_vec A, cx_mat C);
 protected:
     Config* cfg;
     double dt;
     double t;
-    cx_mat H;
 
     cx_vec A;
     cx_mat C;
@@ -40,6 +40,11 @@ protected:
 
     Interaction *V;
     SingleParticleOperator *h;
+
+    double E;
+    vec EVec;
+    int step;
+    cx_double i;
 };
 
 #endif // COMPLEXTIMEINTEGRATOR_H

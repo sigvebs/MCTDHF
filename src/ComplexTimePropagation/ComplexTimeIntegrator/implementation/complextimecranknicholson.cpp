@@ -7,6 +7,7 @@ ComplexTimeCrankNicholson::ComplexTimeCrankNicholson(Config *cfg):
 //------------------------------------------------------------------------------
 void ComplexTimeCrankNicholson::stepForward()
 {
+    /*
     n = H.n_cols;
     I = eye<cx_mat>(n,n);
 
@@ -17,5 +18,6 @@ void ComplexTimeCrankNicholson::stepForward()
 
     A = H1*H2*A;
     t += dt;
+    */
 }
 //------------------------------------------------------------------------------

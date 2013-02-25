@@ -43,31 +43,25 @@ void Interaction::computeMeanField()
 void Interaction::computeInteractionelements()
 {
     double tolerance = 1e-6;
+    interactionElements.clear();
 
     cx_double V;
-    for (int p = 0; p < nOrbitals; p++) {
-        for (int q = p + 1; q < nOrbitals; q++) {
-            for (int r = 0; r < nOrbitals; r++) {
-                for (int s = r + 1; s < nOrbitals; s++) {
-
-                    // Symmetric spin
-                    V = 0;
-                    if (orbitals[p][0] == orbitals[r][0] && orbitals[q][0] == orbitals[s][0])
-                        V = integrate(p,q,r,s);
+    for (int p = 0; p < nSpatialOrbitals; p++) {
+        for (int q = p; q < nSpatialOrbitals; q++) {
+            for (int r = 0; r < nSpatialOrbitals; r++) {
+                for (int s = r; s < nSpatialOrbitals; s++) {
+                    // Symmetric
+                    V = integrate(p,q,r,s);
 
                     if (abs(real(V)) > tolerance) {
-//                        cout << p << q << r << s << " V = " << real(V) << endl;
                         interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,r,s), V) );
                         interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,s,r), conj(V)) );
                     }
 
-                    // Anti-Symmetric spin
-                    V = 0;
-                    if (orbitals[p][0] == orbitals[s][0] && orbitals[q][0] == orbitals[r][0])
-                        V = integrate(p,q,s,r);
+                    // Anti-Symmetric
+                    V = integrate(p,q,s,r);
 
                     if (abs(real(V)) > tolerance) {
-//                        cout << p << q << s << r << " V = " << real(V) << endl;
                         interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,s,r), V) );
                         interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,r,s), conj(V)) );
                     }
@@ -77,11 +71,11 @@ void Interaction::computeInteractionelements()
     }
 
 //     TODO: REMOVE ME!!!!
-    interactionElements.clear();
+//    interactionElements.clear();
 
 #ifdef DEBUG
-    cout << "void Basis::computeInteractionelements()" << endl;
 //    cout << "Number of interaction elements = " << interactionElements.size() << endl;
+//    cout << "nInteraction = " << interactionElements.size() << endl;
 //        for(auto it = interactionElements.begin(); it != interactionElements.end(); it++){
 //            cout << "id = " << it->first << " value = " << it->second << endl;
 //        }
@@ -92,38 +86,51 @@ void Interaction::computeInteractionelements()
     //            cout << "found = " << found->first << " " << found->second << endl;
     //        else
     //            cout << "not found" << endl;
+//    exit(1);
 #endif
 }
 //------------------------------------------------------------------------------
-cx_vec Interaction::integrate(int q, int r)
+cx_vec Interaction::integrate(const int q, const int r)
 {
     cx_vec V = zeros<cx_vec>(nGrid);
     cx_double integral ;
 
+    // Calulating the mean field V^qr
     for(int i=0; i<nGrid; i++){
+
+        // Integrations using the trapezodial rule.
         integral = 0;
-        for(int j=0; j<nGrid; j++){
-            integral += conj(C(j,q))/sqrt(pow(x[j] - x[i],2) + aa)*C(j,r);
+        for(int j=1; j<nGrid-1; j++){
+            integral += conj(C(j,q))/sqrt(pow(x(j) - x(i),2) + aa)*C(j,r);
         }
-        V(i) = integral;
+        integral *=2;
+
+        // Enpoints
+        integral += conj(C(0,q))/sqrt(pow(x(0) - x(i),2) + aa)*C(0,r)
+                + conj(C(nGrid-1,q))/sqrt(pow(x(nGrid-1) - x(i),2) + aa)*C(nGrid-1,r);
+
+        V(i) = 0.5*integral;
     }
 
     return V;
 }
 //------------------------------------------------------------------------------
-cx_double Interaction::integrate(int p, int q, int r, int s)
+cx_double Interaction::integrate(const int p, const int q, const int r, const int s)
 {
+    // Integrations using the trapezodial rule.
     cx_double integral = 0;
-
-    for(int i=0; i<nGrid; i++){
-//        integral += conj(C(i,p))*V2(q,s)(i)*C(i,r);
-        integral += conj(C(i,p/2))*V2(q/2,s/2)(i)*C(i,r/2);
+    for(int i=1; i<nGrid-1; i++){
+        integral += conj(C(i,p))*V2(q,s)(i)*C(i,r);
     }
+    integral *= 2;
 
-    return integral;
+    // Enpoints
+    integral += conj(C(0,p))*V2(q,s)(0)*C(0,r) + conj(C(nGrid-1,p))*V2(q,s)(nGrid-1)*C(nGrid-1,r);
+
+    return 0.5*integral;
 }
 //------------------------------------------------------------------------------
-cx_double Interaction::at(const int p, const int q, const int r, const int s)
+const cx_double Interaction::at(const int p, const int q, const int r, const int s)
 {
     cx_double result = 0;
     int searchValue = mapTwoParticleStates(p,q,r,s);
@@ -132,5 +139,10 @@ cx_double Interaction::at(const int p, const int q, const int r, const int s)
     if(foundInteraction != interactionElements.end())
         result = foundInteraction->second;
     return result;
+}
+//------------------------------------------------------------------------------
+const cx_vec &Interaction::meanField(const int p, const int q)
+{
+    return V2(p,q);
 }
 //------------------------------------------------------------------------------

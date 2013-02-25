@@ -29,23 +29,26 @@ public:
     ~SlaterEquation();
     cx_vec computeRightHandSide(const cx_vec &A);
     cx_vec computeRightHandSideComplexTime(const cx_vec &A);
-    void setInitalState();
-    const cx_mat &getHamiltonian() const;
-    const cx_mat &getCoefficientVector() const;
-    double getEnergy();
+    double getEnergy(const cx_vec &A);
 protected:
     void computeHamiltonianMatrix();
-
+    cx_double secondQuantizationOneBodyOperator(const int p, const int q,
+                                                bitset<BITS> state1,
+                                                const bitset<BITS> &state2);
+    cx_double secondQuantizationTwoBodyOperator(const int p,const int q,
+                                                const int r, const int s,
+                                                bitset<BITS> state1,
+                                                const bitset<BITS> &state2);
     // Class variables
     Config* cfg;
 
     vector<bitset<BITS> > slaterDeterminants;
     vector<vec> orbitals;
 
-    cx_vec A;
     cx_mat H;
-    cx_mat h;
+    const cx_mat* h;
     int nSlaterDeterminants;
+    int nSpatialOrbitals;
     int nOrbitals;
     int dim;
 

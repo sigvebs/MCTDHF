@@ -4,18 +4,13 @@
 ComplexTimeRungeKutta4::ComplexTimeRungeKutta4(Config *cfg):
     ComplexTimeIntegrator(cfg)
 {
-    Eprev = E = 0;
-
-    // Tmp
-    int N = cfg->lookup("ComplexTimeIntegration.N");
-    EVec = zeros(N);
-    step = 0;
+//    i = cx_double(0,1);
     i = cx_double(1,0);
 }
 //------------------------------------------------------------------------------
 void ComplexTimeRungeKutta4::stepForward()
 {
-    cout << "-------------------------------------\n";
+    cout << "---------------------------------------------------------------\n";
 
     // Computing Runge-Kutta weights
     V->computeNewElements(C);
@@ -47,46 +42,45 @@ void ComplexTimeRungeKutta4::stepForward()
     C += 1.0/6.0*(m1 + 2*(m2 + m3) + m4);
     t += dt;
 
-    double E = slater->getEnergy() ;
-    Eprev = E;
+    C = renormalize(C);
+
+    //--------------------------------------------------------------------------
+    // Writing results to screen and file
+    //--------------------------------------------------------------------------
+    E = slater->getEnergy(A) ;
     if(std::isnan(E)){
         cerr << " E = Nan" << endl
              << "N = " << step << endl;
         exit(1);
     }
 
-
     // Saving C and A to disk
-    mat Ctmp = real(C);
     EVec(step) = E;
-    Ctmp.save("../DATA/C.mat", arma_ascii);
+    C.save("../DATA/C.mat", arma_ascii);
     A.save("../DATA/A.vec", arma_ascii);
     EVec.save("../DATA/EVec.mat", arma_ascii);
 
-//    C = renomralize(C);
-    int nSpatialOrbitals = C.n_cols;
-    cx_mat O = zeros<cx_mat>(nSpatialOrbitals,nSpatialOrbitals);
-    for(int i=0; i<nSpatialOrbitals; i++){
-        for(int l=i; l<nSpatialOrbitals; l++){
-            O(i,l) = cdot(C.col(i), C.col(l));
-            O(l,i) = conj(O(i,l));
-        }
+    cout.precision(16);
+    cout << "step = " << step << endl
+         << "E = " << E << endl
+         << "|A|^2 = " << abs(cdot(A,A)) << endl
+         << "|C(0)|^2 = " << abs(cdot(C.col(0),C.col(0))) << endl;
+
+    for(uint i=1; i< C.n_cols; i++){
+        cout << "|C("<<i<<")|^2 = " << abs(cdot(C.col(i),C.col(i))) << endl
+             << "<C("<<i<<")| C(0)> = " << cdot(C.col(i),C.col(0)) << endl;
     }
-    cout << O << endl;
-
-    cout << "E = " << E << "\t\t step = " << step << endl
-         << "norm(A) = " << cdot(A,A) << endl;
-
-
-
     step++;
 }
 //------------------------------------------------------------------------------
-cx_mat ComplexTimeRungeKutta4::renomralize(cx_mat C)
+cx_mat ComplexTimeRungeKutta4::renormalize(cx_mat C)
 {
-    for(int i=0; i<C.n_cols; i++){
-        C.col(i) /= cdot(C.col(i), C.col(i));
-    }
+    // Re-normalization of C using SVD
+    cx_mat X;
+    vec s;
+    cx_mat Y;
+    svd_econ(X, s, Y, C);
+    C = X*Y.t();
 
     return C;
 }

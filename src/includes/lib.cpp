@@ -214,44 +214,44 @@ double ran3(long *idum)
  **    TID run     - returns the time difference. 
  */
 
-TID time_step(int num) {
-    unsigned long long int
-    num_sec;
+//TID time_step(int num) {
+//    unsigned long long int
+//    num_sec;
 
-    static long
-    zsec = 0, zusec = 0;
-    double
-    retval;
-    TID
-    ex_time;
-    struct timeval
-    tp;
+//    static long
+//    zsec = 0, zusec = 0;
+//    double
+//    retval;
+//    TID
+//    ex_time;
+//    struct timeval
+//    tp;
 
-    if (num == 1) { // initialization of time
+//    if (num == 1) { // initialization of time
 
-        zsec = tp.tv_sec;
-        zusec = tp.tv_usec;
+//        zsec = tp.tv_sec;
+//        zusec = tp.tv_usec;
 
-        ex_time.sec = 0;
-        ex_time.min = 0;
-        ex_time.hour = 0;
-    } else if (num == 2) {
+//        ex_time.sec = 0;
+//        ex_time.min = 0;
+//        ex_time.hour = 0;
+//    } else if (num == 2) {
 
-        retval = (double) (tp.tv_sec - zsec) + (tp.tv_usec - zusec) * 0.000001;
+//        retval = (double) (tp.tv_sec - zsec) + (tp.tv_usec - zusec) * 0.000001;
 
-        num_sec = (unsigned long long int) retval;
-        ex_time.sec = num_sec % 60;
-        ex_time.min = num_sec / 60;
-        ex_time.hour = ex_time.min / 60;
-        ex_time.min = ex_time.min % 60;
-    } else {
-        printf("\n\nError in function time_step(): ");
-        printf("\nInput data num = %d is wrong !!\n\n", num);
-        exit(1);
-    }
-    return ex_time;
+//        num_sec = (unsigned long long int) retval;
+//        ex_time.sec = num_sec % 60;
+//        ex_time.min = num_sec / 60;
+//        ex_time.hour = ex_time.min / 60;
+//        ex_time.min = ex_time.min % 60;
+//    } else {
+//        printf("\n\nError in function time_step(): ");
+//        printf("\nInput data num = %d is wrong !!\n\n", num);
+//        exit(1);
+//    }
+//    return ex_time;
 
-} // End: function time_step()
+//} // End: function time_step()
 
 /*
  * The function                             
@@ -1451,7 +1451,8 @@ double trapezoidal_rule(double a, double b, int n, double (*func)(double)) {
 
 double rectangle_rule(double a, double b, int n, double (*func)(double)) {
     double rectangle_sum;
-    double fa, fb, x, step;
+//    double fa, fb, x, step;
+    double x, step;
     int j;
     step = (b - a) / ((double) n);
     rectangle_sum = 0.;
@@ -1700,6 +1701,9 @@ double SQR(double a)
  return a*a;
 }
 //------------------------------------------------------------------------------
+//#define N1 100
+//#define N2 10000
+//#define N3 1000000
 #define N1 100
 #define N2 10000
 #define N3 1000000

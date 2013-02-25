@@ -20,7 +20,12 @@ SOURCES += main.cpp \
     src/ComplexTimePropagation/complextimepropagation.cpp \
     src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.cpp \
     src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekutta4.cpp \
-    src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimecranknicholson.cpp
+    src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimecranknicholson.cpp \
+    src/OneParticleOperator/DifferentialOperator/differentialoperator.cpp \
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference1d.cpp \
+    src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.cpp \
+    src/WaveFunction/Implementations/hydrogenlike.cpp \
+    src/Basis/implementation/basishydrogenlike.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -40,9 +45,14 @@ HEADERS += \
     src/ComplexTimePropagation/complextimepropagation.h \
     src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.h \
     src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekutta4.h \
-    src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimecranknicholson.h
+    src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimecranknicholson.h \
+    src/OneParticleOperator/DifferentialOperator/differentialoperator.h \
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference1d.h \
+    src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h \
+    src/WaveFunction/Implementations/hydrogenlike.h \
+    src/Basis/implementation/basishydrogenlike.h
 
-unix|win32: LIBS += -lconfig++ -larmadillo
+LIBS += -lconfig++ -larmadillo -llapack -lblas -lfftw3 -lm
 
 # Remoing other O flags
 QMAKE_CXXFLAGS_RELEASE -= -O
@@ -51,6 +61,7 @@ QMAKE_CXXFLAGS_RELEASE -= -O2
 
 # add the desired -O3 if not present
 QMAKE_CXXFLAGS_RELEASE *= -O3
+
 QMAKE_CXXFLAGS_DEBUG += -std=c++0x
 QMAKE_CXXFLAGS_RELEASE += -std=c++0x
 

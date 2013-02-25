@@ -20,7 +20,7 @@ MctdhfApplication::MctdhfApplication(int* argc, char ***argv, string configFilen
 void MctdhfApplication::run()
 {
     // Creating the orbitals
-    Basis* orb = new BasisHarmonicOscillator(&cfg);
+    Basis* orb = setBasis();
     orb->createBasis();
     orb->createInitalDiscretization();
     const vector<vec> &orbitals = orb->getBasis();
@@ -34,28 +34,27 @@ void MctdhfApplication::run()
     // Interaction operator
     cout << "Setting up the interaction operator" << endl;
     Interaction V(&cfg, orbitals);
-    V.computeNewElements(C);
 
     // Setting the single particle operator
     cout << "Setting up the single particle operator" << endl;
-    SingleParticleOperator h(&cfg, orbitals);
-    h.computeNewElements(C);
+    SingleParticleOperator h(&cfg, orbitals, setDifferentialOpertor());
 
     // Setting up the Slater equation
     cout << "Setting up the Slater determiant equation" << endl;
     SlaterEquation slaterEquation(&cfg, orbitals, slaterDeterminants, &V, &h);
-    slaterEquation.setInitalState();
-    cout << "E = " << slaterEquation.getEnergy() << endl;
+
+    // Creating an initial coefficient vector for the Slater determinants.
+    cx_vec A = randu<cx_vec>(slaterDeterminants.size());
+    A = A/sqrt(cdot(A, A));
 
     // Setting up the orbital equation
     cout << "Setting up the Orbital equation" << endl;
     OrbitalEquation orbEq(&cfg, orbitals, slaterDeterminants, &V, &h);
-    orbEq.setInititalState(C);
-
 
     // Setting up the complex time integrator
     ComplexTimeIntegrator* complexTimeIntegrator = setComplexTimeIntegrator();
     complexTimeIntegrator->setDependencies(&slaterEquation, &orbEq, &V, &h);
+    complexTimeIntegrator->setInititalState(A, C);
     ComplexTimePropagation complexTimePropagation(&cfg, complexTimeIntegrator);
 
     cout << "Complex time propagation" << endl;
@@ -80,54 +79,51 @@ ComplexTimeIntegrator* MctdhfApplication::setComplexTimeIntegrator()
     case CT_RUNGE_KUTTA4:
         I = new ComplexTimeRungeKutta4(&cfg);
         break;
+    default:
+        cerr << "Complex Time Integrator not implemented:: " << complexTimeIntegrator << endl;
+        exit(EXIT_FAILURE);
     }
 
     return I;
 }
+//------------------------------------------------------------------------------
+DifferentialOperator* MctdhfApplication::setDifferentialOpertor()
+{
+    // Setting the integrator
+    DifferentialOperator *I;
+    int differentialOperator = cfg.lookup("spatialDiscretization.differentialOperator");
+
+    switch (differentialOperator) {
+    case DO_FINITE_DIFFERENCE_1d:
+        I = new FiniteDifference1d(&cfg);
+        break;
+    case DO_SPECTRAL_1D:
+        I = new Spectral1d(&cfg);
+        break;
+    default:
+        cerr << "Differential Operator not implemented:: " << differentialOperator << endl;
+        exit(EXIT_FAILURE);
+    }
+    return I;
+}
+//------------------------------------------------------------------------------
+Basis *MctdhfApplication::setBasis()
+{
+    // Setting the basis
+    Basis *I;
+    int basisType = cfg.lookup("wavefunction.basisType");
+
+    switch (basisType) {
+    case OBT_HARMONIC_OSCILLATOR:
+        I = new BasisHarmonicOscillator(&cfg);
+        break;
+    case OBT_HYDROGEN_LIKE:
+        I = new BasisHydrogenLike(&cfg);
+        break;
+    default:
+        cerr << "Basis not implemented:: " << basisType << endl;
+        exit(EXIT_FAILURE);
+    }
+    return I;
+}
 //-----------------------------------------------------------------------------
-//WaveFunction* MctdhfApplication::setWavefunction()
-//{
-//    WaveFunction *wf;
-//    int dim = cfg.lookup("system.dim");
-
-//    switch(dim){
-//    case 1:
-//        wf = new HarmonicOscillator1d(&cfg);
-//        break;
-//    case 2:
-//        wf = new HarmonicOscillator2d(&cfg);
-//        break;
-//    }
-
-//    return wf;
-//}
-////------------------------------------------------------------------------------
-//SpatialIntegrator* MctdhfApplication::setSpatialIntegrator(WaveFunction* wf)
-//{
-//    // Setting the integrator
-//    SpatialIntegrator *I;
-//    int spatialIntegrator;
-//    cfg.lookupValue("spatialIntegration.integrator", spatialIntegrator);
-
-//    switch (spatialIntegrator) {
-//    case MONTE_CARLO:
-//        I = new MonteCarloIntegrator(&cfg);
-//        break;
-//    case GAUSS_LAGUERRE:
-//        I = new GaussLaguerreIntegrator(&cfg, wf);
-//        break;
-//    case GAUSS_HERMITE:
-//        I = new GaussHermiteIntegrator(&cfg);
-//        break;
-//    case INTERACTION_INTEGRATOR:
-//        I = new InteractonIntegrator(&cfg);
-//        break;
-//    case MONTE_CARLO_IS:
-//        I = new MonteCarloImportanceSampled(&cfg);
-//        break;
-//    }
-
-//    return I;
-//}
-////------------------------------------------------------------------------------
-

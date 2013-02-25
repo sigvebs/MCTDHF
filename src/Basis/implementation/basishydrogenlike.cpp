@@ -1,7 +1,6 @@
-#include "basisharmonicoscillator.h"
-
+#include "basishydrogenlike.h"
 //------------------------------------------------------------------------------
-BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg):
+BasisHydrogenLike::BasisHydrogenLike(Config *cfg):
     Basis(cfg)
 {
     double latticeRange;
@@ -27,7 +26,7 @@ BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg):
         x.col(i) = linspace<vec>(-latticeRange,latticeRange,nGrid);
 
 #ifdef DEBUG
-    cout << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)" << endl
+    cout << "BasisHydrogenLike::BasisHydrogenLike(Config *cfg)" << endl
          << "nBasis \t\t= " << nBasis << endl
          << "latticeRange \t\t= " << latticeRange << endl
          << "dx \t\t= " << dx << endl
@@ -35,8 +34,7 @@ BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg):
 #endif
 }
 //------------------------------------------------------------------------------
-
-void BasisHarmonicOscillator::createInitalDiscretization()
+void BasisHydrogenLike::createInitalDiscretization()
 {
     switch(dim)
     {
@@ -44,34 +42,35 @@ void BasisHarmonicOscillator::createInitalDiscretization()
         discretization1d();
         break;
     default:
-        cerr << "BasisHarmonicOscillator::createInitalDiscretization():: "
+        cerr << "BasisHydrogenLike::createInitalDiscretization():: "
              << "Dim = " << dim << " "
              << "not yet implemented." << endl;
         exit(EXIT_FAILURE);
     }
 }
 //------------------------------------------------------------------------------
-void BasisHarmonicOscillator::discretization1d()
-{
-    cout << "discreet" << endl;
+void BasisHydrogenLike::discretization1d()
+{ cout << "discreet" << endl;
     C = zeros<cx_mat>(nGrid, nSpatialOrbitals);
     mat Ctmp(nGrid, nSpatialOrbitals);
     Wavefunction* wf;
 
     for(int i=0; i<nSpatialOrbitals; i++){
-        wf = new HarmonicOscillator1d(cfg, states[2*i]);
-        Ctmp.col(i) = wf->evaluate(x)*sqrt(dx);
+        wf = new HydrogenLike(cfg, states[2*i]);
+        Ctmp.col(i) = wf->evaluate(x);
 
         // Re-normalizing to remove numerical errors
-        Ctmp.col(i) /= sqrt(dot(Ctmp.col(i),Ctmp.col(i)));
+        Ctmp.col(i) = Ctmp.col(i)/sqrt(dot(Ctmp.col(i),Ctmp.col(i)));
     }
 
     C.set_real(Ctmp);
     x.save("../DATA/x.mat", arma_ascii);
-#ifdef DEBUG
+
+//#ifdef DEBUG
+#if 1
     cout << "BasisHarmonicOscillator::discretization1d()" << endl;
     for(int i=0; i<nSpatialOrbitals; i++){
-        cout <<  "|C(" << i << ")| = " << sqrt(dot(Ctmp.col(i),Ctmp.col(i))) << endl ;
+        cout <<  "|C(" << i << ")|^2 = " << cdot(C.col(i),C.col(i)) << endl ;
     }
 #endif
 }

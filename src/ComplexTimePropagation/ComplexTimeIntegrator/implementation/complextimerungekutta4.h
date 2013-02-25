@@ -10,7 +10,7 @@ public:
     ComplexTimeRungeKutta4(Config* cfg);
     virtual void stepForward();
 protected:
-    cx_mat renomralize(cx_mat C);
+    cx_mat renormalize(cx_mat C);
     cx_vec k1;
     cx_vec k2;
     cx_vec k3;
@@ -20,14 +20,6 @@ protected:
     cx_mat m2;
     cx_mat m3;
     cx_mat m4;
-
-    double Eprev;
-    double E;
-
-    // TMP
-    vec EVec;
-    int step;
-    cx_double i;
 };
 
 #endif // COMPLEXTIMERUNGEKUTTA4_H

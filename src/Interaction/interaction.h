@@ -20,17 +20,17 @@ class Interaction
 public:
     Interaction(Config* cfg, vector<vec> orbitals);
     void computeNewElements(const cx_mat &C);
-    cx_double at(const int p, const int q, const int r, const int s);
+    const cx_double at(const int p, const int q, const int r, const int s);
+    const cx_vec &meanField(const int p, const int q);
 protected:
     void computeMeanField();
     void computeInteractionelements();
-    cx_vec integrate(int q, int r);
-    cx_double integrate(int p, int q, int r, int s);
+    cx_vec integrate(const int q, const int r);
+    cx_double integrate(const int p, const int q, const int r, const int s);
 
     Config* cfg;
 
     vector<vec> orbitals;
-    field<cx_vec> V2;
     vec x;
     double dx;
 
@@ -40,7 +40,10 @@ protected:
 
     double aa;
     cx_mat C;
+
+    // Local storage of data
     unordered_map<int, cx_double> interactionElements;
+    field<cx_vec> V2;
 };
 
 #endif // INTERACTION_H

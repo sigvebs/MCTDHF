@@ -11,16 +11,10 @@ HarmonicOscillator1d::HarmonicOscillator1d(Config *cfg, vec quantumNumbers):
 //------------------------------------------------------------------------------
 mat HarmonicOscillator1d::evaluate(const mat &x)
 {
-    double I;
     mat psi(x.n_rows, 1);
-    for(int i=0;i<x.n_rows; i++){
+    for(uint i=0;i<x.n_rows; i++){
         psi(i,0) = exp(-0.5*w*(x(i)) * x(i)) * hermitePolynomial(n, sqrtW * x(i));
     }
     return coefficient*psi;
-}
-//------------------------------------------------------------------------------
-double HarmonicOscillator1d::getEnergy()
-{
-    return w*(n + 0.5);
 }
 //------------------------------------------------------------------------------

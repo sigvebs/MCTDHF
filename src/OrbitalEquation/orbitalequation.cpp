@@ -6,19 +6,17 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
                                  vector<bitset<BITS> > slaterDeterminants,
                                  Interaction *V,
                                  SingleParticleOperator *h):
-    cfg(cfg),
-    orbitals(orbitals),
-    slaterDeterminants(slaterDeterminants),
-    V(V),
-    h(h)
+    cfg(cfg)
 {
-    double L;
-    double dx;
+    this->slaterDeterminants = slaterDeterminants;
+    this->orbitals = orbitals;
+    this->V = V;
+    this->h = h;
+
     try {
         nParticles = cfg->lookup("system.nParticles");
         dim = cfg->lookup("system.dim");
         dx = cfg->lookup("spatialDiscretization.gridSpacing");
-        L = cfg->lookup("spatialDiscretization.latticeRange");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
         nSpatialOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
     } catch (const SettingNotFoundException &nfex) {
@@ -30,101 +28,114 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
     nSlaterDeterminants = slaterDeterminants.size();
     rho = cx_mat(nSpatialOrbitals, nSpatialOrbitals);
 
-    U = cx_mat(nGrid, nSpatialOrbitals);
+    U = zeros<cx_mat>(nGrid, nSpatialOrbitals);
     P = cx_mat(nGrid, nGrid);
-    hC = cx_mat(nGrid, nSpatialOrbitals);
     I = eye<cx_mat>(nGrid, nGrid);
+
+    // Remove
+    counter = 0;
 }
 //------------------------------------------------------------------------------
-cx_mat OrbitalEquation::computeRightHandSide(cx_mat C, cx_vec A)
+cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
 {
-    this->C = C;
-    this->A = A;
+//    this->C = &C;
+    this->A = &A;
+    hC = &(h->getHspatial());
 
-    computeProjector();
+    computeProjector(C);
     computeOneParticleReducedDensity();
     computeTwoParticleReducedDensity();
-//    computeUMatrix();
+    computeUMatrix(C);
+
     // Computing the right hand side of the equation
-    hC = h->getHspatial();
+    //        rightHandSide = (I-P)*(*hC);
+    rightHandSide = (I-P)*U;
+    //    rightHandSide = (I-P)*((*hC) + U);
+    //    rightHandSide = zeros<cx_mat>(nGrid, nSpatialOrbitals);
+    //    cout << cdot(rightHandSide, rightHandSide) << endl;
 
-    cx_mat rightHandSide = (I - P)*hC;
-    //    cout << rightHandSide << endl;
 
-//    rightHandSide = zeros<cx_mat>(nGrid, nOrbitals);
+    // Hardcoded the case for 2 electrons, 1 slater determinant, one spatial orbital.
+//    rightHandSide = (I - C.col(0)*C.col(0).t())*(hC->col(0) + diagmat(V->meanField(0,0))*C.col(0));
+
+
+    // Saving U anv V to file
+//    stringstream ss;
+//    ss << "../DATA/U" << counter << ".mat";
+//    U.save(ss.str(), arma_ascii);
+//    U.save("../DATA/U.mat", arma_ascii);
+//    ss.str("");
+//    ss << "../DATA/V0" << counter << ".mat";
+//    V->meanField(0,0).save(ss.str(), arma_ascii);
+//    V->meanField(0,0).save("../DATA/V0.mat", arma_ascii);
+//    counter++;
     return rightHandSide;
 }
 //------------------------------------------------------------------------------
-void OrbitalEquation::computeUMatrix()
+void OrbitalEquation::computeUMatrix(const cx_mat &C)
 {
-    cx_double V_C;
-    int searchValue;
-    double intElement;
-    cx_double invRho;
-    cx_double Utmp;
-
+    cx_mat invRho = inv(rho);
+    cx_vec Ui;
+    cx_vec inner;
+#if 1
     for(int j=0; j<nSpatialOrbitals; j++){
+        U.col(j) = hC->col(j);
+//        U.col(j) = zeros<cx_vec>(nGrid);
 
-        for(int x=0; x<nGrid; x++){
-            U(x,j) = 0;
-            Utmp = 0;
-            for(int i=0; i<nSpatialOrbitals; i++){
-                invRho = rho(j,i);
-                for(int q=0; q<nSpatialOrbitals; q++){
-                    for(int r=0; r<nSpatialOrbitals; r++){
-                        for(int s=0; s<nSpatialOrbitals; s++){
+        for(int i=0; i<nSpatialOrbitals; i++){
+            Ui = zeros<cx_vec>(nGrid);
+            for(int q=0; q<nSpatialOrbitals; q++){
+                for(int r=0; r<nSpatialOrbitals; r++){
+                    inner = zeros<cx_vec>(nGrid);
+                    for(int s=0; s<nSpatialOrbitals; s++){
+                        auto rho_iqrs = rho2.find(mapTwoParticleStates(i,q,r,s));
+//                        cout << "j = " << j << " i = " << i << " q = " <<  q << " r = " << r << " " << " s = " << s
+//                             << " inv(rho) = " << invRho(j,i) << " rho2 = " << rho_iqrs->second << endl;
+                        inner += rho_iqrs->second* C.col(s);
+                    }
+                    Ui += diagmat(V->meanField(q,r))*inner;
+                }
+            }
+            U.col(j) += invRho(j,i)*Ui;
+        }
+    }
+#else
+    for(int j=0; j<nSpatialOrbitals; j++){
+//        U.col(j) = hC->col(j);
+        U.col(j) = zeros<cx_vec>(nGrid);
+        Ui = zeros<cx_vec>(nGrid);
+        for(int i=0; i<nSpatialOrbitals; i++){
 
-                            searchValue = mapTwoParticleStates(i,q,s,r);
-                            auto foundRho2 = rho2.find(searchValue);
-                            if(foundRho2 != rho2.end()){
-                                Utmp *= foundRho2->second;
-                            }
+            for(int q=0; q<nSpatialOrbitals; q++){
+                for(int r=0; r<nSpatialOrbitals; r++){
+                    inner = zeros<cx_vec>(nGrid);
+                    for(int s=0; s<nSpatialOrbitals; s++){
+                        auto rho_iqrs = rho2.find(mapTwoParticleStates(i,q,r,s));
 
-                        }
+//                        cout << " q = " << q << " r = " << " s = " << s
+//                             << " rho2 = " << rho_iqrs->second << endl;
+                        Ui += invRho(j,i)*rho_iqrs->second* diagmat(V->meanField(q,r))* C.col(s);
                     }
                 }
             }
         }
+        U.col(j) += Ui;
     }
-    //    for(int i=0; i<nOrbitals; i++){
-    //        for(int beta=0; beta<nConstStates; beta++){
-
-    //            U(i, beta) = 0;
-
-    //            for(int q=0; q<nOrbitals; q++){
-    //                for(int r=0; r<nOrbitals; r++){
-    //                    for(int s=0; s<nOrbitals; s++){
-
-    //                        searchValue = mapTwoParticleStates(i,q,s,r);
-    //                        auto foundRho2 = rho2.find(searchValue);
-
-    //                        if(foundRho2 != rho2.end()){
-    //                            V_C = 0;
-    //
-    //                                }
-    //                            }
-    //                            U(i, beta) += foundRho2->second*V_C;
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-
+#endif
 #ifdef DEBUG
     cout << "OrbitalEquation::computeUMatrix()" << endl;
-    //        cout << "U = " << endl << U << endl;
-    //        exit(0);
+//    cout << "U = " << endl << U << endl;
+//    exit(0);
 #endif
 }
 //------------------------------------------------------------------------------
-void OrbitalEquation::computeProjector()
+void OrbitalEquation::computeProjector(const cx_mat &C)
 {
     P = zeros<cx_mat>(nGrid, nGrid);
 
+#if 0
     // Slightly changing the projector to ensure orthonormality is conserved
     // Problems arise due to numerical inaccuracies.
-#if 0
     cx_mat O = zeros<cx_mat>(nSpatialOrbitals,nSpatialOrbitals);
 
     for(int i=0; i<nSpatialOrbitals; i++){
@@ -132,80 +143,42 @@ void OrbitalEquation::computeProjector()
             O(i,l) = cdot(C.col(i), C.col(l));
         }
     }
-    cout << O << endl;
     O = inv(O);
 
     for(int i=0; i<nSpatialOrbitals; i++){
         for(int l=0; l<nSpatialOrbitals; l++){
-            O = cdot(C.col(i), C.col(l));
             P += C.col(i)*C.col(l).t()*O(i,l);
         }
     }
+
 #else
-    // The ecaxt mathematical defintion of the projector.
+    // The exact mathematical defintion of the projector.
     for(int i=0; i<nSpatialOrbitals; i++){
         P += C.col(i)*C.col(i).t();
     }
 #endif
 #ifdef DEBUG
     cout << "OrbitalEquation::computeProjector()" << endl;
+//    cout << "C0 * P* C0 = " << abs(C->col(0).t()*P*C->col(0)) << endl;
+//    cout << "C0 * P * C1 = " << abs(C->col(0).t()*P*C->col(1)) << endl;
 #endif
 }
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeOneParticleReducedDensity()
 {
-    bitset<BITS> newState;
-    double phase;
-    // All one particle combinantions
+    // All possible spatial orbitals
     for(int i=0; i< nSpatialOrbitals; i++){
         for(int j=i; j<nSpatialOrbitals; j++){
-            rho(i,j) = 0;
-
-            // Spin up
-            for(int n=0; n<nSlaterDeterminants; n++){
-                for(int m=0; m<nSlaterDeterminants; m++){
-                    phase = 1;
-                    newState = slaterDeterminants[m];
-
-                    removeParticle(2*j, newState);
-                    phase *= sign(2*j, newState);
-
-                    addParticle(2*i, newState);
-                    phase *= sign(2*i, newState);
-
-                    if (!newState[BITS - 1]) {
-                        if(slaterDeterminants[n] == newState)
-                            rho(i,j) += phase*conj(A(n))*A(m);
-                    }
-                }
-            }
-
-            // Spin down
-            for(int n=0; n<nSlaterDeterminants; n++){
-                for(int m=0; m<nSlaterDeterminants; m++){
-                    phase = 1;
-                    newState = slaterDeterminants[m];
-
-                    removeParticle(2*j + 1, newState);
-                    phase *= sign(2*j + 1, newState);
-
-                    addParticle(2*i +1, newState);
-                    phase *= sign(2*i + 1, newState);
-
-                    if (!newState[BITS - 1]) {
-                        if(slaterDeterminants[n] == newState)
-                            rho(i,j) += phase*conj(A(n))*A(m);
-                    }
-                }
-            }
+            rho(i,j)  = reducedOneParticleOperator(2*i,2*j);
+            rho(i,j)  += reducedOneParticleOperator(2*i+1,2*j+1);
             rho(j,i) = conj(rho(i,j));
         }
     }
-
-    rho = inv(rho);
+//#if 1
 #ifdef DEBUG
     cout << "OrbitalEquation::computeOneParticleReducedDensity()" << endl;
     cout << "Trace(rho) = " << real(trace(rho)) << " nParticles = " << nParticles << endl;
+//    exit(0);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -214,7 +187,7 @@ void OrbitalEquation::computeTwoParticleReducedDensity()
     rho2.clear();
     cx_double value;
 
-    // All two particle combinantions
+    // All possible two spatial orbital combinantions
     for(int p=0; p<nSpatialOrbitals; p++){
         for(int q=0; q<nSpatialOrbitals; q++){
             for(int r=0; r<nSpatialOrbitals; r++){
@@ -225,38 +198,70 @@ void OrbitalEquation::computeTwoParticleReducedDensity()
                     value += reducedTwoParticleOperator(2*p, 2*q, 2*r, 2*s);
                     value += reducedTwoParticleOperator(2*p+1, 2*q+1, 2*r+1, 2*s+1);
 
-                    value += reducedTwoParticleOperator(2*p, 2*q+1, 2*r, 2*s+1);
-                    value += reducedTwoParticleOperator(2*p+1, 2*q, 2*r+1, 2*s);
+                    value += reducedTwoParticleOperator(2*p+1, 2*q, 2*r, 2*s+1);
+                    value += reducedTwoParticleOperator(2*p, 2*q+1, 2*r+1, 2*s);
 
-                    if(real(conj(value)*value) > 0){
-                        rho2.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,r,s), value) );
-                        //                        rho2.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,s,r), value) );
-                        //                        rho2.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,s,r), -value) );
-                        //                        rho2.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,r,s), -value) );
-                    }
+//                    cout << p << q << r << s << " V = " << value << endl;
+
+                    rho2.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,r,s), value) );
+                    //                        rho2.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,s,r), value) );
+                    //                        rho2.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,s,r), -value) );
+                    //                        rho2.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,r,s), -value) );
                 }
             }
         }
     }
 
+
 #ifdef DEBUG
-    cout << "OrbitalEquation::computeTwoParticleReducedDensity()" << endl;
+//#if 1
+//    cout << "n rho2 = " << rho2.size() << endl;
+//    cout << "OrbitalEquation::computeTwoParticleReducedDensity()" << endl;
     // Taking the trace
-    cx_double trace = 0;
+    cx_double tra = 0;
     for(int i=0; i<nSpatialOrbitals; i++){
         for(int j=0; j<nSpatialOrbitals; j++){
-            int searchValue = mapTwoParticleStates(i,j,i,j);
-            auto found = rho2.find(searchValue);
+            auto found = rho2.find( mapTwoParticleStates(i,j,j,i) );
             if(found != rho2.end()){
-                trace += found->second;
+                tra += found->second;
             }
         }
     }
-    cout << "Trace(rho2) = " << trace << " nParticles = " << nParticles << endl;
+    cout << "Trace(rho2) = " << tra << " N(N-1) = " << nParticles*(nParticles-1) << endl;
+//    cout << rho1 << endl;
+//    cout << rho << endl;
+//    exit(1);
 #endif
 }
 //------------------------------------------------------------------------------
-cx_double OrbitalEquation::reducedTwoParticleOperator(int p, int q, int s, int r)
+cx_double OrbitalEquation::reducedOneParticleOperator(const int i, const int j)
+{
+    bitset<BITS> newState;
+    double phase;
+    cx_double value = 0;
+
+    for(int n=0; n<nSlaterDeterminants; n++){
+        for(int m=0; m<nSlaterDeterminants; m++){
+            phase = 1;
+            newState = slaterDeterminants[m];
+
+            removeParticle(j, newState);
+            phase *= sign(j, newState);
+
+            addParticle(i, newState);
+            phase *= sign(i, newState);
+
+            if (!newState[BITS - 1]) {
+                if(slaterDeterminants[n] == newState)
+                    value += phase*conj((*A)(n))*(*A)(m);
+            }
+        }
+    }
+    return value;
+}
+//------------------------------------------------------------------------------
+cx_double OrbitalEquation::reducedTwoParticleOperator(const int p, const int q,
+                                                      const int r, const int s)
 {
 
     bitset<BITS> newState;
@@ -282,48 +287,12 @@ cx_double OrbitalEquation::reducedTwoParticleOperator(int p, int q, int s, int r
             phase *= sign(p, newState);
 
             if (!newState[BITS - 1]) {
-                if(slaterDeterminants[n] == newState){
-                    value += phase*conj(A(n))*A(m);
-                }
+                if(slaterDeterminants[n] == newState)
+                    value += phase*conj((*A)(n))*(*A)(m);
             }
         }
     }
 
     return value;
-}
-//------------------------------------------------------------------------------
-void OrbitalEquation::setInititalState(cx_mat C)
-{
-    //    cx_mat X = randu<cx_mat>(nConstStates, nOrbitals);
-    //    cx_mat R;
-    //    qr(C,R,X);
-
-    //    C = eye<cx_mat>(nGrid, nOrbitals);
-    this->C = C;
-    //        cout << "C = " << C << endl;
-
-#ifdef DEBUG
-    cout << "const cx_mat &OrbitalEquation::setInititalState()" << endl;
-#endif
-}
-//------------------------------------------------------------------------------
-void OrbitalEquation::computeOneBodyMatrix()
-{
-    hC = h->getH()*C;
-#ifdef DEBUG
-    cout << "OrbitalEquation::computeOneBodyMatrix()" << endl;
-    //    cout << hC << endl;
-    //    cout << C << endl;
-#endif
-}
-//------------------------------------------------------------------------------
-void OrbitalEquation::setSlaterCoefficients(const cx_vec &A)
-{
-    this->A = A;
-}
-//------------------------------------------------------------------------------
-const cx_mat &OrbitalEquation::getCoefficientMatrix() const
-{
-    return C;
 }
 //------------------------------------------------------------------------------

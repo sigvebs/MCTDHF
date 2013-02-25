@@ -27,17 +27,15 @@ public:
                     vector<bitset<BITS> > slaterDeterminants,
                     Interaction *V,
                     SingleParticleOperator *h);
-    void setInititalState(cx_mat C);
-    void setSlaterCoefficients(const cx_vec &A);
-    const cx_mat &getCoefficientMatrix() const;
-    cx_mat computeRightHandSide(cx_mat C, cx_vec A);
+    cx_mat computeRightHandSide(const cx_mat &C, const cx_vec &A);
 protected:
-    void computeOneBodyMatrix();
-    void computeProjector();
-    void computeUMatrix();
+    void computeProjector(const cx_mat &C);
+    void computeUMatrix(const cx_mat &C);
     void computeOneParticleReducedDensity();
     void computeTwoParticleReducedDensity();
-    cx_double reducedTwoParticleOperator(int p, int q, int s, int r);
+    cx_double reducedOneParticleOperator(const int i, const int j);
+    cx_double reducedTwoParticleOperator(const int p, const int q,
+                                         const int r, const int s);
 
     // Class variables
     Config* cfg;
@@ -55,14 +53,20 @@ protected:
     int nSlaterDeterminants;
     int nParticles;
     int dim;
+    double dx;
 
     cx_mat rho;
-    cx_mat C;
-    cx_vec A;
+//    const cx_mat* C;
+    const cx_vec* A;
+    const cx_mat* hC;
     cx_mat U;
     cx_mat P;
-    cx_mat hC;
     cx_mat I ;
+
+    cx_mat rightHandSide;
+
+    // REMOVE
+    int counter;
 };
 
 #endif // ORBITALEQUATION_H

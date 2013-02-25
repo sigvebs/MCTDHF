@@ -6,12 +6,17 @@
 
 #include <src/Basis/basis.h>
 #include <src/Basis/implementation/basisharmonicoscillator.h>
+#include <src/Basis/implementation/basishydrogenlike.h>
 
 #include <src/SlaterDeterminants/slaterdeterminants.h>
 
 // Operators
 #include <src/Interaction/interaction.h>
 #include <src/OneParticleOperator/oneparticleoperator.h>
+
+#include <src/OneParticleOperator/DifferentialOperator/differentialoperator.h>
+#include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifference1d.h>
+#include <src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h>
 
 #include <src/SlaterEquation/slaterequation.h>
 #include <src/OrbitalEquation/orbitalequation.h>
@@ -38,10 +43,9 @@ public:
     MctdhfApplication(int *argc, char ***argv, string configFilename = "../config.cfg");
     void run();
 protected:
-//    WaveFunction* setWavefunction();
-//    SpatialIntegrator* setSpatialIntegrator(WaveFunction *wf);
     ComplexTimeIntegrator* setComplexTimeIntegrator();
-
+    DifferentialOperator* setDifferentialOpertor();
+    Basis* setBasis();
     Config cfg;
 };
 

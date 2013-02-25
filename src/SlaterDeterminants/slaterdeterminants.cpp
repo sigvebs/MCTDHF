@@ -49,7 +49,7 @@ void SlaterDeterminants::createSlaterDeterminants()
     cout << binStates.size()  << " Slater determinants created." << endl;
 #ifdef DEBUG
     cout << "SlaterDeterminants::createSlaterDeterminants()" << endl;
-    for(int i=0; i<binStates.size(); i++){
+    for(int i=0; i<(int)binStates.size(); i++){
         cout << binStates[i] << endl;
     }
 #endif

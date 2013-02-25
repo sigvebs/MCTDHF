@@ -17,11 +17,11 @@ public:
     Wavefunction(Config *cfg, vec quantumNumbers);
     ~Wavefunction();
     virtual mat evaluate(const mat &x) = 0;
-    virtual double getEnergy() = 0;
 protected:
     Config *cfg;
     vec quantumNumbers;
     double coefficient;
+    int dim;
 };
 
 #endif // WAVEFUNCTION_H

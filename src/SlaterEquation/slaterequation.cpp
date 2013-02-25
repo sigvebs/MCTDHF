@@ -5,25 +5,26 @@ SlaterEquation::SlaterEquation(Config *cfg,
                                vector<bitset<BITS> > slaterDeterminants,
                                Interaction* interaction, SingleParticleOperator* oneParticleOperator):
     cfg(cfg),
-    orbitals(orbitals),
-    nOrbitals(orbitals.size()),
-    slaterDeterminants(slaterDeterminants),
-    nSlaterDeterminants(slaterDeterminants.size()),
     interaction(interaction),
     oneParticleOperator(oneParticleOperator)
 {
+    this->orbitals = orbitals;
+    this->nOrbitals = orbitals.size();
+    this->slaterDeterminants = slaterDeterminants;
+    this->nSlaterDeterminants = slaterDeterminants.size();
+
     try {
         dim = cfg->lookup("system.dim");
+        nSpatialOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "SlaterEquation::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
+    H = zeros<cx_mat>(nSlaterDeterminants, nSlaterDeterminants);
 }
 //------------------------------------------------------------------------------
 cx_vec SlaterEquation::computeRightHandSide(const cx_vec &A)
 {
-    this->A = A;
-    h = oneParticleOperator->getH();
 
     computeHamiltonianMatrix();
     cx_vec HA = H*A;
@@ -33,9 +34,6 @@ cx_vec SlaterEquation::computeRightHandSide(const cx_vec &A)
 //------------------------------------------------------------------------------
 cx_vec SlaterEquation::computeRightHandSideComplexTime(const cx_vec &A)
 {
-    this->A = A;
-    h = oneParticleOperator->getH();
-
     computeHamiltonianMatrix();
     cx_vec HA = H*A;
     cx_double E = cdot(A, HA)/cdot(A,A);
@@ -46,51 +44,60 @@ cx_vec SlaterEquation::computeRightHandSideComplexTime(const cx_vec &A)
 void SlaterEquation::computeHamiltonianMatrix()
 {
     cx_double phase;
-    bitset<BITS> newState;
+    cx_double Vpqrs;
+    h = &oneParticleOperator->getH();
 
     for(int m=0; m<nSlaterDeterminants; m++){
         for(int n=m; n<nSlaterDeterminants; n++){
             H(m,n) = 0;
             //------------------------------------------------------------------
-            for(int p=0; p<nOrbitals; p++){
-                for(int q=0; q<nOrbitals; q++){
+            for(int p=0; p<nSpatialOrbitals; p++){
+                for(int q=0; q<nSpatialOrbitals; q++){
                     //----------------------------------------------------------
-                    // One body
-                    phase = 1;
-                    newState = slaterDeterminants[n];
+                    // One body part
 
-                    removeParticle(q, newState);
-                    phase *= sign(q, newState);
+                    // The orbitals in the Slater determinants are mapped by
+                    // 2*p == spin up
+                    // 2*p+1 == spin down
+                    // where p is the same spatial orbital
 
-                    addParticle(p, newState);
-                    phase *= sign(p, newState);
+                    phase = 0;
+                    phase += secondQuantizationOneBodyOperator(2*q, 2*p,
+                                                                slaterDeterminants[n],
+                                                                slaterDeterminants[m]);
+                    phase += secondQuantizationOneBodyOperator(2*q+1, 2*p+1,
+                                                                slaterDeterminants[n],
+                                                                slaterDeterminants[m]);
 
-                    if (newState ==  slaterDeterminants[m]){
-                        H(m,n) += h(p,q)*phase;
-                    }
+                    H(m,n) += (*h)(p,q)*phase;
 
                     //----------------------------------------------------------
                     // Two-body interaction
-                    for(int r=0; r<nOrbitals; r++){
-                        for(int s=0; s<nOrbitals; s++){
+                    for(int r=0; r<nSpatialOrbitals; r++){
+                        for(int s=0; s<nSpatialOrbitals; s++){
+                            Vpqrs = interaction->at(p, q, r, s);
 
-                            phase = 1;
-                            newState = slaterDeterminants[n];
+                            if(Vpqrs != cx_double(0,0)){
+                                phase = 0;
 
-                            removeParticle(r, newState);
-                            phase *= sign(r, newState);
+                                phase += secondQuantizationTwoBodyOperator(2*p, 2*q, 2*r, 2*s,
+                                                                           slaterDeterminants[n],
+                                                                           slaterDeterminants[m]);
 
-                            removeParticle(s, newState);
-                            phase *= sign(s, newState);
+                                phase += secondQuantizationTwoBodyOperator(2*p+1, 2*q+1, 2*r+1, 2*s+1,
+                                                                           slaterDeterminants[n],
+                                                                           slaterDeterminants[m]);
 
-                            addParticle(q, newState);
-                            phase *= sign(q, newState);
+                                phase += secondQuantizationTwoBodyOperator(2*p, 2*q+1, 2*r, 2*s+1,
+                                                                           slaterDeterminants[n],
+                                                                           slaterDeterminants[m]);
 
-                            addParticle(p, newState);
-                            phase *= sign(p, newState);
+                                phase += secondQuantizationTwoBodyOperator(2*p+1, 2*q, 2*r+1, 2*s,
+                                                                           slaterDeterminants[n],
+                                                                           slaterDeterminants[m]);
 
-                            if (newState ==  slaterDeterminants[m]){
-                                H(m, n) += 0.5*phase*interaction->at(p, q, r, s);
+
+                                H(m, n) += 0.5*Vpqrs*phase;
                             }
                             //--------------------------------------------------
                         }
@@ -103,6 +110,7 @@ void SlaterEquation::computeHamiltonianMatrix()
         }
     }
 #ifdef DEBUG
+//#if 1
     cout << "SlaterEquation::computeHamiltonianMatrix()" << endl;
     //    cout << "Hamiltonian matrix:" << endl << H << endl;
     //    cx_vec eigval;
@@ -113,27 +121,58 @@ void SlaterEquation::computeHamiltonianMatrix()
 #endif
 }
 //------------------------------------------------------------------------------
-void SlaterEquation::setInitalState()
+cx_double SlaterEquation::secondQuantizationOneBodyOperator(const int p, const int q,
+                                                           bitset<BITS> state1,
+                                                           const bitset<BITS> &state2)
 {
-    A = randu<cx_vec>(nSlaterDeterminants);
-    A = A/sqrt(cdot(A, A));
-    H = zeros<cx_mat>(nSlaterDeterminants, nSlaterDeterminants);
+    cx_double phase = 1;
+
+    removeParticle(q, state1);
+    phase *= sign(q, state1);
+
+    addParticle(p, state1);
+    phase *= sign(p, state1);
+
+    if (state2 !=  state1)
+        phase = 0;
+
+    return phase;
 }
+
 //------------------------------------------------------------------------------
-const cx_mat &SlaterEquation::getCoefficientVector() const
+cx_double SlaterEquation::secondQuantizationTwoBodyOperator(const int p, const int q,
+                                                            const int r, const int s,
+                                                           bitset<BITS> state1,
+                                                           const bitset<BITS> &state2)
 {
-    return A;
+    cx_double phase = 1;
+
+    removeParticle(r, state1);
+    phase *= sign(r, state1);
+
+    removeParticle(s, state1);
+    phase *= sign(s, state1);
+
+    addParticle(q, state1);
+    phase *= sign(q, state1);
+
+    addParticle(p, state1);
+    phase *= sign(p, state1);
+
+    if (state1 !=  state2)
+        phase = 0;
+
+    return phase;
 }
 //------------------------------------------------------------------------------
 // This function is temporary for testing
-double SlaterEquation::getEnergy()
+double SlaterEquation::getEnergy(const cx_vec& A)
 {
-    h = oneParticleOperator->getH();
     computeHamiltonianMatrix();
     vec eigval = eig_sym(H);
+    cout << "min(eigval) = " << min(eigval) << endl;
 
-    return real(cdot(A, H*A));
-//    return min(eigval);
+    return real(cdot(A, H*A)/cdot(A,A));
 }
 //------------------------------------------------------------------------------
 SlaterEquation::~SlaterEquation()

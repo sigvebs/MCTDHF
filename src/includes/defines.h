@@ -18,5 +18,10 @@ enum sIntegrator_t {
 enum coordinateTypes_t {
     CARTESIAN, POLAR
 };
-
+enum differentialOpertor {
+    DO_FINITE_DIFFERENCE_1d, DO_SPECTRAL_1D
+};
+enum orbitalBasisType_t{
+    OBT_HARMONIC_OSCILLATOR, OBT_HYDROGEN_LIKE
+};
 #endif // DEFINES_H
