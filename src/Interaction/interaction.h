@@ -4,6 +4,7 @@
 // Local includes
 #include <src/includes/defines.h>
 #include <src/includes/lib.h>
+#include <src/Interaction/implementation/screenedcoulomb.h>
 
 // Library includes
 #include <armadillo>
@@ -29,7 +30,7 @@ protected:
     cx_double integrate(const int p, const int q, const int r, const int s);
 
     Config* cfg;
-
+    mat coulombElements;
     vec x;
     double dx;
 

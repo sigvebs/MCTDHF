@@ -18,16 +18,19 @@ Interaction::Interaction(Config *cfg):
 
     V2 = field<cx_vec>(nOrbitals, nOrbitals);
     x = linspace(-L, L, nGrid);
+    ScreenedCoulomb coulomb(cfg);
+    coulombElements = coulomb.computeInteractionSpace();
 }
 //------------------------------------------------------------------------------
 void Interaction::computeNewElements(const cx_mat &C)
 {
     this->C = C;
     interactionElements.clear();
-    V2 = field<cx_vec>(nOrbitals, nOrbitals);
+//    V2 = field<cx_vec>(nOrbitals, nOrbitals);
 
     computeMeanField();
     computeInteractionelements();
+
 }
 //------------------------------------------------------------------------------
 void Interaction::computeMeanField()
@@ -97,17 +100,32 @@ cx_vec Interaction::integrate(const int q, const int r)
         // Integrations using the trapezodial rule.
         integral = 0;
         for(int j=1; j<nGrid-1; j++){
-            integral += conj(C(j,q))/sqrt(pow(x(j) - x(i),2) + aa)*C(j,r);
+            integral += conj(C(j,q))*coulombElements(j,i)*C(j,r);
         }
         integral *=2;
 
         // Enpoints
-        integral += conj(C(0,q))/sqrt(pow(x(0) - x(i),2) + aa)*C(0,r)
-                + conj(C(nGrid-1,q))/sqrt(pow(x(nGrid-1) - x(i),2) + aa)*C(nGrid-1,r);
+        integral += conj(C(0,q))*coulombElements(0,i)*C(0,r)
+                + conj(C(nGrid-1,q))*coulombElements(nGrid-1,i)*C(nGrid-1,r);
 
         V(i) = 0.5*integral;
     }
+//    // Calulating the mean field V^qr
+//    for(int i=0; i<nGrid; i++){
 
+//        // Integrations using the trapezodial rule.
+//        integral = 0;
+//        for(int j=1; j<nGrid-1; j++){
+//            integral += conj(C(j,q))/sqrt(pow(x(j) - x(i),2) + aa)*C(j,r);
+//        }
+//        integral *=2;
+
+//        // Enpoints
+//        integral += conj(C(0,q))/sqrt(pow(x(0) - x(i),2) + aa)*C(0,r)
+//                + conj(C(nGrid-1,q))/sqrt(pow(x(nGrid-1) - x(i),2) + aa)*C(nGrid-1,r);
+
+//        V(i) = 0.5*integral;
+//    }
     return V;
 }
 //------------------------------------------------------------------------------
