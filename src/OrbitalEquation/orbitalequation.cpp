@@ -2,14 +2,12 @@
 
 //------------------------------------------------------------------------------
 OrbitalEquation::OrbitalEquation(Config *cfg,
-                                 vector<vec> orbitals,
                                  vector<bitset<BITS> > slaterDeterminants,
                                  Interaction *V,
                                  SingleParticleOperator *h):
     cfg(cfg)
 {
     this->slaterDeterminants = slaterDeterminants;
-    this->orbitals = orbitals;
     this->V = V;
     this->h = h;
 
@@ -18,17 +16,16 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
         dim = cfg->lookup("system.dim");
         dx = cfg->lookup("spatialDiscretization.gridSpacing");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
-        nSpatialOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
+        nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "OrbitalEquation::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
 
-    nOrbitals = orbitals.size()/2;
     nSlaterDeterminants = slaterDeterminants.size();
-    rho = cx_mat(nSpatialOrbitals, nSpatialOrbitals);
+    rho = cx_mat(nOrbitals, nOrbitals);
 
-    U = zeros<cx_mat>(nGrid, nSpatialOrbitals);
+    U = zeros<cx_mat>(nGrid, nOrbitals);
     P = cx_mat(nGrid, nGrid);
     I = eye<cx_mat>(nGrid, nGrid);
 
@@ -38,9 +35,12 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
 //------------------------------------------------------------------------------
 cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
 {
-//    this->C = &C;
     this->A = &A;
     hC = &(h->getHspatial());
+
+    // Clearing values
+    rho2.clear();
+//    rho = zeros<cx_mat>(nOrbitals,nOrbitals);
 
     computeProjector(C);
     computeOneParticleReducedDensity();
@@ -48,12 +48,7 @@ cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
     computeUMatrix(C);
 
     // Computing the right hand side of the equation
-    //        rightHandSide = (I-P)*(*hC);
     rightHandSide = (I-P)*U;
-    //    rightHandSide = (I-P)*((*hC) + U);
-    //    rightHandSide = zeros<cx_mat>(nGrid, nSpatialOrbitals);
-    //    cout << cdot(rightHandSide, rightHandSide) << endl;
-
 
     // Hardcoded the case for 2 electrons, 1 slater determinant, one spatial orbital.
 //    rightHandSide = (I - C.col(0)*C.col(0).t())*(hC->col(0) + diagmat(V->meanField(0,0))*C.col(0));
@@ -78,16 +73,16 @@ void OrbitalEquation::computeUMatrix(const cx_mat &C)
     cx_vec Ui;
     cx_vec inner;
 #if 1
-    for(int j=0; j<nSpatialOrbitals; j++){
+    for(int j=0; j<nOrbitals; j++){
         U.col(j) = hC->col(j);
 //        U.col(j) = zeros<cx_vec>(nGrid);
 
-        for(int i=0; i<nSpatialOrbitals; i++){
+        for(int i=0; i<nOrbitals; i++){
             Ui = zeros<cx_vec>(nGrid);
-            for(int q=0; q<nSpatialOrbitals; q++){
-                for(int r=0; r<nSpatialOrbitals; r++){
+            for(int q=0; q<nOrbitals; q++){
+                for(int r=0; r<nOrbitals; r++){
                     inner = zeros<cx_vec>(nGrid);
-                    for(int s=0; s<nSpatialOrbitals; s++){
+                    for(int s=0; s<nOrbitals; s++){
                         auto rho_iqrs = rho2.find(mapTwoParticleStates(i,q,r,s));
 //                        cout << "j = " << j << " i = " << i << " q = " <<  q << " r = " << r << " " << " s = " << s
 //                             << " inv(rho) = " << invRho(j,i) << " rho2 = " << rho_iqrs->second << endl;
@@ -100,16 +95,16 @@ void OrbitalEquation::computeUMatrix(const cx_mat &C)
         }
     }
 #else
-    for(int j=0; j<nSpatialOrbitals; j++){
-//        U.col(j) = hC->col(j);
-        U.col(j) = zeros<cx_vec>(nGrid);
+    for(int j=0; j<nOrbitals; j++){
+        U.col(j) = hC->col(j);
+//        U.col(j) = zeros<cx_vec>(nGrid);
         Ui = zeros<cx_vec>(nGrid);
-        for(int i=0; i<nSpatialOrbitals; i++){
+        for(int i=0; i<nOrbitals; i++){
 
-            for(int q=0; q<nSpatialOrbitals; q++){
-                for(int r=0; r<nSpatialOrbitals; r++){
+            for(int q=0; q<nOrbitals; q++){
+                for(int r=0; r<nOrbitals; r++){
                     inner = zeros<cx_vec>(nGrid);
-                    for(int s=0; s<nSpatialOrbitals; s++){
+                    for(int s=0; s<nOrbitals; s++){
                         auto rho_iqrs = rho2.find(mapTwoParticleStates(i,q,r,s));
 
 //                        cout << " q = " << q << " r = " << " s = " << s
@@ -132,7 +127,6 @@ void OrbitalEquation::computeUMatrix(const cx_mat &C)
 void OrbitalEquation::computeProjector(const cx_mat &C)
 {
     P = zeros<cx_mat>(nGrid, nGrid);
-
 #if 0
     // Slightly changing the projector to ensure orthonormality is conserved
     // Problems arise due to numerical inaccuracies.
@@ -150,10 +144,9 @@ void OrbitalEquation::computeProjector(const cx_mat &C)
             P += C.col(i)*C.col(l).t()*O(i,l);
         }
     }
-
 #else
     // The exact mathematical defintion of the projector.
-    for(int i=0; i<nSpatialOrbitals; i++){
+    for(int i=0; i<nOrbitals; i++){
         P += C.col(i)*C.col(i).t();
     }
 #endif
@@ -167,14 +160,14 @@ void OrbitalEquation::computeProjector(const cx_mat &C)
 void OrbitalEquation::computeOneParticleReducedDensity()
 {
     // All possible spatial orbitals
-    for(int i=0; i< nSpatialOrbitals; i++){
-        for(int j=i; j<nSpatialOrbitals; j++){
+    for(int i=0; i< nOrbitals; i++){
+        for(int j=i; j<nOrbitals; j++){
             rho(i,j)  = reducedOneParticleOperator(2*i,2*j);
             rho(i,j)  += reducedOneParticleOperator(2*i+1,2*j+1);
             rho(j,i) = conj(rho(i,j));
         }
     }
-//#if 1
+
 #ifdef DEBUG
     cout << "OrbitalEquation::computeOneParticleReducedDensity()" << endl;
     cout << "Trace(rho) = " << real(trace(rho)) << " nParticles = " << nParticles << endl;
@@ -184,14 +177,13 @@ void OrbitalEquation::computeOneParticleReducedDensity()
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeTwoParticleReducedDensity()
 {
-    rho2.clear();
     cx_double value;
 
     // All possible two spatial orbital combinantions
-    for(int p=0; p<nSpatialOrbitals; p++){
-        for(int q=0; q<nSpatialOrbitals; q++){
-            for(int r=0; r<nSpatialOrbitals; r++){
-                for(int s=0; s<nSpatialOrbitals; s++){
+    for(int p=0; p<nOrbitals; p++){
+        for(int q=0; q<nOrbitals; q++){
+            for(int r=0; r<nOrbitals; r++){
+                for(int s=0; s<nOrbitals; s++){
                     value = 0;
 
                     // Spin trace

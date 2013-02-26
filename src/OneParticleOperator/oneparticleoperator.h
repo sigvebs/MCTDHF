@@ -18,7 +18,7 @@ using namespace arma;
 class SingleParticleOperator
 {
 public:
-    SingleParticleOperator(Config* cfg, vector<vec> orbitals,
+    SingleParticleOperator(Config* cfg,
                            DifferentialOperator *kineticOperator);
     const cx_mat &getH();
     const cx_mat &getHspatial();
@@ -29,12 +29,9 @@ protected:
     void computePotential(const cx_mat &C);
     Config* cfg;
 
-    vector<vec> orbitals;
-
     // System details
     int nGrid;
     int nOrbitals;
-    int nSpatialOrbitals;
     double dx;
     cx_vec x;
 

@@ -42,7 +42,9 @@ void ComplexTimeRungeKutta4::stepForward()
     C += 1.0/6.0*(m1 + 2*(m2 + m3) + m4);
     t += dt;
 
+    // Normalizing
     C = renormalize(C);
+    A = A/sqrt(cdot(A,A));
 
     //--------------------------------------------------------------------------
     // Writing results to screen and file

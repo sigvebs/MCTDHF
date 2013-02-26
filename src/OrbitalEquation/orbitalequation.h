@@ -23,7 +23,6 @@ class OrbitalEquation
 {
 public:
     OrbitalEquation(Config* cfg,
-                    vector<vec> orbitals,
                     vector<bitset<BITS> > slaterDeterminants,
                     Interaction *V,
                     SingleParticleOperator *h);
@@ -43,12 +42,9 @@ protected:
     Interaction *V;
     SingleParticleOperator* h;
 
-    vector<vec> orbitals;
     vector<bitset<BITS> > slaterDeterminants;
-    unordered_map<int, cx_double> rho2;
 
     int nOrbitals;
-    int nSpatialOrbitals;
     int nGrid;
     int nSlaterDeterminants;
     int nParticles;
@@ -56,7 +52,7 @@ protected:
     double dx;
 
     cx_mat rho;
-//    const cx_mat* C;
+    unordered_map<int, cx_double> rho2;
     const cx_vec* A;
     const cx_mat* hC;
     cx_mat U;

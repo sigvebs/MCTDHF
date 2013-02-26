@@ -1,21 +1,17 @@
 #include "slaterequation.h"
 //------------------------------------------------------------------------------
 SlaterEquation::SlaterEquation(Config *cfg,
-                               vector<vec> orbitals,
                                vector<bitset<BITS> > slaterDeterminants,
                                Interaction* interaction, SingleParticleOperator* oneParticleOperator):
     cfg(cfg),
     interaction(interaction),
     oneParticleOperator(oneParticleOperator)
 {
-    this->orbitals = orbitals;
-    this->nOrbitals = orbitals.size();
     this->slaterDeterminants = slaterDeterminants;
     this->nSlaterDeterminants = slaterDeterminants.size();
-
     try {
         dim = cfg->lookup("system.dim");
-        nSpatialOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
+        nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "SlaterEquation::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
@@ -25,7 +21,6 @@ SlaterEquation::SlaterEquation(Config *cfg,
 //------------------------------------------------------------------------------
 cx_vec SlaterEquation::computeRightHandSide(const cx_vec &A)
 {
-
     computeHamiltonianMatrix();
     cx_vec HA = H*A;
 
@@ -51,8 +46,8 @@ void SlaterEquation::computeHamiltonianMatrix()
         for(int n=m; n<nSlaterDeterminants; n++){
             H(m,n) = 0;
             //------------------------------------------------------------------
-            for(int p=0; p<nSpatialOrbitals; p++){
-                for(int q=0; q<nSpatialOrbitals; q++){
+            for(int p=0; p<nOrbitals; p++){
+                for(int q=0; q<nOrbitals; q++){
                     //----------------------------------------------------------
                     // One body part
 
@@ -73,8 +68,8 @@ void SlaterEquation::computeHamiltonianMatrix()
 
                     //----------------------------------------------------------
                     // Two-body interaction
-                    for(int r=0; r<nSpatialOrbitals; r++){
-                        for(int s=0; s<nSpatialOrbitals; s++){
+                    for(int r=0; r<nOrbitals; r++){
+                        for(int s=0; s<nOrbitals; s++){
                             Vpqrs = interaction->at(p, q, r, s);
 
                             if(Vpqrs != cx_double(0,0)){

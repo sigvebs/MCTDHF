@@ -18,7 +18,7 @@ using namespace arma;
 class Interaction
 {
 public:
-    Interaction(Config* cfg, vector<vec> orbitals);
+    Interaction(Config* cfg);
     void computeNewElements(const cx_mat &C);
     const cx_double at(const int p, const int q, const int r, const int s);
     const cx_vec &meanField(const int p, const int q);
@@ -30,13 +30,11 @@ protected:
 
     Config* cfg;
 
-    vector<vec> orbitals;
     vec x;
     double dx;
 
     int nGrid;
     int nOrbitals;
-    int nSpatialOrbitals;
 
     double aa;
     cx_mat C;

@@ -22,7 +22,6 @@ class SlaterEquation
 {
 public:
     SlaterEquation(Config *cfg,
-                   vector<vec> orbitals,
                    vector<bitset<BITS> > slaterDeterminants,
                    Interaction *interaction,
                    SingleParticleOperator *oneParticleOperator);
@@ -43,12 +42,10 @@ protected:
     Config* cfg;
 
     vector<bitset<BITS> > slaterDeterminants;
-    vector<vec> orbitals;
 
     cx_mat H;
     const cx_mat* h;
     int nSlaterDeterminants;
-    int nSpatialOrbitals;
     int nOrbitals;
     int dim;
 

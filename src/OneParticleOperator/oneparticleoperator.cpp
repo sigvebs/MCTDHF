@@ -1,9 +1,7 @@
 #include "oneparticleoperator.h"
 //------------------------------------------------------------------------------
-SingleParticleOperator::SingleParticleOperator(Config *cfg, vector<vec> orbitals,
-                                               DifferentialOperator *kineticOperator):
+SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator *kineticOperator):
     cfg(cfg),
-    orbitals(orbitals),
     kineticOperator(kineticOperator)
 {
     double L;
@@ -12,21 +10,25 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, vector<vec> orbitals
         ww *= ww;
         dx = cfg->lookup("spatialDiscretization.gridSpacing");
         L = cfg->lookup("spatialDiscretization.latticeRange");
-        nSpatialOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
+        nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "OneParticleOperator::OneParticleOperator(Config *cfg, vector<vec> orbitals)"
              << "::Error reading from config object." << endl;
     }
-    nOrbitals = orbitals.size();
     x = linspace<cx_vec>(-L, L, nGrid);
-    h = zeros<cx_mat>(nSpatialOrbitals, nSpatialOrbitals);
-    Tspatial = zeros<cx_mat>(nGrid, nSpatialOrbitals);
-    Uspatial = zeros<cx_mat>(nGrid, nSpatialOrbitals);
+    h = zeros<cx_mat>(nOrbitals, nOrbitals);
+    Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
+    Uspatial = zeros<cx_mat>(nGrid, nOrbitals);
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeNewElements(const cx_mat &C)
 {
+    // Zeroing out - precaution
+    Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
+    Uspatial = zeros<cx_mat>(nGrid, nOrbitals);
+    h = zeros<cx_mat>(nOrbitals, nOrbitals);
+
     computeKinetic(C);
     computePotential(C);
     computeMatrixElements(C);
@@ -35,8 +37,8 @@ void SingleParticleOperator::computeNewElements(const cx_mat &C)
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeMatrixElements(const cx_mat &C)
 {
-    for(int i=0;i<nSpatialOrbitals; i++){
-        for(int j=0; j<nSpatialOrbitals; j++){
+    for(int i=0;i<nOrbitals; i++){
+        for(int j=0; j<nOrbitals; j++){
             h(i,j) = 0;
             h(i,j) += cdot(C.col(i), Tspatial.col(j))
                     + cdot(C.col(i), Uspatial.col(j));
@@ -50,7 +52,7 @@ void SingleParticleOperator::computeMatrixElements(const cx_mat &C)
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeKinetic(const cx_mat &C)
 {
-    for(int i=0;i<nSpatialOrbitals; i++){
+    for(int i=0;i<nOrbitals; i++){
         Tspatial.col(i) = kineticOperator->secondDerivative(C.col(i));
     }
     Tspatial *= -0.5;
@@ -63,7 +65,7 @@ void SingleParticleOperator::computeKinetic(const cx_mat &C)
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computePotential(const cx_mat &C)
 {
-    for(int i=0;i<nSpatialOrbitals; i++){
+    for(int i=0;i<nOrbitals; i++){
         for(int j=0; j<nGrid; j++){
             Uspatial(j,i) = x(j)*x(j)*C(j,i);
         }

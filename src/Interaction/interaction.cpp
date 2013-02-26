@@ -1,39 +1,39 @@
 #include "interaction.h"
 //------------------------------------------------------------------------------
-Interaction::Interaction(Config *cfg, vector<vec> orbitals):
-    cfg(cfg),
-    orbitals(orbitals)
+Interaction::Interaction(Config *cfg):
+    cfg(cfg)
 {
-
     double L;
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
         dx = cfg->lookup("spatialDiscretization.gridSpacing");
         aa = cfg->lookup("potential.a");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
-        nSpatialOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
+        nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
         aa *=aa;
     } catch (const SettingNotFoundException &nfex) {
         cerr << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
 
-    nOrbitals = orbitals.size();
-    V2 = field<cx_vec>(nSpatialOrbitals, nSpatialOrbitals);
+    V2 = field<cx_vec>(nOrbitals, nOrbitals);
     x = linspace(-L, L, nGrid);
 }
 //------------------------------------------------------------------------------
 void Interaction::computeNewElements(const cx_mat &C)
 {
     this->C = C;
+    interactionElements.clear();
+    V2 = field<cx_vec>(nOrbitals, nOrbitals);
+
     computeMeanField();
     computeInteractionelements();
 }
 //------------------------------------------------------------------------------
 void Interaction::computeMeanField()
 {
-    for (int q = 0; q < nSpatialOrbitals; q++) {
-        for (int r = q; r < nSpatialOrbitals; r++) {
+    for (int q = 0; q < nOrbitals; q++) {
+        for (int r = q; r < nOrbitals; r++) {
             V2(q,r) = integrate(q,r);
             V2(r,q) = conj(V2(q,r));
         }
@@ -43,13 +43,12 @@ void Interaction::computeMeanField()
 void Interaction::computeInteractionelements()
 {
     double tolerance = 1e-6;
-    interactionElements.clear();
 
     cx_double V;
-    for (int p = 0; p < nSpatialOrbitals; p++) {
-        for (int q = p; q < nSpatialOrbitals; q++) {
-            for (int r = 0; r < nSpatialOrbitals; r++) {
-                for (int s = r; s < nSpatialOrbitals; s++) {
+    for (int p = 0; p < nOrbitals; p++) {
+        for (int q = p; q < nOrbitals; q++) {
+            for (int r = 0; r < nOrbitals; r++) {
+                for (int s = r; s < nOrbitals; s++) {
                     // Symmetric
                     V = integrate(p,q,r,s);
 
@@ -69,9 +68,6 @@ void Interaction::computeInteractionelements()
             }
         }
     }
-
-//     TODO: REMOVE ME!!!!
-//    interactionElements.clear();
 
 #ifdef DEBUG
 //    cout << "Number of interaction elements = " << interactionElements.size() << endl;

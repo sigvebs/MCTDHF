@@ -33,15 +33,15 @@ void MctdhfApplication::run()
 
     // Interaction operator
     cout << "Setting up the interaction operator" << endl;
-    Interaction V(&cfg, orbitals);
+    Interaction V(&cfg);
 
     // Setting the single particle operator
     cout << "Setting up the single particle operator" << endl;
-    SingleParticleOperator h(&cfg, orbitals, setDifferentialOpertor());
+    SingleParticleOperator h(&cfg, setDifferentialOpertor());
 
     // Setting up the Slater equation
     cout << "Setting up the Slater determiant equation" << endl;
-    SlaterEquation slaterEquation(&cfg, orbitals, slaterDeterminants, &V, &h);
+    SlaterEquation slaterEquation(&cfg, slaterDeterminants, &V, &h);
 
     // Creating an initial coefficient vector for the Slater determinants.
     cx_vec A = randu<cx_vec>(slaterDeterminants.size());
@@ -49,7 +49,7 @@ void MctdhfApplication::run()
 
     // Setting up the orbital equation
     cout << "Setting up the Orbital equation" << endl;
-    OrbitalEquation orbEq(&cfg, orbitals, slaterDeterminants, &V, &h);
+    OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
 
     // Setting up the complex time integrator
     ComplexTimeIntegrator* complexTimeIntegrator = setComplexTimeIntegrator();
