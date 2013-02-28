@@ -19,9 +19,13 @@ enum coordinateTypes_t {
     CARTESIAN, POLAR
 };
 enum differentialOpertor {
-    DO_FINITE_DIFFERENCE_1d, DO_SPECTRAL_1D
+    DO_FINITE_DIFFERENCE_1d, DO_FINITE_DIFFERENCE_FIVE_POINT_1D,DO_SPECTRAL_1D
 };
 enum orbitalBasisType_t{
     OBT_HARMONIC_OSCILLATOR, OBT_HYDROGEN_LIKE
 };
+enum interactionPotential_t{
+    IP_HARMONIC_OSCILLATOR, IP_SHEILDED_COULOMB
+};
+
 #endif // DEFINES_H

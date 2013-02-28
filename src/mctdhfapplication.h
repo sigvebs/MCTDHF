@@ -14,8 +14,15 @@
 #include <src/Interaction/interaction.h>
 #include <src/OneParticleOperator/oneparticleoperator.h>
 
+// Interactions
+#include <src/InteractionPotential/interactionpotential.h>
+#include <src/InteractionPotential/implementation/harmonicoscillatorinteraction.h>
+#include <src/InteractionPotential/implementation/screenedcoulombinteraction.h>
+
+// Differential Operators
 #include <src/OneParticleOperator/DifferentialOperator/differentialoperator.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifference1d.h>
+#include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h>
 
 #include <src/SlaterEquation/slaterequation.h>
@@ -43,6 +50,7 @@ public:
     MctdhfApplication(int *argc, char ***argv, string configFilename = "../config.cfg");
     void run();
 protected:
+    void setInteractionPotentials(Interaction &V);
     ComplexTimeIntegrator* setComplexTimeIntegrator();
     DifferentialOperator* setDifferentialOpertor();
     Basis* setBasis();

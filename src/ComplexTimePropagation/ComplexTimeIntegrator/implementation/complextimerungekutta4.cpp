@@ -10,7 +10,6 @@ ComplexTimeRungeKutta4::ComplexTimeRungeKutta4(Config *cfg):
 //------------------------------------------------------------------------------
 void ComplexTimeRungeKutta4::stepForward()
 {
-    cout << "---------------------------------------------------------------\n";
 
     // Computing Runge-Kutta weights
     V->computeNewElements(C);
@@ -49,28 +48,17 @@ void ComplexTimeRungeKutta4::stepForward()
     //--------------------------------------------------------------------------
     // Writing results to screen and file
     //--------------------------------------------------------------------------
-    E = slater->getEnergy(A) ;
-    if(std::isnan(E)){
-        cerr << " E = Nan" << endl
-             << "N = " << step << endl;
-        exit(1);
-    }
+    E(step) = slater->getEnergy(A) ;
 
     // Saving C and A to disk
-    EVec(step) = E;
-    C.save("../DATA/C.mat", arma_ascii);
-    A.save("../DATA/A.vec", arma_ascii);
-    EVec.save("../DATA/EVec.mat", arma_ascii);
-
-    cout.precision(16);
-    cout << "step = " << step << endl
-         << "E = " << E << endl
-         << "|A|^2 = " << abs(cdot(A,A)) << endl
-         << "|C(0)|^2 = " << abs(cdot(C.col(0),C.col(0))) << endl;
-
-    for(uint i=1; i< C.n_cols; i++){
-        cout << "|C("<<i<<")|^2 = " << abs(cdot(C.col(i),C.col(i))) << endl
-             << "<C("<<i<<")| C(0)> = " << cdot(C.col(i),C.col(0)) << endl;
+    if(step % saveToFileInterval == 0 || step == N-1){
+        cout << "---------------------------------------------------------------\n";
+        C.save(filenameOrbitals, arma_ascii);
+        A.save(fileNameSlaterDet, arma_ascii);
+        E.save(fileNameEnergy, arma_ascii);
+        cout.precision(16);
+        cout << "step = " << step << endl
+             << "E = " << E(step) << endl;
     }
     step++;
 }

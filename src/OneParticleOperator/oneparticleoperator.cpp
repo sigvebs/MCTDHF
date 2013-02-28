@@ -25,14 +25,19 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator
 void SingleParticleOperator::computeNewElements(const cx_mat &C)
 {
     // Zeroing out - precaution
-    Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
-    Uspatial = zeros<cx_mat>(nGrid, nOrbitals);
-    h = zeros<cx_mat>(nOrbitals, nOrbitals);
+    //    Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
+    //    Uspatial = zeros<cx_mat>(nGrid, nOrbitals);
+    //    h = zeros<cx_mat>(nOrbitals, nOrbitals);
 
     computeKinetic(C);
     computePotential(C);
     computeMatrixElements(C);
     TU = Tspatial + Uspatial;
+
+    // Saving kinetic spatial distribution to file.
+    //    Tspatial.save("../DATA/Tspatial.mat", arma_ascii);
+    // Saving potential spatial distribution to file.
+    //    Uspatial.save("../DATA/Uspatial.mat", arma_ascii);
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeMatrixElements(const cx_mat &C)
@@ -58,9 +63,7 @@ void SingleParticleOperator::computeKinetic(const cx_mat &C)
     Tspatial *= -0.5;
 #ifdef DEBUG
     cout << "OneParticleOperator::computeKinetic()" << endl;
-    // Saving kinetic spatial distribution to file.
 #endif
-    Tspatial.save("../DATA/Tspatial.mat", arma_ascii);
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computePotential(const cx_mat &C)
@@ -73,9 +76,7 @@ void SingleParticleOperator::computePotential(const cx_mat &C)
     Uspatial *= 0.5*ww;
 #ifdef DEBUG
     cout << "OneParticleOperator::computePotential()" << endl;
-    // Saving potential spatial distribution to file.
 #endif
-    Uspatial.save("../DATA/Uspatial.mat", arma_ascii);
 }
 //------------------------------------------------------------------------------
 const cx_mat &SingleParticleOperator::getH()

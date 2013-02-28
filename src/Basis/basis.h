@@ -41,6 +41,8 @@ protected:
     Wavefunction *wf;
     vector<vec> states;
     cx_mat C;
+
+    string filnameAxis;
 };
 
 #endif // BASIS_H

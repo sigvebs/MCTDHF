@@ -3,18 +3,24 @@
 //------------------------------------------------------------------------------
 ComplexTimeIntegrator::ComplexTimeIntegrator(Config *cfg)
 {
+    string filePath;
     try {
         dt = cfg->lookup("ComplexTimeIntegration.dt");
+        cfg->lookupValue("systemSettings.filePath", filePath);
+        N = cfg->lookup("ComplexTimeIntegration.N");
+        saveToFileInterval = cfg->lookup("systemSettings.saveToFileInterval");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "ComplexTimeIntegrator::ComplexTimeIntegrator(Config *cfg)::"
              << "Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
-    E = 0;
     step = 0;
     t = 0;
-    int N = cfg->lookup("ComplexTimeIntegration.N");
-    EVec = zeros(N);
+    E = zeros(N);
+    filenameOrbitals = filePath + "C.mat";
+    fileNameSlaterDet = filePath + "A.mat";
+    fileNameEnergy = filePath + "E.mat";
+
 #if DEBUG
     cout << "ComplexTimeIntegrator::ComplexTimeIntegrator(Config *cfg)" << endl;
     cout << "dt = " << dt << endl;

@@ -4,7 +4,7 @@
 // Local includes
 #include <src/includes/defines.h>
 #include <src/includes/lib.h>
-#include <src/Interaction/implementation/screenedcoulomb.h>
+#include <src/InteractionPotential/interactionpotential.h>
 
 // Library includes
 #include <armadillo>
@@ -23,6 +23,8 @@ public:
     void computeNewElements(const cx_mat &C);
     const cx_double at(const int p, const int q, const int r, const int s);
     const cx_vec &meanField(const int p, const int q);
+    void addPotential(InteractionPotential* interactionPot);
+    void updatePositionBasisElements();
 protected:
     void computeMeanField();
     void computeInteractionelements();
@@ -30,14 +32,14 @@ protected:
     cx_double integrate(const int p, const int q, const int r, const int s);
 
     Config* cfg;
-    mat coulombElements;
+    mat interactionPositionSpace;
+    vector<InteractionPotential*> potential;
     vec x;
     double dx;
 
     int nGrid;
     int nOrbitals;
 
-    double aa;
     cx_mat C;
 
     // Local storage of data

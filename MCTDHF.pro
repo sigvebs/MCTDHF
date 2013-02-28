@@ -25,7 +25,13 @@ SOURCES += main.cpp \
     src/OneParticleOperator/DifferentialOperator/implementation/finitedifference1d.cpp \
     src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.cpp \
     src/WaveFunction/Implementations/hydrogenlike.cpp \
-    src/Basis/implementation/basishydrogenlike.cpp
+    src/Basis/implementation/basishydrogenlike.cpp \
+    src/Interaction/implementation/screenedcoulomb.cpp \
+    src/Potential/potential.cpp \
+    src/InteractionPotential/interactionpotential.cpp \
+    src/InteractionPotential/implementation/harmonicoscillatorinteraction.cpp \
+    src/InteractionPotential/implementation/screenedcoulombinteraction.cpp \
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -50,7 +56,13 @@ HEADERS += \
     src/OneParticleOperator/DifferentialOperator/implementation/finitedifference1d.h \
     src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h \
     src/WaveFunction/Implementations/hydrogenlike.h \
-    src/Basis/implementation/basishydrogenlike.h
+    src/Basis/implementation/basishydrogenlike.h \
+    src/Interaction/implementation/screenedcoulomb.h \
+    src/Potential/potential.h \
+    src/InteractionPotential/interactionpotential.h \
+    src/InteractionPotential/implementation/harmonicoscillatorinteraction.h \
+    src/InteractionPotential/implementation/screenedcoulombinteraction.h \
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.h
 
 LIBS += -lconfig++ -larmadillo -llapack -lblas -lfftw3 -lm
 

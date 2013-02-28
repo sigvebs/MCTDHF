@@ -15,6 +15,7 @@ mat HarmonicOscillator1d::evaluate(const mat &x)
     for(uint i=0;i<x.n_rows; i++){
         psi(i,0) = exp(-0.5*w*(x(i)) * x(i)) * hermitePolynomial(n, sqrtW * x(i));
     }
-    return coefficient*psi;
+    return psi;
+//    return coefficient*psi;
 }
 //------------------------------------------------------------------------------

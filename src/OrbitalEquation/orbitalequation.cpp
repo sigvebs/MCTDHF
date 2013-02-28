@@ -28,9 +28,6 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
     U = zeros<cx_mat>(nGrid, nOrbitals);
     P = cx_mat(nGrid, nGrid);
     I = eye<cx_mat>(nGrid, nGrid);
-
-    // Remove
-    counter = 0;
 }
 //------------------------------------------------------------------------------
 cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
@@ -40,7 +37,6 @@ cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
 
     // Clearing values
     rho2.clear();
-//    rho = zeros<cx_mat>(nOrbitals,nOrbitals);
 
     computeProjector(C);
     computeOneParticleReducedDensity();
@@ -50,20 +46,6 @@ cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
     // Computing the right hand side of the equation
     rightHandSide = (I-P)*U;
 
-    // Hardcoded the case for 2 electrons, 1 slater determinant, one spatial orbital.
-//    rightHandSide = (I - C.col(0)*C.col(0).t())*(hC->col(0) + diagmat(V->meanField(0,0))*C.col(0));
-
-
-    // Saving U anv V to file
-//    stringstream ss;
-//    ss << "../DATA/U" << counter << ".mat";
-//    U.save(ss.str(), arma_ascii);
-//    U.save("../DATA/U.mat", arma_ascii);
-//    ss.str("");
-//    ss << "../DATA/V0" << counter << ".mat";
-//    V->meanField(0,0).save(ss.str(), arma_ascii);
-//    V->meanField(0,0).save("../DATA/V0.mat", arma_ascii);
-//    counter++;
     return rightHandSide;
 }
 //------------------------------------------------------------------------------
@@ -75,7 +57,6 @@ void OrbitalEquation::computeUMatrix(const cx_mat &C)
 #if 1
     for(int j=0; j<nOrbitals; j++){
         U.col(j) = hC->col(j);
-//        U.col(j) = zeros<cx_vec>(nGrid);
 
         for(int i=0; i<nOrbitals; i++){
             Ui = zeros<cx_vec>(nGrid);
@@ -84,8 +65,6 @@ void OrbitalEquation::computeUMatrix(const cx_mat &C)
                     inner = zeros<cx_vec>(nGrid);
                     for(int s=0; s<nOrbitals; s++){
                         auto rho_iqrs = rho2.find(mapTwoParticleStates(i,q,r,s));
-//                        cout << "j = " << j << " i = " << i << " q = " <<  q << " r = " << r << " " << " s = " << s
-//                             << " inv(rho) = " << invRho(j,i) << " rho2 = " << rho_iqrs->second << endl;
                         inner += rho_iqrs->second* C.col(s);
                     }
                     Ui += diagmat(V->meanField(q,r))*inner;
@@ -119,8 +98,10 @@ void OrbitalEquation::computeUMatrix(const cx_mat &C)
 #endif
 #ifdef DEBUG
     cout << "OrbitalEquation::computeUMatrix()" << endl;
-//    cout << "U = " << endl << U << endl;
-//    exit(0);
+    // cout << "U = " << endl << U << endl;
+    // exit(0);
+    // Hardcoded the case for 2 electrons, 1 slater determinant, one spatial orbital.
+    // rightHandSide = (I - C.col(0)*C.col(0).t())*(hC->col(0) + diagmat(V->meanField(0,0))*C.col(0));
 #endif
 }
 //------------------------------------------------------------------------------
@@ -168,6 +149,13 @@ void OrbitalEquation::computeOneParticleReducedDensity()
         }
     }
 
+//    // Calulating the degree of correlation
+//    double k = 0;
+//    for(int i=0; i< nOrbitals; i++){
+//        k = pow(real(conj(rho(i,i))*rho(i,i)),2);
+//    }
+//    k = 1.0/k;
+//    cout << "k = " << k << endl;
 #ifdef DEBUG
     cout << "OrbitalEquation::computeOneParticleReducedDensity()" << endl;
     cout << "Trace(rho) = " << real(trace(rho)) << " nParticles = " << nParticles << endl;
@@ -211,8 +199,8 @@ void OrbitalEquation::computeTwoParticleReducedDensity()
 //    cout << "OrbitalEquation::computeTwoParticleReducedDensity()" << endl;
     // Taking the trace
     cx_double tra = 0;
-    for(int i=0; i<nSpatialOrbitals; i++){
-        for(int j=0; j<nSpatialOrbitals; j++){
+    for(int i=0; i<nOrbitals; i++){
+        for(int j=0; j<nOrbitals; j++){
             auto found = rho2.find( mapTwoParticleStates(i,j,j,i) );
             if(found != rho2.end()){
                 tra += found->second;

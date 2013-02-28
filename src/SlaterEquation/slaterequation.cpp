@@ -164,8 +164,8 @@ cx_double SlaterEquation::secondQuantizationTwoBodyOperator(const int p, const i
 double SlaterEquation::getEnergy(const cx_vec& A)
 {
     computeHamiltonianMatrix();
-    vec eigval = eig_sym(H);
-    cout << "min(eigval) = " << min(eigval) << endl;
+//    vec eigval = eig_sym(H);
+//    cout << "min(eigval) = " << min(eigval) << endl;
 
     return real(cdot(A, H*A)/cdot(A,A));
 }

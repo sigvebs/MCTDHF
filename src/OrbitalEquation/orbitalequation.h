@@ -60,9 +60,6 @@ protected:
     cx_mat I ;
 
     cx_mat rightHandSide;
-
-    // REMOVE
-    int counter;
 };
 
 #endif // ORBITALEQUATION_H

@@ -7,10 +7,8 @@ Interaction::Interaction(Config *cfg):
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
         dx = cfg->lookup("spatialDiscretization.gridSpacing");
-        aa = cfg->lookup("potential.a");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
         nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
-        aa *=aa;
     } catch (const SettingNotFoundException &nfex) {
         cerr << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)"
              << "::Error reading from config object." << endl;
@@ -18,8 +16,16 @@ Interaction::Interaction(Config *cfg):
 
     V2 = field<cx_vec>(nOrbitals, nOrbitals);
     x = linspace(-L, L, nGrid);
-    ScreenedCoulomb coulomb(cfg);
-    coulombElements = coulomb.computeInteractionSpace();
+}
+
+//------------------------------------------------------------------------------
+void Interaction::updatePositionBasisElements(){
+
+    interactionPositionSpace = zeros(nGrid, nGrid);
+
+    for(uint i=0; i<potential.size(); i++){
+        interactionPositionSpace += potential[i]->computeInteractionSpace();
+    }
 }
 //------------------------------------------------------------------------------
 void Interaction::computeNewElements(const cx_mat &C)
@@ -100,13 +106,13 @@ cx_vec Interaction::integrate(const int q, const int r)
         // Integrations using the trapezodial rule.
         integral = 0;
         for(int j=1; j<nGrid-1; j++){
-            integral += conj(C(j,q))*coulombElements(j,i)*C(j,r);
+            integral += conj(C(j,q))*interactionPositionSpace(j,i)*C(j,r);
         }
         integral *=2;
 
         // Enpoints
-        integral += conj(C(0,q))*coulombElements(0,i)*C(0,r)
-                + conj(C(nGrid-1,q))*coulombElements(nGrid-1,i)*C(nGrid-1,r);
+        integral += conj(C(0,q))*interactionPositionSpace(0,i)*C(0,r)
+                + conj(C(nGrid-1,q))*interactionPositionSpace(nGrid-1,i)*C(nGrid-1,r);
 
         V(i) = 0.5*integral;
     }
@@ -158,5 +164,10 @@ const cx_double Interaction::at(const int p, const int q, const int r, const int
 const cx_vec &Interaction::meanField(const int p, const int q)
 {
     return V2(p,q);
+}
+//------------------------------------------------------------------------------
+void Interaction::addPotential(InteractionPotential *interactionPot)
+{
+    potential.push_back(interactionPot);
 }
 //------------------------------------------------------------------------------

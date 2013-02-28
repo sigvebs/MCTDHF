@@ -64,7 +64,7 @@ void BasisHydrogenLike::discretization1d()
     }
 
     C.set_real(Ctmp);
-    x.save("../DATA/x.mat", arma_ascii);
+    x.save(filnameAxis, arma_ascii);
 
 //#ifdef DEBUG
 #if 1

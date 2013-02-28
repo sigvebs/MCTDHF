@@ -25,7 +25,6 @@ BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg):
     x = mat(nGrid, dim);
     for(int i=0; i<dim; i++)
         x.col(i) = linspace<vec>(-latticeRange,latticeRange,nGrid);
-
 #ifdef DEBUG
     cout << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)" << endl
          << "nBasis \t\t= " << nBasis << endl
@@ -53,7 +52,7 @@ void BasisHarmonicOscillator::createInitalDiscretization()
 //------------------------------------------------------------------------------
 void BasisHarmonicOscillator::discretization1d()
 {
-    cout << "discreet" << endl;
+    cout << "BasisHarmonicOscillator" << endl;
     C = zeros<cx_mat>(nGrid, nSpatialOrbitals);
     mat Ctmp(nGrid, nSpatialOrbitals);
     Wavefunction* wf;
@@ -67,7 +66,8 @@ void BasisHarmonicOscillator::discretization1d()
     }
 
     C.set_real(Ctmp);
-    x.save("../DATA/x.mat", arma_ascii);
+    x.save(filnameAxis, arma_ascii);
+    cout << "2" << endl;
 #ifdef DEBUG
     cout << "BasisHarmonicOscillator::discretization1d()" << endl;
     for(int i=0; i<nSpatialOrbitals; i++){

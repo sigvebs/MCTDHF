@@ -3,13 +3,18 @@
 Basis::Basis(Config *cfg):
     cfg(cfg)
 {
+    string filePath;
     try{
         dim = cfg->lookup("system.dim");
         coordinateType = cfg->lookup("system.coordinateType");
+        cfg->lookupValue("systemSettings.filePath", filePath);
     } catch (const SettingNotFoundException &nfex) {
         cerr << "Basis(Config *cfg)::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
+
+    filnameAxis = filePath + "x.mat";
+
 #ifdef DEBUG
     cout << "Basis::Basis(Config *cfg)" << endl
          << "coordinateType \t= " << coordinateType << endl
@@ -89,7 +94,7 @@ void Basis::createCartesianBasis()
     cout << states.size() << " orbitals created" << endl;
 
 #ifdef DEBUG
-    cout << "void Basis::createBasis()" << endl;
+    cout << "void Basis::createCartesianBasis()" << endl;
     for (int i = 0; i < (int)states.size(); i++) {
         for (int j = 0; j < (int)states[0].n_elem; j++) {
             cout << states[i][j] << " ";

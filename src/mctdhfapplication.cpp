@@ -34,6 +34,7 @@ void MctdhfApplication::run()
     // Interaction operator
     cout << "Setting up the interaction operator" << endl;
     Interaction V(&cfg);
+    setInteractionPotentials(V);
 
     // Setting the single particle operator
     cout << "Setting up the single particle operator" << endl;
@@ -66,6 +67,28 @@ void MctdhfApplication::run()
     cout << "Done" << endl;
 }
 //------------------------------------------------------------------------------
+void MctdhfApplication::setInteractionPotentials(Interaction &V)
+{
+    InteractionPotential* I;
+    int interactionType = cfg.lookup("interactionPotential.interactionType");
+
+    switch (interactionType) {
+    case IP_HARMONIC_OSCILLATOR:
+        I = new HarmonicOscillatorInteraction(&cfg);
+        V.addPotential(I);
+        break;
+    case IP_SHEILDED_COULOMB:
+        I = new ScreenedCoulombInteraction(&cfg);
+        V.addPotential(I);
+        break;
+    default:
+        cerr << "Interaction not implemented:: " << interactionType << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    V.updatePositionBasisElements();
+}
+//------------------------------------------------------------------------------
 ComplexTimeIntegrator* MctdhfApplication::setComplexTimeIntegrator()
 {
     // Setting the integrator
@@ -96,6 +119,9 @@ DifferentialOperator* MctdhfApplication::setDifferentialOpertor()
     switch (differentialOperator) {
     case DO_FINITE_DIFFERENCE_1d:
         I = new FiniteDifference1d(&cfg);
+        break;
+    case DO_FINITE_DIFFERENCE_FIVE_POINT_1D:
+        I = new FiniteDifferenceFivePoint1d(&cfg);
         break;
     case DO_SPECTRAL_1D:
         I = new Spectral1d(&cfg);

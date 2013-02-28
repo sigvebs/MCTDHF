@@ -41,10 +41,16 @@ protected:
     Interaction *V;
     SingleParticleOperator *h;
 
-    double E;
-    vec EVec;
+    vec E;
     int step;
     cx_double i;
+    int N;
+
+    // Filenames
+    int saveToFileInterval;
+    string filenameOrbitals;
+    string fileNameSlaterDet;
+    string fileNameEnergy;
 };
 
 #endif // COMPLEXTIMEINTEGRATOR_H
