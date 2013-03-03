@@ -5,7 +5,7 @@
 #include <src/OneParticleOperator/DifferentialOperator/differentialoperator.h>
 
 // Library includes
-#include <fftw3.h>
+//#include <fftw3.h>
 
 class Spectral1d: public DifferentialOperator
 {

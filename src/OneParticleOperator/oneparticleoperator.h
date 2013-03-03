@@ -23,6 +23,7 @@ public:
     const cx_mat &getH();
     const cx_mat &getHspatial();
     void computeNewElements(const cx_mat &C);
+    ~SingleParticleOperator();
 protected:
     void computeMatrixElements(const cx_mat &C);
     void computeKinetic(const cx_mat &C);

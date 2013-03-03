@@ -21,34 +21,34 @@ cx_vec Spectral1d::secondDerivative(const cx_vec &phi)
 //     fftw_free(in); fftw_free(out);
 
 
-    int N = nGrid;
+//    int N = nGrid;
 
-    fftw_complex fx;
-    memcpy( &fx, phi.memptr(), sizeof( fftw_complex ) );
-    cout << "hei " << sizeof( fftw_complex ) << endl;
-    exit(1);
-    fftw_complex *out;
-    out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
+//    fftw_complex fx;
+//    memcpy( &fx, phi.memptr(), sizeof( fftw_complex ) );
+//    cout << "hei " << sizeof( fftw_complex ) << endl;
+//    exit(1);
+//    fftw_complex *out;
+//    out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
 
-    fftw_plan p;
+//    fftw_plan p;
 
-//    p = fftw_plan_dft_1d(N, &fx, out,FFTW_FORWARD, FFTW_ESTIMATE);
-//    p = fftw_plan_dft_r2c_1d(N,fx, out,FFTW_ESTIMATE);
+////    p = fftw_plan_dft_1d(N, &fx, out,FFTW_FORWARD, FFTW_ESTIMATE);
+////    p = fftw_plan_dft_r2c_1d(N,fx, out,FFTW_ESTIMATE);
 
-//    fftw_execute(p);
+////    fftw_execute(p);
 
-    cout << phi << endl;
-    for(int i=0;i<(N/2)+1;i++)
-    {
-//        cout << i <<"\t"<< out[i][0] << "\t" << out[i][1] <<std::endl;
-        diff(i) = cx_double(out[i][0], out[i][1]);
-    }
+//    cout << phi << endl;
+//    for(int i=0;i<(N/2)+1;i++)
+//    {
+////        cout << i <<"\t"<< out[i][0] << "\t" << out[i][1] <<std::endl;
+//        diff(i) = cx_double(out[i][0], out[i][1]);
+//    }
 
-    cout << diff << endl;
+//    cout << diff << endl;
 
-    cerr << "Spectral1d:: NOT YET IMPLMENTED" << endl;
-    diff.save("../DATA/fourier.mat", arma_ascii);
-    exit(0);
+//    cerr << "Spectral1d:: NOT YET IMPLMENTED" << endl;
+//    diff.save("../DATA/fourier.mat", arma_ascii);
+//    exit(0);
     return diff;
 }
 //------------------------------------------------------------------------------

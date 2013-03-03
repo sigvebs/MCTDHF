@@ -63,11 +63,12 @@ void BasisHarmonicOscillator::discretization1d()
 
         // Re-normalizing to remove numerical errors
         Ctmp.col(i) /= sqrt(dot(Ctmp.col(i),Ctmp.col(i)));
+        delete wf;
     }
 
     C.set_real(Ctmp);
     x.save(filnameAxis, arma_ascii);
-    cout << "2" << endl;
+
 #ifdef DEBUG
     cout << "BasisHarmonicOscillator::discretization1d()" << endl;
     for(int i=0; i<nSpatialOrbitals; i++){

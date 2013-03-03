@@ -10,9 +10,7 @@ int main(int argc, char** argv)
 {
     clock_t start = clock();
 
-    // Main application
     MctdhfApplication *app;
-
     if (argc == 2)
         app = new MctdhfApplication(&argc, &argv, argv[1]);
     else
@@ -27,4 +25,3 @@ int main(int argc, char** argv)
     delete app;
     return 0;
 }
-

@@ -35,9 +35,9 @@ void SingleParticleOperator::computeNewElements(const cx_mat &C)
     TU = Tspatial + Uspatial;
 
     // Saving kinetic spatial distribution to file.
-    //    Tspatial.save("../DATA/Tspatial.mat", arma_ascii);
+    //    Tspatial.save("/tmp/MCTDHF/DATA/Tspatial.mat", arma_ascii);
     // Saving potential spatial distribution to file.
-    //    Uspatial.save("../DATA/Uspatial.mat", arma_ascii);
+    //    Uspatial.save("/tmp/MCTDHF/DATA/Uspatial.mat", arma_ascii);
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeMatrixElements(const cx_mat &C)
@@ -87,5 +87,10 @@ const cx_mat &SingleParticleOperator::getH()
 const cx_mat &SingleParticleOperator::getHspatial()
 {
     return TU;
+}
+//------------------------------------------------------------------------------
+SingleParticleOperator::~SingleParticleOperator()
+{
+    delete kineticOperator;
 }
 //------------------------------------------------------------------------------

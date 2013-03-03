@@ -3,6 +3,8 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
+#INCLUDEPATH += /home/sigve/usr/local/include
+
 SOURCES += main.cpp \
     src/mctdhfapplication.cpp \
     src/Basis/basis.cpp \
@@ -31,7 +33,10 @@ SOURCES += main.cpp \
     src/InteractionPotential/interactionpotential.cpp \
     src/InteractionPotential/implementation/harmonicoscillatorinteraction.cpp \
     src/InteractionPotential/implementation/screenedcoulombinteraction.cpp \
-    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.cpp
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.cpp \
+    src/Interaction/MeanFieldIntegrator/meanfieldintegrator.cpp \
+    src/Interaction/MeanFieldIntegrator/implementation/mftrapezoidal.cpp \
+    src/Interaction/MeanFieldIntegrator/implementation/mflowrankapproximation.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -62,17 +67,15 @@ HEADERS += \
     src/InteractionPotential/interactionpotential.h \
     src/InteractionPotential/implementation/harmonicoscillatorinteraction.h \
     src/InteractionPotential/implementation/screenedcoulombinteraction.h \
-    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.h
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.h \
+    src/Interaction/MeanFieldIntegrator/meanfieldintegrator.h \
+    src/Interaction/MeanFieldIntegrator/implementation/mftrapezoidal.h \
+    src/Interaction/MeanFieldIntegrator/implementation/mflowrankapproximation.h
+
+OTHER_FILES += \
+    ../config.cfg
 
 LIBS += -lconfig++ -larmadillo -llapack -lblas -lfftw3 -lm
-
-# Remoing other O flags
-QMAKE_CXXFLAGS_RELEASE -= -O
-QMAKE_CXXFLAGS_RELEASE -= -O1
-QMAKE_CXXFLAGS_RELEASE -= -O2
-
-# add the desired -O3 if not present
-QMAKE_CXXFLAGS_RELEASE *= -O3
 
 QMAKE_CXXFLAGS_DEBUG += -std=c++0x
 QMAKE_CXXFLAGS_RELEASE += -std=c++0x
@@ -82,8 +85,18 @@ CONFIG(debug, debug|release) {
 }
 
 release {
+    # Remoing other O flags
+    QMAKE_CXXFLAGS_RELEASE -= -O
+    QMAKE_CXXFLAGS_RELEASE -= -O1
+    QMAKE_CXXFLAGS_RELEASE -= -O2
+
+    # add the desired -O3 if not present
+    QMAKE_CXXFLAGS_RELEASE *= -O3
     DEFINES += ARMA_NO_DEBUG
 }
 
-OTHER_FILES += \
-    ../config.cfg
+# For creating a version.txt file in the build directory
+version.target = version
+version.commands = python $$PWD/version.py $$PWD $$OUT_PWD
+QMAKE_EXTRA_TARGETS += version
+PRE_TARGETDEPS += version
