@@ -33,7 +33,7 @@ void MctdhfApplication::run()
 
     // Interaction operator
     cout << "Setting up the interaction operator" << endl;
-    Interaction V(&cfg);
+    Interaction V(&cfg, setMeanFieldIntegrator());
     setInteractionPotentials(V);
 
     // Setting the single particle operator
@@ -63,6 +63,7 @@ void MctdhfApplication::run()
 
     // Cleaning memory
     delete orb;
+    delete complexTimeIntegrator;
 
     cout << "Done" << endl;
 }
@@ -128,6 +129,25 @@ DifferentialOperator* MctdhfApplication::setDifferentialOpertor()
         break;
     default:
         cerr << "Differential Operator not implemented:: " << differentialOperator << endl;
+        exit(EXIT_FAILURE);
+    }
+    return I;
+}
+//------------------------------------------------------------------------------
+MeanFieldIntegrator *MctdhfApplication::setMeanFieldIntegrator()
+{
+    MeanFieldIntegrator* I;
+    int meanFieldIntegrator = cfg.lookup("meanFieldIntegrator.integratorType");
+
+    switch (meanFieldIntegrator) {
+    case MF_TRAPEZODIAL:
+        I = new MfTrapezoidal(&cfg);
+        break;
+    case MF_LOW_RANK_APPROXIMATION:
+        I = new MfLowRankApproximation(&cfg);
+        break;
+    default:
+        cerr << "Mean Field integrator not implemented:: " << meanFieldIntegrator << endl;
         exit(EXIT_FAILURE);
     }
     return I;

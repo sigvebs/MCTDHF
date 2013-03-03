@@ -27,5 +27,8 @@ enum orbitalBasisType_t{
 enum interactionPotential_t{
     IP_HARMONIC_OSCILLATOR, IP_SHEILDED_COULOMB
 };
+enum meanFieldIntegrator_t{
+    MF_TRAPEZODIAL, MF_LOW_RANK_APPROXIMATION
+};
 
 #endif // DEFINES_H

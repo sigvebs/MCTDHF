@@ -4,7 +4,7 @@
 // Local includes
 #include <src/includes/defines.h>
 #include <src/includes/lib.h>
-#include <src/InteractionPotential/interactionpotential.h>
+#include <src/Interaction/MeanFieldIntegrator/meanfieldintegrator.h>
 
 // Library includes
 #include <armadillo>
@@ -19,32 +19,31 @@ using namespace arma;
 class Interaction
 {
 public:
-    Interaction(Config* cfg);
+    Interaction(Config* cfg, MeanFieldIntegrator* mfIntegrator);
     void computeNewElements(const cx_mat &C);
     const cx_double at(const int p, const int q, const int r, const int s);
     const cx_vec &meanField(const int p, const int q);
     void addPotential(InteractionPotential* interactionPot);
     void updatePositionBasisElements();
+    ~Interaction();
 protected:
-    void computeMeanField();
-    void computeInteractionelements();
-    cx_vec integrate(const int q, const int r);
-    cx_double integrate(const int p, const int q, const int r, const int s);
+    void computeInteractionelements(const cx_mat &C);
 
     Config* cfg;
-    mat interactionPositionSpace;
-    vector<InteractionPotential*> potential;
-    vec x;
-    double dx;
+    MeanFieldIntegrator* mfIntegrator;
 
-    int nGrid;
     int nOrbitals;
-
-    cx_mat C;
 
     // Local storage of data
     unordered_map<int, cx_double> interactionElements;
-    field<cx_vec> V2;
 };
 
+//------------------------------------------------------------------------------
+// Inline functions:
+//------------------------------------------------------------------------------
+inline const cx_vec &Interaction::meanField(const int p, const int q)
+{
+    return mfIntegrator->getMeanField(p,q);
+}
+//------------------------------------------------------------------------------
 #endif // INTERACTION_H

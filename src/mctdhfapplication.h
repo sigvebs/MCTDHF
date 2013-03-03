@@ -19,6 +19,11 @@
 #include <src/InteractionPotential/implementation/harmonicoscillatorinteraction.h>
 #include <src/InteractionPotential/implementation/screenedcoulombinteraction.h>
 
+// Mean Field integration
+#include <src/Interaction/MeanFieldIntegrator/meanfieldintegrator.h>
+#include <src/Interaction/MeanFieldIntegrator/implementation/mftrapezoidal.h>
+#include <src/Interaction/MeanFieldIntegrator/implementation/mflowrankapproximation.h>
+
 // Differential Operators
 #include <src/OneParticleOperator/DifferentialOperator/differentialoperator.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifference1d.h>
@@ -53,6 +58,7 @@ protected:
     void setInteractionPotentials(Interaction &V);
     ComplexTimeIntegrator* setComplexTimeIntegrator();
     DifferentialOperator* setDifferentialOpertor();
+    MeanFieldIntegrator* setMeanFieldIntegrator();
     Basis* setBasis();
     Config cfg;
 };
