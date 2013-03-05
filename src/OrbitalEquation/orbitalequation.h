@@ -26,7 +26,8 @@ public:
                     vector<bitset<BITS> > slaterDeterminants,
                     Interaction *V,
                     SingleParticleOperator *h);
-    cx_mat computeRightHandSide(const cx_mat &C, const cx_vec &A);
+//    cx_mat computeRightHandSide(const cx_mat &C, const cx_vec &A);
+    const cx_mat &computeRightHandSide(const cx_mat &C, const cx_vec &A);
 protected:
     void computeProjector(const cx_mat &C);
     void computeUMatrix(const cx_mat &C);
@@ -51,7 +52,7 @@ protected:
     int dim;
     double dx;
 
-    cx_mat rho;
+    cx_mat invRho;
     unordered_map<int, cx_double> rho2;
     const cx_vec* A;
     const cx_mat* hC;

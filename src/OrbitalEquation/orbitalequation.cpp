@@ -23,13 +23,13 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
     }
 
     nSlaterDeterminants = slaterDeterminants.size();
-    rho = cx_mat(nOrbitals, nOrbitals);
+    invRho = cx_mat(nOrbitals, nOrbitals);
 
     U = zeros<cx_mat>(nGrid, nOrbitals);
     Q = cx_mat(nGrid, nGrid);
 }
 //------------------------------------------------------------------------------
-cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
+const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
 {
     this->A = &A;
     hC = &(h->getHspatial());
@@ -44,29 +44,34 @@ cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
 
     // Computing the right hand side of the equation
     rightHandSide = Q*U;
-
     return rightHandSide;
 }
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeUMatrix(const cx_mat &C)
 {
-    cx_mat invRho = inv(rho);
-    cx_vec Ui;
-    cx_vec inner;
+    cx_vec Ui(nGrid);
+    cx_vec inner(nGrid);
 #if 1
     for(int j=0; j<nOrbitals; j++){
         U.col(j) = hC->col(j);
 
         for(int i=0; i<nOrbitals; i++){
-            Ui = zeros<cx_vec>(nGrid);
+//            Ui = zeros<cx_vec>(nGrid);
+            for(int d=0; d<nGrid; d++)
+                Ui(d) = 0;
+
             for(int q=0; q<nOrbitals; q++){
                 for(int r=0; r<nOrbitals; r++){
-                    inner = zeros<cx_vec>(nGrid);
+//                    inner = zeros<cx_vec>(nGrid);
+                    for(int d=0; d<nGrid; d++)
+                        inner(d) = 0;
+
                     for(int s=0; s<nOrbitals; s++){
                         auto rho_iqrs = rho2.find(mapTwoParticleStates(i,q,r,s));
                         inner += rho_iqrs->second* C.col(s);
                     }
-                    Ui += diagmat(V->meanField(q,r))*inner;
+                    Ui += V->meanField(q,r)%inner;
+//                    Ui += diagmat(V->meanField(q,r))*inner;
                 }
             }
             U.col(j) += invRho(j,i)*Ui;
@@ -106,8 +111,8 @@ void OrbitalEquation::computeUMatrix(const cx_mat &C)
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeProjector(const cx_mat &C)
 {
-    Q = zeros<cx_mat>(nGrid, nGrid);
 #if 0
+    // NEED TO BE UPDATED - not working
     // Slightly changing the projector to ensure orthonormality is conserved
     // Problems arise due to numerical inaccuracies.
     cx_mat O = zeros<cx_mat>(nSpatialOrbitals,nSpatialOrbitals);
@@ -125,10 +130,26 @@ void OrbitalEquation::computeProjector(const cx_mat &C)
         }
     }
     P = -P; // TMP solution
-#else
+
+    // OLD VERSION
+    //    Q = zeros<cx_mat>(nGrid, nGrid);
     // The exact mathematical defintion of the projector.
-    for(int i=0; i<nOrbitals; i++){
-        Q -= C.col(i)*C.col(i).t();
+    //    cx_mat Qn = zeros<cx_mat>(nGrid, nGrid);
+    //    for(int i=0; i<nOrbitals; i++){
+    //
+    //    cout << max(max(Qn - Q));
+    //    exit(1); Q -= C.col(i)*C.col(i).t();
+    //    }
+#else
+    cx_double Qtmp;
+    for(int m=0; m<nGrid; m++){
+        for(int n=0; n<nGrid; n++){
+            Qtmp = 0;
+            for(int i=0; i<nOrbitals; i++){
+                Qtmp -= C(m,i)*conj(C(n,i));
+            }
+            Q(m,n) = Qtmp;
+        }
     }
 #endif
 
@@ -145,27 +166,23 @@ void OrbitalEquation::computeProjector(const cx_mat &C)
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeOneParticleReducedDensity()
 {
+    // First rho is calculated
+
     // All possible spatial orbitals
     for(int i=0; i< nOrbitals; i++){
         for(int j=i; j<nOrbitals; j++){
-            rho(i,j)  = reducedOneParticleOperator(2*i,2*j);
-            rho(i,j)  += reducedOneParticleOperator(2*i+1,2*j+1);
-            rho(j,i) = conj(rho(i,j));
+            invRho(i,j)  = reducedOneParticleOperator(2*i,2*j);
+            invRho(i,j)  += reducedOneParticleOperator(2*i+1,2*j+1);
+            invRho(j,i) = conj(invRho(i,j));
         }
     }
 
-//    // Calulating the degree of correlation
-//    double k = 0;
-//    for(int i=0; i< nOrbitals; i++){
-//        k = pow(real(conj(rho(i,i))*rho(i,i)),2);
-//    }
-//    k = 1.0/k;
-//    cout << "k = " << k << endl;
 #ifdef DEBUG
     cout << "OrbitalEquation::computeOneParticleReducedDensity()" << endl;
     cout << "Trace(rho) = " << real(trace(rho)) << " nParticles = " << nParticles << endl;
 //    exit(0);
 #endif
+    invRho = inv(invRho);
 }
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeTwoParticleReducedDensity()
