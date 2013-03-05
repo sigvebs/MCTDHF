@@ -35,7 +35,7 @@ void MfLowRankApproximation::initialize()
 
     // Using a simple discretization equal to the discretization of
     // the system.
-    vec h = eye(nGrid, nGrid);
+    mat h = eye(nGrid, nGrid);
     mat Q = eye(nGrid,nGrid);
 
     // Using a consant weight in the center of the postential
@@ -60,7 +60,7 @@ void MfLowRankApproximation::initialize()
             break;
         }
     }
-    if(M<0){
+    if(M < 0){
         cerr << "MfLowRankApproximation:: no eigenvalues < epsilon found."
              << " Try setting epsilon to a lower number" << endl;
         exit(EXIT_FAILURE);
@@ -82,7 +82,7 @@ void MfLowRankApproximation::initialize()
         }
     }
     cout << "MfLowRankApproximation:: Trunction of eigenvalues at M = " << M << endl;
-#if 0 // For testing the low rank approximation's accuracy
+#if 1 // For testing the low rank approximation's accuracy
     mat appV = zeros(nGrid, nGrid);
     for(int i=0; i<nGrid; i++){
         for(int j=0; j<nGrid; j++){
@@ -98,13 +98,12 @@ void MfLowRankApproximation::initialize()
     diffV.save("../DATA/diffV.mat", arma_ascii);
     appV.save("../DATA/Vapp.mat", arma_ascii);
     V_.save("../DATA/Vex.mat", arma_ascii);
-    exit(EXIT_SUCCESS);
+//    exit(EXIT_SUCCESS);
 #endif
 }
 //------------------------------------------------------------------------------
 cx_vec MfLowRankApproximation::integrate(const int q, const int r, const cx_mat &C)
 {
-
     cx_vec Vm = zeros<cx_vec>(M);
     for(int m=0; m<M; m++){
         for(int j=0; j<nGrid; j++){
@@ -124,7 +123,6 @@ cx_vec MfLowRankApproximation::integrate(const int q, const int r, const cx_mat 
 //------------------------------------------------------------------------------
 cx_double MfLowRankApproximation::integrate(const int p, const int q, const int r, const int s, const cx_mat &C)
 {
-
     // Integrations using the trapezodial rule.
     cx_double integral = 0;
     for(int i=1; i<nGrid-1; i++){

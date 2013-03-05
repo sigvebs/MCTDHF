@@ -18,7 +18,6 @@ cx_vec FiniteDifferenceFivePoint1d::secondDerivative(const cx_vec &phi)
     }
     // Endpoints
     int j;
-
     // Start
     j = 1;
     diff(j) = - phi(j+2)

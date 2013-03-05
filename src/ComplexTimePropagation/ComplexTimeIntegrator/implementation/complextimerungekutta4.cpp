@@ -10,7 +10,6 @@ ComplexTimeRungeKutta4::ComplexTimeRungeKutta4(Config *cfg):
 //------------------------------------------------------------------------------
 void ComplexTimeRungeKutta4::stepForward()
 {
-
     // Computing Runge-Kutta weights
     V->computeNewElements(C);
     h->computeNewElements(C);

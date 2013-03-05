@@ -28,7 +28,6 @@ void SingleParticleOperator::computeNewElements(const cx_mat &C)
     //    Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
     //    Uspatial = zeros<cx_mat>(nGrid, nOrbitals);
     //    h = zeros<cx_mat>(nOrbitals, nOrbitals);
-
     computeKinetic(C);
     computePotential(C);
     computeMatrixElements(C);

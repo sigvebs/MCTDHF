@@ -22,9 +22,8 @@ SlaterEquation::SlaterEquation(Config *cfg,
 cx_vec SlaterEquation::computeRightHandSide(const cx_vec &A)
 {
     computeHamiltonianMatrix();
-    cx_vec HA = H*A;
 
-    return HA;
+    return H*A;
 }
 //------------------------------------------------------------------------------
 cx_vec SlaterEquation::computeRightHandSideComplexTime(const cx_vec &A)
