@@ -26,8 +26,7 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
     rho = cx_mat(nOrbitals, nOrbitals);
 
     U = zeros<cx_mat>(nGrid, nOrbitals);
-    P = cx_mat(nGrid, nGrid);
-    I = eye<cx_mat>(nGrid, nGrid);
+    Q = cx_mat(nGrid, nGrid);
 }
 //------------------------------------------------------------------------------
 cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
@@ -44,7 +43,7 @@ cx_mat OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
     computeUMatrix(C);
 
     // Computing the right hand side of the equation
-    rightHandSide = (I-P)*U;
+    rightHandSide = Q*U;
 
     return rightHandSide;
 }
@@ -107,7 +106,7 @@ void OrbitalEquation::computeUMatrix(const cx_mat &C)
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeProjector(const cx_mat &C)
 {
-    P = zeros<cx_mat>(nGrid, nGrid);
+    Q = zeros<cx_mat>(nGrid, nGrid);
 #if 0
     // Slightly changing the projector to ensure orthonormality is conserved
     // Problems arise due to numerical inaccuracies.
@@ -125,12 +124,18 @@ void OrbitalEquation::computeProjector(const cx_mat &C)
             P += C.col(i)*C.col(l).t()*O(i,l);
         }
     }
+    P = -P; // TMP solution
 #else
     // The exact mathematical defintion of the projector.
     for(int i=0; i<nOrbitals; i++){
-        P += C.col(i)*C.col(i).t();
+        Q -= C.col(i)*C.col(i).t();
     }
 #endif
+
+    // Adding the identity matrix
+    for(int i=0; i<nGrid; i++){
+        Q(i,i) += 1;
+    }
 #ifdef DEBUG
     cout << "OrbitalEquation::computeProjector()" << endl;
 //    cout << "C0 * P* C0 = " << abs(C->col(0).t()*P*C->col(0)) << endl;

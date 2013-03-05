@@ -56,8 +56,7 @@ protected:
     const cx_vec* A;
     const cx_mat* hC;
     cx_mat U;
-    cx_mat P;
-    cx_mat I ;
+    cx_mat Q;
 
     cx_mat rightHandSide;
 };
