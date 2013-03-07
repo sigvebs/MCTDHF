@@ -1,7 +1,7 @@
 #include "complextimecranknicholson.h"
 //------------------------------------------------------------------------------
 ComplexTimeCrankNicholson::ComplexTimeCrankNicholson(Config *cfg):
-    ComplexTimeIntegrator(cfg)
+    ComplexTimePropagation(cfg)
 {
 }
 //------------------------------------------------------------------------------

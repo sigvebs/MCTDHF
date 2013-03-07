@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------------------------
 ComplexTimeRungeKutta4::ComplexTimeRungeKutta4(Config *cfg):
-    ComplexTimeIntegrator(cfg)
+    ComplexTimePropagation(cfg)
 {
 //    i = cx_double(0,1);
     i = cx_double(1,0);
@@ -43,23 +43,6 @@ void ComplexTimeRungeKutta4::stepForward()
     // Normalizing
     C = renormalize(C);
     A = A/sqrt(cdot(A,A));
-
-    //--------------------------------------------------------------------------
-    // Writing results to screen and file
-    //--------------------------------------------------------------------------
-    E(step) = slater->getEnergy(A) ;
-
-    // Saving C and A to disk
-    if(step % saveToFileInterval == 0 || step == N-1){
-        cout << "---------------------------------------------------------------\n";
-        C.save(filenameOrbitals, arma_ascii);
-        A.save(fileNameSlaterDet, arma_ascii);
-        E.save(fileNameEnergy, arma_ascii);
-        cout.precision(16);
-        cout << "step = " << step << endl
-             << "E = " << E(step) << endl;
-    }
-    step++;
 }
 //------------------------------------------------------------------------------
 cx_mat ComplexTimeRungeKutta4::renormalize(cx_mat C)

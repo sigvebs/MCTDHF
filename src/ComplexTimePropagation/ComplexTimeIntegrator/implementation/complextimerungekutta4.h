@@ -2,9 +2,10 @@
 #define COMPLEXTIMERUNGEKUTTA4_H
 
 // Local includes
-#include <src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.h>
+//#include <src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.h>
+#include <src/ComplexTimePropagation/complextimepropagation.h>
 
-class ComplexTimeRungeKutta4: public ComplexTimeIntegrator
+class ComplexTimeRungeKutta4: public ComplexTimePropagation
 {
 public:
     ComplexTimeRungeKutta4(Config* cfg);

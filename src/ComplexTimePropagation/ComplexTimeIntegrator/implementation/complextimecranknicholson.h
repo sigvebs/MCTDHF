@@ -2,9 +2,10 @@
 #define COMPLEXTIMECRANKNICHOLSON_H
 
 // Local includes
-#include <src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.h>
+//#include <src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.h>
+#include <src/ComplexTimePropagation/complextimepropagation.h>
 
-class ComplexTimeCrankNicholson: public ComplexTimeIntegrator
+class ComplexTimeCrankNicholson: public ComplexTimePropagation
 {
 public:
     ComplexTimeCrankNicholson(Config* cfg);
