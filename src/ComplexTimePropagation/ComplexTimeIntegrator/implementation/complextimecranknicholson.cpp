@@ -5,7 +5,7 @@ ComplexTimeCrankNicholson::ComplexTimeCrankNicholson(Config *cfg):
 {
 }
 //------------------------------------------------------------------------------
-void ComplexTimeCrankNicholson::stepForward()
+bool ComplexTimeCrankNicholson::stepForward()
 {
     /*
     n = H.n_cols;
@@ -19,5 +19,6 @@ void ComplexTimeCrankNicholson::stepForward()
     A = H1*H2*A;
     t += dt;
     */
+    return 1;
 }
 //------------------------------------------------------------------------------

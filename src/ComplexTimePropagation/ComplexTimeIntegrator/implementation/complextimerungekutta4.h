@@ -2,14 +2,13 @@
 #define COMPLEXTIMERUNGEKUTTA4_H
 
 // Local includes
-//#include <src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.h>
 #include <src/ComplexTimePropagation/complextimepropagation.h>
 
 class ComplexTimeRungeKutta4: public ComplexTimePropagation
 {
 public:
     ComplexTimeRungeKutta4(Config* cfg);
-    virtual void stepForward();
+    virtual bool stepForward();
 protected:
     cx_mat renormalize(cx_mat C);
     cx_vec k1;

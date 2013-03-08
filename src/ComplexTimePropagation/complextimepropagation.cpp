@@ -12,17 +12,17 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
         cfg->lookupValue("systemSettings.filePath", filePath);
         saveToFileInterval = cfg->lookup("systemSettings.saveToFileInterval");
     } catch (const SettingNotFoundException &nfex) {
-        cerr << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg, SlaterEquation *slaterEquation, OrbitalEquation *orbEq)::Error reading from config object." << endl;
+        cerr << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::Error reading parameter from config object." << endl;
         exit(EXIT_FAILURE);
     }
     step = 0;
     t = 0;
-    E = zeros(N);
+    E = zeros(N/saveToFileInterval+1);
     filenameOrbitals = filePath + "C.mat";
     fileNameSlaterDet = filePath + "A.mat";
     fileNameEnergy = filePath + "E.mat";
 #ifdef DEBUG
-    cout << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg, SlaterEquation *slaterEquation, OrbitalEquation *orbEq)" << endl
+    cout << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::" << endl
          << "dt \t= " << dt << endl
          << "N \t= " << N << endl;
 #endif
@@ -30,20 +30,25 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
 //------------------------------------------------------------------------------
 void ComplexTimePropagation::doComplexTimePropagation()
 {
-    for(step=0; step<N; step++){
+    cout.precision(16);
+    int counter = 0;
+    bool accepted;
 
-        this->stepForward();
+    for(step=0; step < N; step++){
+
+        accepted = this->stepForward();
 
         // Saving C and A to disk
-        if(step % saveToFileInterval == 0 || step == N-1){
-            E(step) = slater->getEnergy(A) ;
+        if((step % saveToFileInterval == 0 || step == N-1) && accepted){
+            E(counter) = slater->getEnergy(A) ;
             cout << "---------------------------------------------------------------\n";
             C.save(filenameOrbitals, arma_ascii);
             A.save(fileNameSlaterDet, arma_ascii);
             E.save(fileNameEnergy, arma_ascii);
-            cout.precision(16);
             cout << "step = " << step << endl
-                 << "E = " << E(step) << endl;
+                 << "E = " << E(counter) << endl
+                 << "dt = " << dt << endl;
+            counter++;
         }
     }
 }

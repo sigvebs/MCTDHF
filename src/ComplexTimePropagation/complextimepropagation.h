@@ -21,7 +21,7 @@ public:
     ComplexTimePropagation(Config *cfg);
     void doComplexTimePropagation();
 
-    virtual void stepForward() = 0;
+    virtual bool stepForward() = 0;
     void setDependencies(SlaterEquation *slater,
                          OrbitalEquation *orbital,
                          Interaction *V,

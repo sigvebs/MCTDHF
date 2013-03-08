@@ -9,7 +9,7 @@ class ComplexTimeCrankNicholson: public ComplexTimePropagation
 {
 public:
     ComplexTimeCrankNicholson(Config* cfg);
-    virtual void stepForward();
+    virtual bool stepForward();
 protected:
     cx_mat H1;
     cx_mat H2;

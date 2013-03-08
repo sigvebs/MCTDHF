@@ -8,7 +8,7 @@ ComplexTimeRungeKutta4::ComplexTimeRungeKutta4(Config *cfg):
     i = cx_double(1,0);
 }
 //------------------------------------------------------------------------------
-void ComplexTimeRungeKutta4::stepForward()
+bool ComplexTimeRungeKutta4::stepForward()
 {
     // Computing Runge-Kutta weights
     V->computeNewElements(C);
@@ -43,6 +43,8 @@ void ComplexTimeRungeKutta4::stepForward()
     // Normalizing
     C = renormalize(C);
     A = A/sqrt(cdot(A,A));
+
+    return 1;
 }
 //------------------------------------------------------------------------------
 cx_mat ComplexTimeRungeKutta4::renormalize(cx_mat C)
