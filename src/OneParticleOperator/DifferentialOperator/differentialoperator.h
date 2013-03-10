@@ -24,6 +24,7 @@ protected:
 
     int nGrid;
     double dx;
+    double dxdx;
     cx_vec x;
 };
 

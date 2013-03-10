@@ -5,7 +5,6 @@ DifferentialOperator::DifferentialOperator(Config *cfg):
 {
     double L;
      try{
-         dx = cfg->lookup("spatialDiscretization.gridSpacing");
          L = cfg->lookup("spatialDiscretization.latticeRange");
          nGrid = cfg->lookup("spatialDiscretization.nGrid");
      } catch (const SettingNotFoundException &nfex) {
@@ -13,5 +12,7 @@ DifferentialOperator::DifferentialOperator(Config *cfg):
               << "::Error reading from config object." << endl;
      }
     x = linspace<cx_vec>(-L, L, nGrid);
+    dx = real(x(1) - x(0));
+    dxdx = dx*dx;
 }
 //------------------------------------------------------------------------------

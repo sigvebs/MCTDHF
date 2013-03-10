@@ -2,53 +2,38 @@
 //------------------------------------------------------------------------------
 Spectral1d::Spectral1d(Config* cfg): DifferentialOperator(cfg)
 {
+    // Setting up the frequencies.
+    k = vec(nGrid);
+    for(int i=0;i<nGrid/2;i++) {
+        k[i]=i;
+    }
+    for(int i=nGrid/2;i<nGrid;i++) {
+        k[i]=-(nGrid-i);
+    }
+
+    k *= 2*PI/(dx*nGrid);
+    k = -k%k/nGrid; // Included the scaling 1.0/N here
+
+    diff = cx_vec(nGrid);
+
+    forward = fftw_plan_dft_1d(nGrid, (fftw_complex*)diff.memptr(), (fftw_complex*)diff.memptr(), FFTW_FORWARD, FFTW_ESTIMATE);
+    backward = fftw_plan_dft_1d(nGrid, (fftw_complex*)diff.memptr(), (fftw_complex*)diff.memptr(), FFTW_BACKWARD, FFTW_ESTIMATE);
 }
 //------------------------------------------------------------------------------
 cx_vec Spectral1d::secondDerivative(const cx_vec &phi)
 {
-    cx_vec diff = phi;
+    diff = phi;
 
-//    fftw_complex *in, *out;
-//     fftw_plan p;
-//     ...
-//     in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
-//     out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
-//     p = fftw_plan_dft_1d(N, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
-//     .
-//     fftw_execute(p); /* repeat as needed */
+    fftw_execute(forward);
+    diff = k % diff;
+    fftw_execute(backward);
 
-//     fftw_destroy_plan(p);
-//     fftw_free(in); fftw_free(out);
-
-
-//    int N = nGrid;
-
-//    fftw_complex fx;
-//    memcpy( &fx, phi.memptr(), sizeof( fftw_complex ) );
-//    cout << "hei " << sizeof( fftw_complex ) << endl;
-//    exit(1);
-//    fftw_complex *out;
-//    out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
-
-//    fftw_plan p;
-
-////    p = fftw_plan_dft_1d(N, &fx, out,FFTW_FORWARD, FFTW_ESTIMATE);
-////    p = fftw_plan_dft_r2c_1d(N,fx, out,FFTW_ESTIMATE);
-
-////    fftw_execute(p);
-
-//    cout << phi << endl;
-//    for(int i=0;i<(N/2)+1;i++)
-//    {
-////        cout << i <<"\t"<< out[i][0] << "\t" << out[i][1] <<std::endl;
-//        diff(i) = cx_double(out[i][0], out[i][1]);
-//    }
-
-//    cout << diff << endl;
-
-//    cerr << "Spectral1d:: NOT YET IMPLMENTED" << endl;
-//    diff.save("../DATA/fourier.mat", arma_ascii);
-//    exit(0);
     return diff;
+}
+//------------------------------------------------------------------------------
+Spectral1d::~Spectral1d()
+{
+    fftw_destroy_plan(forward);
+    fftw_destroy_plan(backward);
 }
 //------------------------------------------------------------------------------
