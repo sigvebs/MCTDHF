@@ -6,9 +6,8 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator
 {
     double L;
     try{
-        ww = cfg->lookup("potential.w");
+        ww = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
         ww *= ww;
-        dx = cfg->lookup("spatialDiscretization.gridSpacing");
         L = cfg->lookup("spatialDiscretization.latticeRange");
         nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
@@ -34,16 +33,23 @@ void SingleParticleOperator::computeNewElements(const cx_mat &C)
     TU = Tspatial + Uspatial;
 
     // Saving kinetic spatial distribution to file.
-    //    Tspatial.save("/tmp/MCTDHF/DATA/Tspatial.mat", arma_ascii);
+    Tspatial.save("../DATA/Tspatial.mat", arma_ascii);
     // Saving potential spatial distribution to file.
-    //    Uspatial.save("/tmp/MCTDHF/DATA/Uspatial.mat", arma_ascii);
+    Uspatial.save("../DATA/Uspatial.mat", arma_ascii);
+    //    C.save("../DATA/C.mat", arma_ascii);
+}
+//------------------------------------------------------------------------------
+void SingleParticleOperator::addPotential(Potential *potential)
+{
+    potentials.push_back(potential);
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeMatrixElements(const cx_mat &C)
 {
+    h.zeros();
+
     for(int i=0;i<nOrbitals; i++){
         for(int j=0; j<nOrbitals; j++){
-            h(i,j) = 0;
             h(i,j) += cdot(C.col(i), Tspatial.col(j))
                     + cdot(C.col(i), Uspatial.col(j));
         }
@@ -67,12 +73,14 @@ void SingleParticleOperator::computeKinetic(const cx_mat &C)
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computePotential(const cx_mat &C)
 {
-    for(int i=0;i<nOrbitals; i++){
-        for(int j=0; j<nGrid; j++){
-            Uspatial(j,i) = x(j)*x(j)*C(j,i);
+    Uspatial.zeros();
+
+    for(Potential* potential: potentials){
+        for(int i=0;i<nOrbitals; i++){
+            Uspatial.col(i) += potential->evaluate(C.col(i));
         }
     }
-    Uspatial *= 0.5*ww;
+
 #ifdef DEBUG
     cout << "OneParticleOperator::computePotential()" << endl;
 #endif
@@ -91,5 +99,6 @@ const cx_mat &SingleParticleOperator::getHspatial()
 SingleParticleOperator::~SingleParticleOperator()
 {
     delete kineticOperator;
+    // TODO: delete all potentials.
 }
 //------------------------------------------------------------------------------

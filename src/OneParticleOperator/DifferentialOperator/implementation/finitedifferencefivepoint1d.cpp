@@ -43,6 +43,6 @@ cx_vec FiniteDifferenceFivePoint1d::secondDerivative(const cx_vec &phi)
             + cx_double(16,0)* phi(j-1)
             - phi(j-2);
 
-    return diff/(12*dx*dx);
+    return diff/(12*dxdx);
 }
 //------------------------------------------------------------------------------

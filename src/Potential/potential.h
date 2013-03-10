@@ -1,8 +1,13 @@
 #ifndef POTENTIAL_H
 #define POTENTIAL_H
 
+// Local includes
+#include <src/includes/defines.h>
+#include <src/includes/lib.h>
+
 // Library includes
 #include <armadillo>
+#include <vector>
 #include <libconfig.h++>
 
 using namespace libconfig;
@@ -13,12 +18,11 @@ class Potential
 {
 public:
     Potential(Config* cfg);
-    virtual mat computeInteractionSpace() = 0;
+    virtual cx_vec evaluate(const cx_vec &psi) = 0;
 protected:
     Config* cfg;
 
-    mat interactionSpace;
-    vec x;
+    vec potential;
     int nGrid;
 };
 

@@ -5,6 +5,7 @@
 #include <src/includes/defines.h>
 #include <src/includes/lib.h>
 #include <src/OneParticleOperator/DifferentialOperator/differentialoperator.h>
+#include <src/Potential/potential.h>
 
 // Library includes
 #include <armadillo>
@@ -23,6 +24,7 @@ public:
     const cx_mat &getH();
     const cx_mat &getHspatial();
     void computeNewElements(const cx_mat &C);
+    void addPotential(Potential*potential);
     ~SingleParticleOperator();
 protected:
     void computeMatrixElements(const cx_mat &C);
@@ -33,7 +35,6 @@ protected:
     // System details
     int nGrid;
     int nOrbitals;
-    double dx;
     cx_vec x;
 
     // Total single particle matrix
@@ -49,6 +50,8 @@ protected:
 
     // Total one-body operator
     cx_mat TU;
+
+    vector<Potential*> potentials;
 };
 
 #endif // ONEPARTICLEOPERATOR_H
