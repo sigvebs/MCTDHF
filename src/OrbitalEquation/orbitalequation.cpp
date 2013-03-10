@@ -13,8 +13,6 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
 
     try {
         nParticles = cfg->lookup("system.nParticles");
-        dim = cfg->lookup("system.dim");
-        dx = cfg->lookup("spatialDiscretization.gridSpacing");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
         nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
     } catch (const SettingNotFoundException &nfex) {
@@ -34,11 +32,12 @@ const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_ve
     this->A = &A;
     hC = &(h->getHspatial());
 
-    // Clearing values
+//    // Clearing values
     rho2.clear();
 
     computeProjector(C);
     computeOneParticleReducedDensity();
+    invRho = inv(invRho);
     computeTwoParticleReducedDensity();
     computeUMatrix(C);
 
@@ -166,8 +165,6 @@ void OrbitalEquation::computeProjector(const cx_mat &C)
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeOneParticleReducedDensity()
 {
-    // First rho is calculated
-
     // All possible spatial orbitals
     for(int i=0; i< nOrbitals; i++){
         for(int j=i; j<nOrbitals; j++){
@@ -178,11 +175,11 @@ void OrbitalEquation::computeOneParticleReducedDensity()
     }
 
 #ifdef DEBUG
+//#if 1
     cout << "OrbitalEquation::computeOneParticleReducedDensity()" << endl;
-    cout << "Trace(rho) = " << real(trace(rho)) << " nParticles = " << nParticles << endl;
+    cout << "Trace(rho) = " << real(trace(invRho)) << " nParticles = " << nParticles << endl;
 //    exit(0);
 #endif
-    invRho = inv(invRho);
 }
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeTwoParticleReducedDensity()
@@ -229,7 +226,7 @@ void OrbitalEquation::computeTwoParticleReducedDensity()
             }
         }
     }
-    cout << "Trace(rho2) = " << tra << " N(N-1) = " << nParticles*(nParticles-1) << endl;
+    cout << "Trace(rho2) = " << real(tra) << " N(N-1) = " << nParticles*(nParticles-1) << endl;
 //    cout << rho1 << endl;
 //    cout << rho << endl;
 //    exit(1);
@@ -296,5 +293,16 @@ cx_double OrbitalEquation::reducedTwoParticleOperator(const int p, const int q,
     }
 
     return value;
+}
+//------------------------------------------------------------------------------
+double OrbitalEquation::getCorrelation(const cx_vec &A)
+{
+    this->A = &A;
+    computeOneParticleReducedDensity();
+    double correlation = 0;
+    for(int i=0; i< nOrbitals; i++){
+        correlation += pow(fabs(invRho(i,i)/nParticles), 4);
+    }
+    return 1.0/correlation;
 }
 //------------------------------------------------------------------------------

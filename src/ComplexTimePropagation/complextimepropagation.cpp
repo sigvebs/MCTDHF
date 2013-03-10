@@ -30,10 +30,11 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
 //------------------------------------------------------------------------------
 void ComplexTimePropagation::doComplexTimePropagation()
 {
+    double correlation;
     cout.precision(16);
     int counter = 0;
     bool accepted;
-
+    cout << "Starting immaginary propagation:" << endl;
     for(step=0; step < N; step++){
 
         accepted = this->stepForward();
@@ -41,12 +42,14 @@ void ComplexTimePropagation::doComplexTimePropagation()
         // Saving C and A to disk
         if((step % saveToFileInterval == 0 || step == N-1) && accepted){
             E(counter) = slater->getEnergy(A) ;
+            correlation = orbital->getCorrelation(A);
             cout << "---------------------------------------------------------------\n";
             C.save(filenameOrbitals, arma_ascii);
             A.save(fileNameSlaterDet, arma_ascii);
             E.save(fileNameEnergy, arma_ascii);
             cout << "step = " << step << endl
                  << "E = " << E(counter) << endl
+                 << "k = " << correlation << endl
                  << "dt = " << dt << endl;
             counter++;
         }

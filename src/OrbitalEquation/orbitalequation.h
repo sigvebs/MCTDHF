@@ -28,6 +28,7 @@ public:
                     SingleParticleOperator *h);
 //    cx_mat computeRightHandSide(const cx_mat &C, const cx_vec &A);
     const cx_mat &computeRightHandSide(const cx_mat &C, const cx_vec &A);
+    double getCorrelation(const cx_vec &A);
 protected:
     void computeProjector(const cx_mat &C);
     void computeUMatrix(const cx_mat &C);
@@ -49,8 +50,6 @@ protected:
     int nGrid;
     int nSlaterDeterminants;
     int nParticles;
-    int dim;
-    double dx;
 
     cx_mat invRho;
     unordered_map<int, cx_double> rho2;
