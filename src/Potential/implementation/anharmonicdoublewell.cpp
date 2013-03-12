@@ -1,16 +1,16 @@
-#include "harmonicoscillatoronebody.h"
+#include "anharmonicdoublewell.h"
 
 //------------------------------------------------------------------------------
-HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg):
+AnharmonicDoubleWell::AnharmonicDoubleWell(Config *cfg):
     Potential(cfg)
 {
     double L;
-    double w;
+    double d;
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
-        w = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
+        d = cfg->lookup("oneBodyPotential.anharmonicDoubleWell.d");
     } catch (const SettingNotFoundException &nfex) {
-        cerr << "HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg)"
+        cerr << "AnharmonicDoubleWell::AnharmonicDoubleWell(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
 
@@ -19,11 +19,13 @@ HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg):
 
     // Setting the potential
     for(int j=0; j<nGrid; j++){
-        potential(j) = 0.5*w*w*x(j)*x(j);
+        potential(j) = pow(x(j) - 0.5*d, 2) * pow(x(j) + 0.5*d, 2);
     }
+
+    potential *= 1.0/(2*d*d);
 }
 //------------------------------------------------------------------------------
-cx_vec HarmonicOscillatorOneBody::evaluate(const cx_vec &psi, double t)
+cx_vec AnharmonicDoubleWell::evaluate(const cx_vec &psi, double t)
 {
     return potential % psi;
 }

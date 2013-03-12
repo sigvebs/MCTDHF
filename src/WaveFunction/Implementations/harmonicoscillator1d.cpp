@@ -4,7 +4,7 @@
 HarmonicOscillator1d::HarmonicOscillator1d(Config *cfg, vec quantumNumbers):
     HarmonicOscillator(cfg, quantumNumbers)
 {
-    w = cfg->lookup("potential.w");
+    w = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
     n = quantumNumbers(1);
     coefficient = 1.0/(sqrt(pow(2,n)*factorial(n)))*pow(w/PI, 1.0/4);
 }

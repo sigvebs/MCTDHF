@@ -1,30 +1,28 @@
-#include "harmonicoscillatoronebody.h"
+#include "simplelaser.h"
 
 //------------------------------------------------------------------------------
-HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg):
+simpleLaser::simpleLaser(Config *cfg):
     Potential(cfg)
 {
     double L;
-    double w;
+    double W;
+    double e0;
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
-        w = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
+        w = cfg->lookup("oneBodyPotential.simpleLaser.w");
+        W = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
+        e0 = cfg->lookup("oneBodyPotential.simpleLaser.e0");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
-
-    vec x = linspace(-L, L, nGrid);
-    potential = vec(nGrid);
-
-    // Setting the potential
-    for(int j=0; j<nGrid; j++){
-        potential(j) = 0.5*w*w*x(j)*x(j);
-    }
+    w *= W;
+    potential = linspace(-L, L, nGrid);
+    potential *= e0;
 }
 //------------------------------------------------------------------------------
-cx_vec HarmonicOscillatorOneBody::evaluate(const cx_vec &psi, double t)
+cx_vec simpleLaser::evaluate(const cx_vec &psi, double t)
 {
-    return potential % psi;
+    return potential % psi * sin(w*t);
 }
 //------------------------------------------------------------------------------

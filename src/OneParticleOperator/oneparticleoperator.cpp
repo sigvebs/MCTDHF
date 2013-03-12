@@ -5,12 +5,14 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator
     kineticOperator(kineticOperator)
 {
     double L;
+    string filePath;
     try{
         ww = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
         ww *= ww;
         L = cfg->lookup("spatialDiscretization.latticeRange");
         nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
+        cfg->lookupValue("systemSettings.filePath", filePath);
     } catch (const SettingNotFoundException &nfex) {
         cerr << "OneParticleOperator::OneParticleOperator(Config *cfg, vector<vec> orbitals)"
              << "::Error reading from config object." << endl;
@@ -19,29 +21,31 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator
     h = zeros<cx_mat>(nOrbitals, nOrbitals);
     Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
     Uspatial = zeros<cx_mat>(nGrid, nOrbitals);
+
+    filenameT = filePath + "T.mat";
+    filenameU= filePath + "U.mat";
 }
 //------------------------------------------------------------------------------
-void SingleParticleOperator::computeNewElements(const cx_mat &C)
+void SingleParticleOperator::computeNewElements(const cx_mat &C, double t)
 {
-    // Zeroing out - precaution
-    //    Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
-    //    Uspatial = zeros<cx_mat>(nGrid, nOrbitals);
-    //    h = zeros<cx_mat>(nOrbitals, nOrbitals);
     computeKinetic(C);
-    computePotential(C);
+    computePotential(C, t);
     computeMatrixElements(C);
     TU = Tspatial + Uspatial;
-
-    // Saving kinetic spatial distribution to file.
-    Tspatial.save("../DATA/Tspatial.mat", arma_ascii);
-    // Saving potential spatial distribution to file.
-    Uspatial.save("../DATA/Uspatial.mat", arma_ascii);
-    //    C.save("../DATA/C.mat", arma_ascii);
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::addPotential(Potential *potential)
 {
     potentials.push_back(potential);
+}
+//------------------------------------------------------------------------------
+void SingleParticleOperator::saveOperators()
+{
+    // Saving kinetic spatial distribution to file.
+    Tspatial.save(filenameT, arma_ascii);
+
+    // Saving potential spatial distribution to file.
+    Uspatial.save(filenameU, arma_ascii);
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeMatrixElements(const cx_mat &C)
@@ -54,6 +58,7 @@ void SingleParticleOperator::computeMatrixElements(const cx_mat &C)
                     + cdot(C.col(i), Uspatial.col(j));
         }
     }
+
 #ifdef DEBUG
     cout << "OneParticleOperator::computeMatrixElements()" << endl;
 //                cout << "h = " << endl << h << endl;
@@ -62,6 +67,8 @@ void SingleParticleOperator::computeMatrixElements(const cx_mat &C)
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeKinetic(const cx_mat &C)
 {
+    Tspatial.zeros();
+
     for(int i=0;i<nOrbitals; i++){
         Tspatial.col(i) = kineticOperator->secondDerivative(C.col(i));
     }
@@ -71,16 +78,15 @@ void SingleParticleOperator::computeKinetic(const cx_mat &C)
 #endif
 }
 //------------------------------------------------------------------------------
-void SingleParticleOperator::computePotential(const cx_mat &C)
+void SingleParticleOperator::computePotential(const cx_mat &C, double t)
 {
     Uspatial.zeros();
 
     for(Potential* potential: potentials){
         for(int i=0;i<nOrbitals; i++){
-            Uspatial.col(i) += potential->evaluate(C.col(i));
+            Uspatial.col(i) += potential->evaluate(C.col(i), t);
         }
     }
-
 #ifdef DEBUG
     cout << "OneParticleOperator::computePotential()" << endl;
 #endif

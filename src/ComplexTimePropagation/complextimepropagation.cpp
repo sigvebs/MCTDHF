@@ -19,8 +19,8 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
     t = 0;
     E = zeros(N/saveToFileInterval+1);
     filenameOrbitals = filePath + "C.mat";
-    fileNameSlaterDet = filePath + "A.mat";
-    fileNameEnergy = filePath + "E.mat";
+    filenameSlaterDet = filePath + "A.mat";
+    filenameEnergy = filePath + "E.mat";
 #ifdef DEBUG
     cout << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::" << endl
          << "dt \t= " << dt << endl
@@ -34,7 +34,7 @@ void ComplexTimePropagation::doComplexTimePropagation()
     cout.precision(16);
     int counter = 0;
     bool accepted;
-    cout << "Starting immaginary propagation:" << endl;
+    cout << "Starting imaginary propagation:" << endl;
     for(step=0; step < N; step++){
 
         accepted = this->stepForward();
@@ -43,10 +43,11 @@ void ComplexTimePropagation::doComplexTimePropagation()
         if((step % saveToFileInterval == 0 || step == N-1) && accepted){
             E(counter) = slater->getEnergy(A) ;
             correlation = orbital->getCorrelation(A);
+            h->saveOperators();
             cout << "---------------------------------------------------------------\n";
             C.save(filenameOrbitals, arma_ascii);
-            A.save(fileNameSlaterDet, arma_ascii);
-            E.save(fileNameEnergy, arma_ascii);
+            A.save(filenameSlaterDet, arma_ascii);
+            E.save(filenameEnergy, arma_ascii);
             cout << "step = " << step << endl
                  << "E = " << E(counter) << endl
                  << "k = " << correlation << endl

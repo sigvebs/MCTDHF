@@ -23,13 +23,14 @@ public:
                            DifferentialOperator *kineticOperator);
     const cx_mat &getH();
     const cx_mat &getHspatial();
-    void computeNewElements(const cx_mat &C);
+    void computeNewElements(const cx_mat &C, double t = 0);
     void addPotential(Potential*potential);
+    void saveOperators();
     ~SingleParticleOperator();
 protected:
     void computeMatrixElements(const cx_mat &C);
     void computeKinetic(const cx_mat &C);
-    void computePotential(const cx_mat &C);
+    void computePotential(const cx_mat &C, double t);
     Config* cfg;
 
     // System details
@@ -52,6 +53,10 @@ protected:
     cx_mat TU;
 
     vector<Potential*> potentials;
+
+    // Filenames
+    string filenameT;
+    string filenameU;
 };
 
 #endif // ONEPARTICLEOPERATOR_H

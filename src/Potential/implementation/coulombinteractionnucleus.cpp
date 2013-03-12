@@ -1,13 +1,16 @@
 #include "coulombinteractionnucleus.h"
 
+//------------------------------------------------------------------------------
 CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg):
     Potential(cfg)
 {
     double L;
     double b;
+    double Z;
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
         b = cfg->lookup("oneBodyPotential.coulombInteractionNucleus.b");
+        Z = cfg->lookup("oneBodyPotential.coulombInteractionNucleus.Z");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg)"
              << "::Error reading from config object." << endl;
@@ -18,12 +21,12 @@ CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg):
 
     // Setting the potential
     for(int j=0; j<nGrid; j++){
-        potential(j) = - 2/sqrt(x(j)*x(j) + b*b);
+        potential(j) = - Z/sqrt(x(j)*x(j) + b*b);
     }
 }
 //------------------------------------------------------------------------------
-cx_vec CoulombInteractionNucleus::evaluate(const cx_vec &psi)
+cx_vec CoulombInteractionNucleus::evaluate(const cx_vec &psi, double t)
 {
-    return potential % psi;
+    return potential % psi ;
 }
 //------------------------------------------------------------------------------

@@ -6,7 +6,8 @@ ScreenedCoulombInteraction::ScreenedCoulombInteraction(Config *cfg):
     double L;
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
-        aa = cfg->lookup("interactionPotential.shildedCoulombInteraction.a");
+        aa = cfg->lookup("interactionPotential.shieldedCoulombInteraction.a");
+        lambda = cfg->lookup("interactionPotential.shieldedCoulombInteraction.lambda");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
         aa *=aa;
     } catch (const SettingNotFoundException &nfex) {
@@ -21,7 +22,7 @@ mat ScreenedCoulombInteraction::computeInteractionSpace()
 {
     for(int i=0; i<nGrid; i++){
         for(int j=0; j<nGrid; j++){
-            interactionSpace(i,j) = 1.0/sqrt(pow(x(j) - x(i),2) + aa);
+            interactionSpace(i,j) = lambda/sqrt(pow(x(j) - x(i),2) + aa);
         }
     }
     return interactionSpace;

@@ -1,5 +1,6 @@
-#ifndef COMPLEXTIMEPROPAGATION_H
-#define COMPLEXTIMEPROPAGATION_H
+#ifndef TIMEPROPAGATION_H
+#define TIMEPROPAGATION_H
+
 
 // Local includes
 #include <src/includes/defines.h>
@@ -14,10 +15,10 @@ using namespace std;
 using namespace libconfig;
 using namespace arma;
 
-class ComplexTimePropagation
+class TimePropagation
 {
 public:
-    ComplexTimePropagation(Config *cfg);
+    TimePropagation(Config *cfg);
     void doComplexTimePropagation();
 
     virtual bool stepForward() = 0;
@@ -25,15 +26,18 @@ public:
                          OrbitalEquation *orbital,
                          Interaction *V,
                          SingleParticleOperator *h);
-    cx_vec getCoefficients();
     void setInititalState(cx_vec A, cx_mat C);
 protected:
+    double computeOverlap();
     Config *cfg;
     double dt;
     double t;
+    vec time;
 
     cx_vec A;
+    cx_vec A0;
     cx_mat C;
+    cx_mat C0;
 
     SlaterEquation *slater;
     OrbitalEquation *orbital;
@@ -41,16 +45,14 @@ protected:
     Interaction *V;
     SingleParticleOperator *h;
 
-    vec E;
+    vec overlap;
     int step;
     cx_double i;
     int N;
 
     // Filenames
-    int saveToFileInterval;
-    string filenameOrbitals;
-    string filenameSlaterDet;
-    string filenameEnergy;
+    string filenameOverlap;
+    string filenameT;
 };
 
-#endif // COMPLEXTIMEPROPAGATION_H
+#endif // TIMEPROPAGATION_H

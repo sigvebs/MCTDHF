@@ -10,6 +10,7 @@ public:
     virtual mat computeInteractionSpace();
 protected:
     double aa;
+    double lambda;
 };
 
 #endif // SCREENEDCOULOMBINTERACTION_H

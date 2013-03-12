@@ -66,8 +66,8 @@ void BasisHydrogenLike::discretization1d()
     C.set_real(Ctmp);
     x.save(filnameAxis, arma_ascii);
 
-//#ifdef DEBUG
-#if 1
+#ifdef DEBUG
+//#if 1
     cout << "BasisHarmonicOscillator::discretization1d()" << endl;
     for(int i=0; i<nSpatialOrbitals; i++){
         cout <<  "|C(" << i << ")|^2 = " << cdot(C.col(i),C.col(i)) << endl ;

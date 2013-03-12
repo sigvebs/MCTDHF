@@ -35,7 +35,8 @@ void MfLowRankApproximation::initialize()
 
     // Using a simple discretization equal to the discretization of
     // the system.
-    mat h = eye(nGrid, nGrid);
+    mat h = hExactSpatial();
+//    mat h = hPiecewiseLinear();
     mat Q = eye(nGrid,nGrid);
 
     // Using a consant weight in the center of the postential
@@ -60,9 +61,10 @@ void MfLowRankApproximation::initialize()
             break;
         }
     }
+    cout << min(abs(lambda)) << endl;
     if(M < 0){
         cerr << "MfLowRankApproximation:: no eigenvalues < epsilon found."
-             << " Try setting epsilon to a lower number" << endl;
+             << " Try setting epsilon to a higher number" << endl;
         exit(EXIT_FAILURE);
     }
     eigenval = zeros(M);
@@ -76,7 +78,7 @@ void MfLowRankApproximation::initialize()
     for(int m=0; m <M; m++){
         for(int j=0; j<h.n_rows; j++){
             U(j,m) = 0;
-            for(int i=0; i<h.n_rows; i++){
+            for(int i=0; i<h.n_cols; i++){
                 U(j,m) += h(j,i)*QU(i,indices(m));
             }
         }
@@ -92,13 +94,15 @@ void MfLowRankApproximation::initialize()
             }
         }
     }
-    mat diffV = abs(V_ - appV)/abs(V_);
+//    mat diffV = abs(V_ - appV)/abs(V_);
+    mat diffV = abs(V_ - appV);
     cout << "max_err = " << max(max(abs(V_ - appV))) << endl;
 
     diffV.save("../DATA/diffV.mat", arma_ascii);
     appV.save("../DATA/Vapp.mat", arma_ascii);
     V_.save("../DATA/Vex.mat", arma_ascii);
-//    exit(EXIT_SUCCESS);
+    cout << nGrid << endl;
+    exit(EXIT_SUCCESS);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -134,6 +138,19 @@ cx_double MfLowRankApproximation::integrate(const int p, const int q, const int 
     integral += conj(C(0,p))*V2(q,s)(0)*C(0,r) + conj(C(nGrid-1,p))*V2(q,s)(nGrid-1)*C(nGrid-1,r);
 
     return 0.5*integral;
+}
+//------------------------------------------------------------------------------
+mat MfLowRankApproximation::hExactSpatial()
+{
+    return eye(nGrid, nGrid);
+}
+//------------------------------------------------------------------------------
+mat MfLowRankApproximation::hPiecewiseLinear()
+{
+//    mat h = zeros(ngrid, nGrid);
+//    h.save("../DATA/h.mat", arma_ascii);
+//    exit(EXIT_SUCCESS);
+    return eye(nGrid, nGrid);
 }
 //------------------------------------------------------------------------------
 vec MfLowRankApproximation::gLinear(int n, int constCenter,

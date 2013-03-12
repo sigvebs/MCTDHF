@@ -30,14 +30,28 @@
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h>
 
+// One body operators
+#include <src/Potential/potential.h>
+#include <src/Potential/implementation/harmonicoscillatoronebody.h>
+#include <src/Potential/implementation/coulombinteractionnucleus.h>
+#include <src/Potential/implementation/simplelaser.h>
+#include <src/Potential/implementation/anharmonicdoublewell.h>
+
 #include <src/SlaterEquation/slaterequation.h>
 #include <src/OrbitalEquation/orbitalequation.h>
 
+// Imaginary time integration
 #include <src/ComplexTimePropagation/complextimepropagation.h>
 
-#include <src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.h>
 #include <src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimecranknicholson.h>
 #include <src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekutta4.h>
+#include <src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekuttafehlberg.h>
+
+// Time integration
+#include <src/TimePropagation/timepropagation.h>
+
+#include <src/TimePropagation/implementation/rungekutta4.h>
+
 
 // Libary incldues
 #include <iostream>
@@ -56,7 +70,10 @@ public:
     void run();
 protected:
     void setInteractionPotentials(Interaction &V);
-    ComplexTimeIntegrator* setComplexTimeIntegrator();
+    void setOneBodyPotentials(SingleParticleOperator &h);
+    void setTimeDepOneBodyPotentials(SingleParticleOperator &h);
+    TimePropagation* setTimeIntegrator();
+    ComplexTimePropagation *setComplexTimeIntegrator();
     DifferentialOperator* setDifferentialOpertor();
     MeanFieldIntegrator* setMeanFieldIntegrator();
     Basis* setBasis();

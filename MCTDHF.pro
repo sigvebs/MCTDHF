@@ -3,6 +3,9 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
+CONFIG += warn_on
+CONFIG += wall
+
 #INCLUDEPATH += /home/sigve/usr/local/include
 
 SOURCES += main.cpp \
@@ -20,7 +23,6 @@ SOURCES += main.cpp \
     src/Basis/implementation/basisharmonicoscillator.cpp \
     src/OneParticleOperator/oneparticleoperator.cpp \
     src/ComplexTimePropagation/complextimepropagation.cpp \
-    src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.cpp \
     src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekutta4.cpp \
     src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimecranknicholson.cpp \
     src/OneParticleOperator/DifferentialOperator/differentialoperator.cpp \
@@ -28,7 +30,6 @@ SOURCES += main.cpp \
     src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.cpp \
     src/WaveFunction/Implementations/hydrogenlike.cpp \
     src/Basis/implementation/basishydrogenlike.cpp \
-    src/Interaction/implementation/screenedcoulomb.cpp \
     src/Potential/potential.cpp \
     src/InteractionPotential/interactionpotential.cpp \
     src/InteractionPotential/implementation/harmonicoscillatorinteraction.cpp \
@@ -36,7 +37,14 @@ SOURCES += main.cpp \
     src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.cpp \
     src/Interaction/MeanFieldIntegrator/meanfieldintegrator.cpp \
     src/Interaction/MeanFieldIntegrator/implementation/mftrapezoidal.cpp \
-    src/Interaction/MeanFieldIntegrator/implementation/mflowrankapproximation.cpp
+    src/Interaction/MeanFieldIntegrator/implementation/mflowrankapproximation.cpp \
+    src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekuttafehlberg.cpp \
+    src/Potential/implementation/harmonicoscillatoronebody.cpp \
+    src/Potential/implementation/coulombinteractionnucleus.cpp \
+    src/TimePropagation/timepropagation.cpp \
+    src/TimePropagation/implementation/rungekutta4.cpp \
+    src/Potential/implementation/simplelaser.cpp \
+    src/Potential/implementation/anharmonicdoublewell.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -54,7 +62,6 @@ HEADERS += \
     src/Basis/implementation/basisharmonicoscillator.h \
     src/OneParticleOperator/oneparticleoperator.h \
     src/ComplexTimePropagation/complextimepropagation.h \
-    src/ComplexTimePropagation/ComplexTimeIntegrator/complextimeintegrator.h \
     src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekutta4.h \
     src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimecranknicholson.h \
     src/OneParticleOperator/DifferentialOperator/differentialoperator.h \
@@ -62,7 +69,6 @@ HEADERS += \
     src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h \
     src/WaveFunction/Implementations/hydrogenlike.h \
     src/Basis/implementation/basishydrogenlike.h \
-    src/Interaction/implementation/screenedcoulomb.h \
     src/Potential/potential.h \
     src/InteractionPotential/interactionpotential.h \
     src/InteractionPotential/implementation/harmonicoscillatorinteraction.h \
@@ -70,12 +76,21 @@ HEADERS += \
     src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.h \
     src/Interaction/MeanFieldIntegrator/meanfieldintegrator.h \
     src/Interaction/MeanFieldIntegrator/implementation/mftrapezoidal.h \
-    src/Interaction/MeanFieldIntegrator/implementation/mflowrankapproximation.h
+    src/Interaction/MeanFieldIntegrator/implementation/mflowrankapproximation.h \
+    src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekuttafehlberg.h \
+    src/Potential/implementation/harmonicoscillatoronebody.h \
+    src/Potential/implementation/coulombinteractionnucleus.h \
+    src/TimePropagation/timepropagation.h \
+    src/TimePropagation/implementation/rungekutta4.h \
+    src/Potential/implementation/simplelaser.h \
+    src/Potential/implementation/anharmonicdoublewell.h
 
 OTHER_FILES += \
     ../config.cfg
 
-LIBS += -lconfig++ -larmadillo -llapack -lblas -lfftw3 -lm
+#LIBS += -lconfig++ -larmadillo -llapack -lblas  -lm
+LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm \
+-L$(MKLROOT)/lib/intel64 -mkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread
 
 QMAKE_CXXFLAGS_DEBUG += -std=c++0x
 QMAKE_CXXFLAGS_RELEASE += -std=c++0x

@@ -13,7 +13,6 @@ BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg):
         cerr << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
-
     nGrid = 2*latticeRange/dx+1;
     nSpatialOrbitals = states.size()/2;
 
@@ -59,7 +58,8 @@ void BasisHarmonicOscillator::discretization1d()
 
     for(int i=0; i<nSpatialOrbitals; i++){
         wf = new HarmonicOscillator1d(cfg, states[2*i]);
-        Ctmp.col(i) = wf->evaluate(x)*sqrt(dx);
+        Ctmp.col(i) = wf->evaluate(x);
+//        Ctmp.col(i) = wf->evaluate(x)*sqrt(dx);
 
         // Re-normalizing to remove numerical errors
         Ctmp.col(i) /= sqrt(dot(Ctmp.col(i),Ctmp.col(i)));

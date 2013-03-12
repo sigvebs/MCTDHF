@@ -18,7 +18,7 @@ class Potential
 {
 public:
     Potential(Config* cfg);
-    virtual cx_vec evaluate(const cx_vec &psi) = 0;
+    virtual cx_vec evaluate(const cx_vec &psi, double t=0) = 0;
 protected:
     Config* cfg;
 

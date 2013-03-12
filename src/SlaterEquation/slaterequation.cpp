@@ -28,9 +28,24 @@ cx_vec SlaterEquation::computeRightHandSide(const cx_vec &A)
 //------------------------------------------------------------------------------
 cx_vec SlaterEquation::computeRightHandSideComplexTime(const cx_vec &A)
 {
+    cout.precision(16);
     computeHamiltonianMatrix();
+
+//    cout << (*h) << endl;
+
+//    vec eigval = eig_sym(H);
+//    cout << real(H) << endl;
+//    cout << real((*h)(0,0)) << endl;
+//    cout << real(H(0,0)) << endl;
+//    cout << "min(eigval) = " << min(eigval) << endl;
+//    exit(1);
+
+
     cx_vec HA = H*A;
     cx_double E = cdot(A, HA)/cdot(A,A);
+//    vec eigval = eig_sym(H);
+//    cout << "min(eigval) = " << min(eigval) << endl;
+//    exit(1);
 
     return HA - E*A;
 }
@@ -41,9 +56,11 @@ void SlaterEquation::computeHamiltonianMatrix()
     cx_double Vpqrs;
     h = &oneParticleOperator->getH();
 
+    H = zeros<cx_mat>(nSlaterDeterminants, nSlaterDeterminants);
+
     for(int m=0; m<nSlaterDeterminants; m++){
         for(int n=m; n<nSlaterDeterminants; n++){
-            H(m,n) = 0;
+//            H(m,n) = 0;
             //------------------------------------------------------------------
             for(int p=0; p<nOrbitals; p++){
                 for(int q=0; q<nOrbitals; q++){
@@ -66,6 +83,7 @@ void SlaterEquation::computeHamiltonianMatrix()
                     H(m,n) += (*h)(p,q)*phase;
 
                     //----------------------------------------------------------
+
                     // Two-body interaction
                     for(int r=0; r<nOrbitals; r++){
                         for(int s=0; s<nOrbitals; s++){
@@ -96,6 +114,7 @@ void SlaterEquation::computeHamiltonianMatrix()
                             //--------------------------------------------------
                         }
                     }
+
                     //----------------------------------------------------------
                 }
             }
@@ -163,8 +182,8 @@ cx_double SlaterEquation::secondQuantizationTwoBodyOperator(const int p, const i
 double SlaterEquation::getEnergy(const cx_vec& A)
 {
     computeHamiltonianMatrix();
-//    vec eigval = eig_sym(H);
-//    cout << "min(eigval) = " << min(eigval) << endl;
+    vec eigval = eig_sym(H);
+    cout << "min(eigval) = " << min(eigval) << endl;
 
     return real(cdot(A, H*A)/cdot(A,A));
 }

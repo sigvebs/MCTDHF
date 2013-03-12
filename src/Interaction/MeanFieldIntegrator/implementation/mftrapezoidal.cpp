@@ -34,9 +34,9 @@ cx_vec MfTrapezoidal::integrate(const int q, const int r, const cx_mat &C)
         integral += conj(C(0,q))*Vxy(0,i)*C(0,r)
                 + conj(C(nGrid-1,q))*Vxy(nGrid-1,i)*C(nGrid-1,r);
 
+//        integral = cx_double(real(integral),0);
         Vtmp(i) = 0.5*integral;
     }
-
     return Vtmp;
 }
 //------------------------------------------------------------------------------

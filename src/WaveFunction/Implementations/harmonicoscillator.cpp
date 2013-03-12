@@ -5,7 +5,7 @@ HarmonicOscillator::HarmonicOscillator(Config *cfg, vec quantumNumbers):
     Wavefunction(cfg, quantumNumbers)
 {
     try {
-        w = cfg->lookup("potential.w");
+        w = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "OrbitalHarmonicOscillator::Error reading from 'systemSettings' object setting." << endl;
     }

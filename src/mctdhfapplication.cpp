@@ -39,6 +39,7 @@ void MctdhfApplication::run()
     // Setting the single particle operator
     cout << "Setting up the single particle operator" << endl;
     SingleParticleOperator h(&cfg, setDifferentialOpertor());
+    setOneBodyPotentials(h);
 
     // Setting up the Slater equation
     cout << "Setting up the Slater determiant equation" << endl;
@@ -52,20 +53,33 @@ void MctdhfApplication::run()
     cout << "Setting up the Orbital equation" << endl;
     OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
 
-    // Setting up the complex time integrator
-    ComplexTimeIntegrator* complexTimeIntegrator = setComplexTimeIntegrator();
-    complexTimeIntegrator->setDependencies(&slaterEquation, &orbEq, &V, &h);
-    complexTimeIntegrator->setInititalState(A, C);
-    ComplexTimePropagation complexTimePropagation(&cfg, complexTimeIntegrator);
 
-    cout << "Complex time propagation" << endl;
-    complexTimePropagation.doComplexTimePropagation();
+    // Setting up the complex time integrator
+    ComplexTimePropagation* complexTimePropagation = setComplexTimeIntegrator();
+    complexTimePropagation->setDependencies(&slaterEquation, &orbEq, &V, &h);
+    complexTimePropagation->setInititalState(A, C);
+
+    cout << "Starting imaginary time propagation" << endl;
+    complexTimePropagation->doComplexTimePropagation();
+
+
+    // Time integration
+    bool doTimeIntegration = cfg.lookup("systemSettings.doTimeIntegration");
+    if(doTimeIntegration){
+        TimePropagation *timePropagator = setTimeIntegrator();
+        setTimeDepOneBodyPotentials(h);
+        timePropagator->setDependencies(&slaterEquation, &orbEq, &V, &h);
+        timePropagator->setInititalState(A, C);
+
+        cout << "Starting time propagation" << endl;
+        timePropagator->doComplexTimePropagation();
+
+        delete timePropagator;
+    }
 
     // Cleaning memory
     delete orb;
-    delete complexTimeIntegrator;
-
-    cout << "Done" << endl;
+    delete complexTimePropagation;
 }
 //------------------------------------------------------------------------------
 void MctdhfApplication::setInteractionPotentials(Interaction &V)
@@ -90,21 +104,85 @@ void MctdhfApplication::setInteractionPotentials(Interaction &V)
     V.updatePositionBasisElements();
 }
 //------------------------------------------------------------------------------
-ComplexTimeIntegrator* MctdhfApplication::setComplexTimeIntegrator()
+void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h)
+{
+    Potential* I;
+    int potential = cfg.lookup("oneBodyPotential.potential");
+
+    switch (potential) {
+    case HARMONIC_OSCILLATOR_ONE_BODY:
+        I = new HarmonicOscillatorOneBody(&cfg);
+        h.addPotential(I);
+        break;
+    case COULOMB_INTERACTION_NUCLEUS:
+        I = new CoulombInteractionNucleus(&cfg);
+        h.addPotential(I);
+        break;
+    case ANHARMONIC_DOUBLE_WELL:
+        I = new AnharmonicDoubleWell(&cfg);
+        h.addPotential(I);
+        break;
+    default:
+        cerr << "Potential not implemented:: " << potential << endl;
+        exit(EXIT_FAILURE);
+    }
+}
+//------------------------------------------------------------------------------
+void MctdhfApplication::setTimeDepOneBodyPotentials(SingleParticleOperator &h)
+{
+    Potential* I;
+     int potential = cfg.lookup("oneBodyPotential.timeDepPotential");
+
+     switch (potential) {
+     case SIMPLE_LASER:
+         I = new simpleLaser(&cfg);
+         h.addPotential(I);
+         break;
+     default:
+         cerr << "Time dependent potential not implemented:: " << potential << endl;
+         exit(EXIT_FAILURE);
+     }
+}
+//------------------------------------------------------------------------------
+TimePropagation *MctdhfApplication::setTimeIntegrator()
 {
     // Setting the integrator
-    ComplexTimeIntegrator *I;
-    int complexTimeIntegrator = cfg.lookup("ComplexTimeIntegration.integrator");
+    TimePropagation *I;
+    int integrator = cfg.lookup("timeIntegration.integrator");
 
-    switch (complexTimeIntegrator) {
+    switch (integrator) {
+    case RUNGE_KUTTA4:
+        I = new RungeKutta4(&cfg);
+        break;
+    case RUNGE_KUTTA_FEHLBERG :
+        I = new RungeKutta4(&cfg);
+        break;
+    default:
+        cerr << "Time Integrator not implemented:: " << integrator << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    return I;
+}
+//------------------------------------------------------------------------------
+ComplexTimePropagation* MctdhfApplication::setComplexTimeIntegrator()
+{
+    // Setting the integrator
+    ComplexTimePropagation *I;
+    int integrator = cfg.lookup("ComplexTimeIntegration.integrator");
+
+    switch (integrator) {
     case CT_CRANK_NICOLSON:
         I = new ComplexTimeCrankNicholson(&cfg);
         break;
     case CT_RUNGE_KUTTA4:
         I = new ComplexTimeRungeKutta4(&cfg);
         break;
+    case CT_RUNGE_KUTTA_FEHLBERG :
+        I = new ComplexTimeRungeKuttaFehlberg(&cfg);
+        break;
     default:
-        cerr << "Complex Time Integrator not implemented:: " << complexTimeIntegrator << endl;
+        cerr << "Complex Time Integrator not implemented:: " << integrator << endl;
         exit(EXIT_FAILURE);
     }
 

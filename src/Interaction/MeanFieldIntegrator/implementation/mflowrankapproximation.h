@@ -19,6 +19,8 @@ protected:
     cx_vec Vtmp;
 
     // Local functions
+    mat hExactSpatial();
+    mat hPiecewiseLinear();
     vec gLinear(int n, int constCenter, int nConst, double constValue, double endValue);
     mat cMatrix(const vec &g, const mat &h, double dx);
 };
