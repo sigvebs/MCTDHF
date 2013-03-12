@@ -3,10 +3,14 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
+
 CONFIG += warn_on
 CONFIG += wall
 
-#INCLUDEPATH += /home/sigve/usr/local/include
+cluster{
+    INCLUDEPATH += /home/sigve/usr/local/include
+    INCLUDEPATH += /home/sigve/usr/include
+}
 
 SOURCES += main.cpp \
     src/mctdhfapplication.cpp \
@@ -88,9 +92,18 @@ HEADERS += \
 OTHER_FILES += \
     ../config.cfg
 
+
+cluster{
+    LIBS += -L/home/sigve/usr/local/lib -lconfig++ -llapack -lblas -larmadillo -L/home/sigve/usr/lib -lfftw3 -lm
+}
+
+!cluster{
+    LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm \
+    -L$(MKLROOT)/lib/intel64 -mkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread
+}
+
+
 #LIBS += -lconfig++ -larmadillo -llapack -lblas  -lm
-LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm \
--L$(MKLROOT)/lib/intel64 -mkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread
 
 QMAKE_CXXFLAGS_DEBUG += -std=c++0x
 QMAKE_CXXFLAGS_RELEASE += -std=c++0x
