@@ -301,8 +301,9 @@ double OrbitalEquation::getCorrelation(const cx_vec &A)
     computeOneParticleReducedDensity();
     double correlation = 0;
     for(int i=0; i< nOrbitals; i++){
-        correlation += pow(fabs(invRho(i,i)/nParticles), 4);
+        correlation += pow(abs(invRho(i,i))/nParticles, 4);
     }
+    correlation = 1;
     return 1.0/correlation;
 }
 //------------------------------------------------------------------------------
