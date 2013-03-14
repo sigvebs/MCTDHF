@@ -23,8 +23,10 @@ void MeanFieldIntegrator::addPotential(InteractionPotential *interactionPot)
 void MeanFieldIntegrator::computeMeanField(const cx_mat &C)
 {
     for (int q = 0; q < nOrbitals; q++) {
-        for (int r = q; r < nOrbitals; r++) {
-            V2(q,r) = integrate(q,r, C);
+        V2(q,q) = integrate(q, q, C);
+
+        for (int r = q+1; r < nOrbitals; r++) {
+            V2(q,r) = integrate(q, r, C);
             V2(r,q) = conj(V2(q,r));
         }
     }

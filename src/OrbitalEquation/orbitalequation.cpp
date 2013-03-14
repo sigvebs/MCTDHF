@@ -303,7 +303,6 @@ double OrbitalEquation::getCorrelation(const cx_vec &A)
     for(int i=0; i< nOrbitals; i++){
         correlation += pow(abs(invRho(i,i))/nParticles, 4);
     }
-    correlation = 1;
     return 1.0/correlation;
 }
 //------------------------------------------------------------------------------

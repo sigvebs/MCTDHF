@@ -55,7 +55,7 @@ void MfLowRankApproximation::initialize()
     // of eigenvalues with abs(eigenval(i)) > epsilon
     uvec indices = sort_index(abs(lambda),1);
     M = -1;
-    for(int m=0; m <lambda.n_rows; m++){
+    for(uint m=0; m <lambda.n_rows; m++){
         if(abs(lambda(indices(m))) < epsilon){
             M = m;
             break;
@@ -74,11 +74,11 @@ void MfLowRankApproximation::initialize()
 
     // Calculating  the U matrix
     U = zeros(nGrid, M);
-    int n = lambda.n_rows;
-    for(int m=0; m <M; m++){
-        for(int j=0; j<h.n_rows; j++){
+//    int n = lambda.n_rows;
+    for(uint m=0; m <M; m++){
+        for(uint j=0; j<h.n_rows; j++){
             U(j,m) = 0;
-            for(int i=0; i<h.n_cols; i++){
+            for(uint i=0; i<h.n_cols; i++){
                 U(j,m) += h(j,i)*QU(i,indices(m));
             }
         }
@@ -86,10 +86,10 @@ void MfLowRankApproximation::initialize()
     cout << "MfLowRankApproximation:: Trunction of eigenvalues at M = " << M << endl;
 #if 1 // For testing the low rank approximation's accuracy
     mat appV = zeros(nGrid, nGrid);
-    for(int i=0; i<nGrid; i++){
-        for(int j=0; j<nGrid; j++){
+    for(uint i=0; i<nGrid; i++){
+        for(uint j=0; j<nGrid; j++){
             appV(i,j) = 0;
-            for(int m=0; m<M; m++){
+            for(uint m=0; m<M; m++){
                 appV(i,j) += eigenval(m)*U(i,m)*U(j,m);
             }
         }

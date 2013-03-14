@@ -72,7 +72,7 @@ bool ComplexTimeRungeKuttaFehlberg::stepForward()
 
     R = 1.0/dt*abs(A_ - A_1);
     maxR = max(R);
-    for(int i=0; i<C.n_cols; i++){
+    for(uint i=0; i<C.n_cols; i++){
         R = 1.0/dt*abs(C_.col(i) - C_1.col(i));
         rTmp = max(R);
         if(rTmp > maxR)

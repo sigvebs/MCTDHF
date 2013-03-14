@@ -24,7 +24,7 @@ BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg):
     x = mat(nGrid, dim);
     for(int i=0; i<dim; i++)
         x.col(i) = linspace<vec>(-latticeRange,latticeRange,nGrid);
-#ifdef DEBUG
+#ifdef DEBGUG
     cout << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)" << endl
          << "nBasis \t\t= " << nBasis << endl
          << "latticeRange \t\t= " << latticeRange << endl
@@ -59,7 +59,6 @@ void BasisHarmonicOscillator::discretization1d()
     for(int i=0; i<nSpatialOrbitals; i++){
         wf = new HarmonicOscillator1d(cfg, states[2*i]);
         Ctmp.col(i) = wf->evaluate(x);
-//        Ctmp.col(i) = wf->evaluate(x)*sqrt(dx);
 
         // Re-normalizing to remove numerical errors
         Ctmp.col(i) /= sqrt(dot(Ctmp.col(i),Ctmp.col(i)));

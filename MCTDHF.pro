@@ -99,11 +99,8 @@ cluster{
 
 !cluster{
     LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm \
-    -L$(MKLROOT)/lib/intel64 -mkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread
+    -L$(MKLROOT)/lib/intel64 -mkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread \
 }
-
-
-#LIBS += -lconfig++ -larmadillo -llapack -lblas  -lm
 
 QMAKE_CXXFLAGS_DEBUG += -std=c++0x
 QMAKE_CXXFLAGS_RELEASE += -std=c++0x

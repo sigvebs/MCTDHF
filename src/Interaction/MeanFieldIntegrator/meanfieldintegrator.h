@@ -11,6 +11,7 @@
 #include <vector>
 #include <unordered_map>
 #include <libconfig.h++>
+#include <omp.h>
 
 using namespace libconfig;
 using namespace std;
