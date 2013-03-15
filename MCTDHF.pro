@@ -97,9 +97,19 @@ cluster{
     LIBS += -L/home/sigve/usr/local/lib -lconfig++ -llapack -lblas -larmadillo -L/home/sigve/usr/lib -lfftw3 -lm
 }
 
-!cluster{
+home{
+    LIBS += -fopenmp -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
+    DEFINES += "OPENMP"
+    QMAKE_CXXFLAGS += -fopenmp
+}
+UIO_noIntel{
+    LIBS += -fopenmp -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
+#    DEFINES += "OPENMP"
+#    QMAKE_CXXFLAGS += -fopenmp
+}
+UIO{
     LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm \
-    -L$(MKLROOT)/lib/intel64 -mkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread \
+#    -L$(MKLROOT)/lib/intel64 -mkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread \
 }
 
 QMAKE_CXXFLAGS_DEBUG += -std=c++0x
