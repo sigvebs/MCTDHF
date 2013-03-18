@@ -4,7 +4,7 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator
     cfg(cfg),
     kineticOperator(kineticOperator)
 {
-    double L;
+    double L, dx;
     string filePath;
     try{
         ww = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
@@ -12,12 +12,13 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator
         L = cfg->lookup("spatialDiscretization.latticeRange");
         nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
+        dx = cfg->lookup("spatialDiscretization.gridSpacing");
         cfg->lookupValue("systemSettings.filePath", filePath);
     } catch (const SettingNotFoundException &nfex) {
         cerr << "OneParticleOperator::OneParticleOperator(Config *cfg, vector<vec> orbitals)"
              << "::Error reading from config object." << endl;
     }
-    x = linspace<cx_vec>(-L, L, nGrid);
+    x = linspace<cx_vec>(-L, L -dx, nGrid);
     h = zeros<cx_mat>(nOrbitals, nOrbitals);
     Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
     Uspatial = zeros<cx_mat>(nGrid, nOrbitals);

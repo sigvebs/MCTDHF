@@ -4,17 +4,18 @@
 AnharmonicDoubleWell::AnharmonicDoubleWell(Config *cfg):
     Potential(cfg)
 {
-    double L;
+    double L,dx;
     double d;
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
         d = cfg->lookup("oneBodyPotential.anharmonicDoubleWell.d");
+        dx = cfg->lookup("spatialDiscretization.gridSpacing");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "AnharmonicDoubleWell::AnharmonicDoubleWell(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
 
-    vec x = linspace(-L, L, nGrid);
+    vec x = linspace(-L, L - dx, nGrid);
     potential = vec(nGrid);
 
     // Setting the potential

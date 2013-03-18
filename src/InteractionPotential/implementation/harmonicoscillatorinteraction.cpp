@@ -5,17 +5,18 @@
 HarmonicOscillatorInteraction::HarmonicOscillatorInteraction(Config *cfg):
     InteractionPotential(cfg)
 {
-    double L;
+    double L, dx;
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
         epsilon = cfg->lookup("interactionPotential.interactionPotential.epsilon");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
+        dx = cfg->lookup("spatialDiscretization.gridSpacing");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "ScreenedCoulombInteraction(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
     interactionSpace = zeros(nGrid, nGrid);
-    x = linspace(-L, L, nGrid);
+    x = linspace(-L, L-dx, nGrid);
 }
 //------------------------------------------------------------------------------
 mat HarmonicOscillatorInteraction::computeInteractionSpace()

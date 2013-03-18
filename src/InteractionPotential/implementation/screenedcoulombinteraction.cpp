@@ -3,19 +3,20 @@
 ScreenedCoulombInteraction::ScreenedCoulombInteraction(Config *cfg):
     InteractionPotential(cfg)
 {
-    double L;
+    double L, dx;
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
         aa = cfg->lookup("interactionPotential.shieldedCoulombInteraction.a");
         lambda = cfg->lookup("interactionPotential.shieldedCoulombInteraction.lambda");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
+        dx = cfg->lookup("spatialDiscretization.gridSpacing");
         aa *=aa;
     } catch (const SettingNotFoundException &nfex) {
         cerr << "ScreenedCoulombInteraction(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
     interactionSpace = zeros(nGrid, nGrid);
-    x = linspace(-L, L, nGrid);
+    x = linspace(-L, L - dx, nGrid);
 }
 //------------------------------------------------------------------------------
 mat ScreenedCoulombInteraction::computeInteractionSpace()

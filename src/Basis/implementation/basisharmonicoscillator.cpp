@@ -4,26 +4,31 @@
 BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg):
     Basis(cfg)
 {
-    double latticeRange;
+    double L;
     try{
         nBasis = cfg->lookup("system.shells");
-        latticeRange = cfg->lookup("spatialDiscretization.latticeRange");
-        dx = cfg->lookup("spatialDiscretization.gridSpacing");
+        L = cfg->lookup("spatialDiscretization.latticeRange");
+//        dx = cfg->lookup("spatialDiscretization.gridSpacing");
+        nGrid = cfg->lookup("spatialDiscretization.nGrid");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
-    nGrid = 2*latticeRange/dx+1;
+//    nGrid = 2*latticeRange/dx+1;
+    dx = 2.0*L/(double)(nGrid);
     nSpatialOrbitals = states.size()/2;
 
     // Adding the number of gridpoints to the config file
     Setting &root = cfg->getRoot();
     Setting &tmp = root["spatialDiscretization"];
-    tmp.add("nGrid", Setting::TypeInt) = nGrid;
+
+    tmp.add("gridSpacing", Setting::TypeFloat) = dx;
+//    tmp.add("nGrid", Setting::TypeInt) = nGrid;
 
     x = mat(nGrid, dim);
     for(int i=0; i<dim; i++)
-        x.col(i) = linspace<vec>(-latticeRange,latticeRange,nGrid);
+        x.col(i) = linspace<vec>(-L,L-dx,nGrid);
+
 #ifdef DEBGUG
     cout << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)" << endl
          << "nBasis \t\t= " << nBasis << endl
@@ -67,7 +72,6 @@ void BasisHarmonicOscillator::discretization1d()
 
     C.set_real(Ctmp);
     x.save(filnameAxis, arma_ascii);
-
 #ifdef DEBUG
     cout << "BasisHarmonicOscillator::discretization1d()" << endl;
     for(int i=0; i<nSpatialOrbitals; i++){

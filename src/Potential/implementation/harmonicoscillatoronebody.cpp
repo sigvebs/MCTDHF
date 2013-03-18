@@ -6,15 +6,17 @@ HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg):
 {
     double L;
     double w;
+    double dx;
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
         w = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
+        dx = cfg->lookup("spatialDiscretization.gridSpacing");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
 
-    vec x = linspace(-L, L, nGrid);
+    vec x = linspace(-L, L - dx, nGrid);
     potential = vec(nGrid);
 
     // Setting the potential
