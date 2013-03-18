@@ -38,10 +38,21 @@ protected:
                                                 const int r, const int s,
                                                 bitset<BITS> state1,
                                                 const bitset<BITS> &state2);
+
+    // For slater bool
+    cx_double secondQuantizationOneBodyOperatorBool(const int p, const int q,
+                                                const bool *state1,
+                                                const bool *state2);
+
+    cx_double secondQuantizationTwoBodyOperatorBool(const int p, const int q,
+                                                const int r, const int s,
+                                                const bool *state1,
+                                                const bool *state2);
     // Class variables
     Config* cfg;
 
     vector<bitset<BITS> > slaterDeterminants;
+    bool workingState[BITS];
 
     cx_mat H;
     const cx_mat* h;

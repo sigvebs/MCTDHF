@@ -75,7 +75,7 @@ void MfLowRankApproximation::initialize()
     // Calculating  the U matrix
     U = zeros(nGrid, M);
 //    int n = lambda.n_rows;
-    for(uint m=0; m <M; m++){
+    for(int m=0; m < M; m++){
         for(uint j=0; j<h.n_rows; j++){
             U(j,m) = 0;
             for(uint i=0; i<h.n_cols; i++){
@@ -86,10 +86,10 @@ void MfLowRankApproximation::initialize()
     cout << "MfLowRankApproximation:: Trunction of eigenvalues at M = " << M << endl;
 #if 1 // For testing the low rank approximation's accuracy
     mat appV = zeros(nGrid, nGrid);
-    for(uint i=0; i<nGrid; i++){
-        for(uint j=0; j<nGrid; j++){
+    for(int i=0; i<nGrid; i++){
+        for(int j=0; j<nGrid; j++){
             appV(i,j) = 0;
-            for(uint m=0; m<M; m++){
+            for(int m=0; m<M; m++){
                 appV(i,j) += eigenval(m)*U(i,m)*U(j,m);
             }
         }
@@ -102,20 +102,25 @@ void MfLowRankApproximation::initialize()
     appV.save("../DATA/Vapp.mat", arma_ascii);
     V_.save("../DATA/Vex.mat", arma_ascii);
     cout << nGrid << endl;
-    exit(EXIT_SUCCESS);
+//    exit(EXIT_SUCCESS);
 #endif
+
+    Vm = zeros<cx_vec>(M);
+    Vqr = zeros<cx_vec>(nGrid);
 }
 //------------------------------------------------------------------------------
 cx_vec MfLowRankApproximation::integrate(const int q, const int r, const cx_mat &C)
 {
-    cx_vec Vm = zeros<cx_vec>(M);
+
+    Vm.zeros();
+    Vqr.zeros();
+
     for(int m=0; m<M; m++){
         for(int j=0; j<nGrid; j++){
             Vm(m) += conj(C(j,q))*U(j,m)*C(j,r);
         }
     }
 
-    cx_vec Vqr = zeros<cx_vec>(nGrid);
     for(int i=0; i<nGrid; i++){
         for(int m=0; m<M; m++){
             Vqr(i) += eigenval(m)*U(i,m)*Vm(m);

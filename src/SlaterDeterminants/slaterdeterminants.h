@@ -22,10 +22,15 @@ public:
     SlaterDeterminants(Config *cfg, vector<vec> sps);
     void createSlaterDeterminants();
     const vector<bitset<BITS> > &getSlaterDeterminants() const;
+    const vector<bool*> &getSlaterDeterminantsBool() const;
 protected:
     vec odometer(const vec &, int, int);
     bitset<BITS> createBinaryState(vec state);
     bool checkEigenSpin(vec state);
+
+
+    // Bool operations
+    bool *createBinaryStateBool(vec state);
 
     Config *cfg;
 
@@ -36,6 +41,7 @@ protected:
 
     vector<vec> sps;
     vector<bitset<BITS> > binStates;
+    vector<bool*> binStatesBool;
 };
 
 #endif // SLATERDETERMINANTS_H

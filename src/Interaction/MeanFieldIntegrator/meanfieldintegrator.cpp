@@ -22,13 +22,18 @@ void MeanFieldIntegrator::addPotential(InteractionPotential *interactionPot)
 //------------------------------------------------------------------------------
 void MeanFieldIntegrator::computeMeanField(const cx_mat &C)
 {
+
     for (int q = 0; q < nOrbitals; q++) {
         V2(q,q) = integrate(q, q, C);
 
         for (int r = q+1; r < nOrbitals; r++) {
+//            cout << "ID = " << omp_get_thread_num() << " " << q << r << endl;
             V2(q,r) = integrate(q, r, C);
             V2(r,q) = conj(V2(q,r));
         }
     }
+
+//    cout << real(V2(0,0)) << endl;
+//    exit(1);
 }
 //------------------------------------------------------------------------------

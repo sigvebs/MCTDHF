@@ -23,6 +23,9 @@ protected:
     mat hPiecewiseLinear();
     vec gLinear(int n, int constCenter, int nConst, double constValue, double endValue);
     mat cMatrix(const vec &g, const mat &h, double dx);
+
+    cx_vec Vm;
+    cx_vec Vqr;
 };
 
 #endif // MFLOWRANKAPPROXIMATION_H

@@ -33,10 +33,6 @@ cx_vec SlaterEquation::computeRightHandSideComplexTime(const cx_vec &A)
 
     cx_vec HA = H*A;
     cx_double E = cdot(A, HA)/cdot(A,A);
-//    vec eigval = eig_sym(H);
-//    cout << "min(eigval) = " << min(eigval) << endl;
-
-//    exit(1);
 
     return HA - E*A;
 }
@@ -81,6 +77,7 @@ void SlaterEquation::computeHamiltonianMatrix()
                             if(Vpqrs != cx_double(0,0)){
                                 phase = 0;
 
+
                                 phase += secondQuantizationTwoBodyOperator(2*p, 2*q, 2*r, 2*s,
                                                                            slaterDeterminants[n],
                                                                            slaterDeterminants[m]);
@@ -96,7 +93,6 @@ void SlaterEquation::computeHamiltonianMatrix()
                                 phase += secondQuantizationTwoBodyOperator(2*p+1, 2*q, 2*r+1, 2*s,
                                                                            slaterDeterminants[n],
                                                                            slaterDeterminants[m]);
-
 
                                 H(m, n) += 0.5*Vpqrs*phase;
                             }
@@ -132,9 +128,13 @@ cx_double SlaterEquation::secondQuantizationOneBodyOperator(const int p, const i
     cx_double phase = 1;
 
     removeParticle(q, state1);
+    if(state1[BITS-1] == 1)
+        return 0;
     phase *= sign(q, state1);
 
     addParticle(p, state1);
+    if(state1[BITS-1] == 1)
+        return 0;
     phase *= sign(p, state1);
 
     if (state2 !=  state1)
@@ -150,21 +150,28 @@ cx_double SlaterEquation::secondQuantizationTwoBodyOperator(const int p, const i
                                                            const bitset<BITS> &state2)
 {
     cx_double phase = 1;
-
     removeParticle(r, state1);
+    if(state1[BITS-1] == 1)
+        return 0;
     phase *= sign(r, state1);
 
     removeParticle(s, state1);
+    if(state1[BITS-1] == 1)
+        return 0;
     phase *= sign(s, state1);
 
     addParticle(q, state1);
+    if(state1[BITS-1] == 1)
+        return 0;
     phase *= sign(q, state1);
 
     addParticle(p, state1);
+    if(state1[BITS-1] == 1)
+        return 0;
     phase *= sign(p, state1);
 
     if (state1 !=  state2)
-        phase = 0;
+        return 0;
 
     return phase;
 }
@@ -175,7 +182,6 @@ double SlaterEquation::getEnergy(const cx_vec& A)
     computeHamiltonianMatrix();
     vec eigval = eig_sym(H);
     cout << "min(eigval) = " << min(eigval) << endl;
-//    cout << "eigval = " << eigval << endl;
 
     return real(cdot(A, H*A)/cdot(A,A));
 }
