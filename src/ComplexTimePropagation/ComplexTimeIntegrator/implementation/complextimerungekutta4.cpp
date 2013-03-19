@@ -44,6 +44,9 @@ bool ComplexTimeRungeKutta4::stepForward()
     C = renormalize(C);
     A = A/sqrt(cdot(A,A));
 
+    V->computeNewElements(C);
+    h->computeNewElements(C);
+
     return 1;
 }
 //------------------------------------------------------------------------------

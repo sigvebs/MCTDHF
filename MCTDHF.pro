@@ -92,6 +92,9 @@ HEADERS += \
 OTHER_FILES += \
     ../config.cfg
 
+default{
+    LIBS += -lconfig++ -llapack -lblas -larmadillo -L/home/sigve/usr/lib -lfftw3 -lm
+}
 
 cluster{
     LIBS += -L/home/sigve/usr/local/lib -lconfig++ -llapack -lblas -larmadillo -L/home/sigve/usr/lib -lfftw3 -lm
@@ -129,9 +132,3 @@ release {
     QMAKE_CXXFLAGS_RELEASE *= -O3
     DEFINES += ARMA_NO_DEBUG
 }
-
-# For creating a version.txt file in the build directory
-version.target = version
-version.commands = python $$PWD/version.py $$PWD $$OUT_PWD
-QMAKE_EXTRA_TARGETS += version
-PRE_TARGETDEPS += version

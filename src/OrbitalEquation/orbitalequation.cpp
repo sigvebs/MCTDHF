@@ -148,6 +148,20 @@ void OrbitalEquation::computeOneParticleReducedDensity()
     cout << "Trace(rho) = " << real(trace(invRho)) << " nParticles = " << nParticles << endl;
 //    exit(0);
 #endif
+
+
+    //---------------------------
+//    cout << invRho << endl;
+//    double epsilon = 1e-10;
+//    vec eigval;
+//    cx_mat eigvec;
+//    eig_sym(eigval, eigvec, invRho);
+//    cx_mat expRho = epsilon*eigvec*exp(-eigval/epsilon)*inv(eigvec);
+//    cout << eigval << endl;
+//    cout << expRho << endl;
+//    invRho += expRho;
+    //---------------------------
+
 }
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeTwoParticleReducedDensity()

@@ -22,7 +22,7 @@ SlaterEquation::SlaterEquation(Config *cfg,
 cx_vec SlaterEquation::computeRightHandSide(const cx_vec &A)
 {
     computeHamiltonianMatrix();
-
+    vec eigval = eig_sym(H);
     return H*A;
 }
 //------------------------------------------------------------------------------
@@ -30,9 +30,12 @@ cx_vec SlaterEquation::computeRightHandSideComplexTime(const cx_vec &A)
 {
     cout.precision(16);
     computeHamiltonianMatrix();
-
     cx_vec HA = H*A;
     cx_double E = cdot(A, HA)/cdot(A,A);
+
+//    vec eigval = eig_sym(H);
+//    cout << "min(eigval) = " << min(eigval) << endl;
+//    exit(1);
 
     return HA - E*A;
 }

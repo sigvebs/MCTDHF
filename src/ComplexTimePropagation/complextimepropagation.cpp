@@ -36,7 +36,6 @@ void ComplexTimePropagation::doComplexTimePropagation()
     bool accepted;
     cout << "Starting imaginary propagation:" << endl;
     for(step=0; step < N; step++){
-
         accepted = this->stepForward();
 
         // Saving C and A to disk

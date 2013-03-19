@@ -62,6 +62,7 @@ void MfLowRankApproximation::initialize()
         }
     }
     cout << min(abs(lambda)) << endl;
+    M = 250;
     if(M < 0){
         cerr << "MfLowRankApproximation:: no eigenvalues < epsilon found."
              << " Try setting epsilon to a higher number" << endl;
@@ -74,7 +75,6 @@ void MfLowRankApproximation::initialize()
 
     // Calculating  the U matrix
     U = zeros(nGrid, M);
-//    int n = lambda.n_rows;
     for(int m=0; m < M; m++){
         for(uint j=0; j<h.n_rows; j++){
             U(j,m) = 0;
@@ -84,6 +84,7 @@ void MfLowRankApproximation::initialize()
         }
     }
     cout << "MfLowRankApproximation:: Trunction of eigenvalues at M = " << M << endl;
+
 #if 1 // For testing the low rank approximation's accuracy
     mat appV = zeros(nGrid, nGrid);
     for(int i=0; i<nGrid; i++){
@@ -102,7 +103,7 @@ void MfLowRankApproximation::initialize()
     appV.save("../DATA/Vapp.mat", arma_ascii);
     V_.save("../DATA/Vex.mat", arma_ascii);
     cout << nGrid << endl;
-//    exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 #endif
 
     Vm = zeros<cx_vec>(M);

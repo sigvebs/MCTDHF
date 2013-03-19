@@ -4,14 +4,14 @@ Spectral1d::Spectral1d(Config* cfg): DifferentialOperator(cfg)
 {
     // Setting up the frequencies.
     k = vec(nGrid);
-    for(int i=0;i<nGrid/2;i++) {
-        k[i]=i;
+    for(int i=0; i<nGrid/2; i++) {
+        k[i] = i;
     }
-    for(int i=nGrid/2;i<nGrid;i++) {
-        k[i]=-(nGrid-i);
+    for(int i=nGrid/2; i<nGrid;i++) {
+        k[i] = - (nGrid - i);
     }
 
-    k *= 2*PI/(dx*nGrid);
+    k *= 2*PI/(dx*(nGrid));
     k = -k%k/nGrid; // Included the scaling 1.0/N here
 
     diff = cx_vec(nGrid);
@@ -23,11 +23,28 @@ Spectral1d::Spectral1d(Config* cfg): DifferentialOperator(cfg)
 cx_vec Spectral1d::secondDerivative(const cx_vec &phi)
 {
     diff = phi;
+//    double L = 10.0;
+//    cx_vec x = linspace<cx_vec>(-L,L-dx, nGrid);
+//    cx_vec old = cos(x*PI/L);
+//    diff =  cos(x*PI/L);
+//    cout << real(diff) << endl;
 
     fftw_execute(forward);
     diff = k % diff;
     fftw_execute(backward);
 
+//    cout << real(diff) << endl;
+
+//    for(int i=0; i<nGrid/2; i++){
+//        cout << real(diff(i)/ old(i)) << endl;
+//    }
+//    cout << "---" << endl;
+//    for(int i=nGrid/2; i<nGrid;i++) {
+//        cout << real(diff(i)/ old(i)) << endl;
+//    }
+//    cout << k << endl;
+////    cout << x << endl;
+//    exit(1);
     return diff;
 }
 //------------------------------------------------------------------------------

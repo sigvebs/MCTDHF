@@ -23,12 +23,10 @@ BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg):
     Setting &tmp = root["spatialDiscretization"];
 
     tmp.add("gridSpacing", Setting::TypeFloat) = dx;
-//    tmp.add("nGrid", Setting::TypeInt) = nGrid;
 
     x = mat(nGrid, dim);
     for(int i=0; i<dim; i++)
         x.col(i) = linspace<vec>(-L,L-dx,nGrid);
-
 #ifdef DEBGUG
     cout << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)" << endl
          << "nBasis \t\t= " << nBasis << endl
