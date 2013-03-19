@@ -1,13 +1,16 @@
 MCTDHF
 ================
 A test implementation of MCTDHF. To compile the following libraries are needed:
-    - Armadillo
-    - Libconfig++
-    - Lapack
-    - Blas
-    - FFTW
-To compile run "qmake CONFIG+=defalut' and then make. To run the program execute 'MCTDHF PATH-CONFIG'
-where 'PATH-CONFIG' is the path to a file spesifying the configuration. Example of config file:
+- Armadillo
+- Libconfig
+- Lapack
+- Blas
+- FFTW
+
+To compile run "qmake CONFIG+=default' and then make. To run the program execute 'MCTDHF PATH-CONFIG'
+where 'PATH-CONFIG' is the path to a file spesifying the configuration. Editing of the code is best done using QtCreator.
+
+Example of config file:
 ```
 #-------------------------------
 # Example of configuration file
