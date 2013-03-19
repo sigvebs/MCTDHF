@@ -6,14 +6,13 @@ A test implementation of MCTDHF. To compile the following libraries are needed:
     - Lapack
     - Blas
     - FFTW
-
-To compile run 'qmake CONFIG+=defalut' and then make. To run the program execute 'MCTDHF PATH-CONFIG'
+To compile run "qmake CONFIG+=defalut' and then make. To run the program execute 'MCTDHF PATH-CONFIG'
 where 'PATH-CONFIG' is the path to a file spesifying the configuration. Example of config file:
-================
+```
 #-------------------------------
-# Configuration file for MCTDHF
+# Example of configuration file
+# for the MCTDHF program
 #-------------------------------
-
 systemSettings:
 {
     version = "---";
@@ -150,4 +149,4 @@ oneBodyPotential:
         d = 8.0;
     };
 };
-================
+```
