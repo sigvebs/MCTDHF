@@ -90,7 +90,8 @@ HEADERS += \
     src/Potential/implementation/anharmonicdoublewell.h
 
 OTHER_FILES += \
-    ../config.cfg
+    ../config.cfg \
+    README.md
 
 default{
     LIBS += -lconfig++ -llapack -lblas -larmadillo -L/home/sigve/usr/lib -lfftw3 -lm
