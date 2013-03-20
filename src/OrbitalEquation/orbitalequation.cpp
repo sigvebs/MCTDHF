@@ -78,7 +78,18 @@ void OrbitalEquation::computeUMatrix(const cx_mat &C)
 //------------------------------------------------------------------------------
 void OrbitalEquation::computeProjector(const cx_mat &C)
 {
-#if 0
+#if 1
+    cx_double Qtmp;
+    for(int m=0; m<nGrid; m++){
+        for(int n=0; n<nGrid; n++){
+            Qtmp = 0;
+            for(int i=0; i<nOrbitals; i++){
+                Qtmp -= C(m,i)*conj(C(n,i));
+            }
+            Q(m,n) = Qtmp;
+        }
+    }
+#else
     // NEED TO BE UPDATED - not working
     // Slightly changing the projector to ensure orthonormality is conserved
     // Problems arise due to numerical inaccuracies.
@@ -107,17 +118,6 @@ void OrbitalEquation::computeProjector(const cx_mat &C)
     //    cout << max(max(Qn - Q));
     //    exit(1); Q -= C.col(i)*C.col(i).t();
     //    }
-#else
-    cx_double Qtmp;
-    for(int m=0; m<nGrid; m++){
-        for(int n=0; n<nGrid; n++){
-            Qtmp = 0;
-            for(int i=0; i<nOrbitals; i++){
-                Qtmp -= C(m,i)*conj(C(n,i));
-            }
-            Q(m,n) = Qtmp;
-        }
-    }
 #endif
 
     // Adding the identity matrix
@@ -146,21 +146,24 @@ void OrbitalEquation::computeOneParticleReducedDensity()
 //#if 1
     cout << "OrbitalEquation::computeOneParticleReducedDensity()" << endl;
     cout << "Trace(rho) = " << real(trace(invRho)) << " nParticles = " << nParticles << endl;
-//    exit(0);
 #endif
 
 
+#if 0
     //---------------------------
-//    cout << invRho << endl;
-//    double epsilon = 1e-10;
-//    vec eigval;
-//    cx_mat eigvec;
-//    eig_sym(eigval, eigvec, invRho);
-//    cx_mat expRho = epsilon*eigvec*exp(-eigval/epsilon)*inv(eigvec);
-//    cout << eigval << endl;
-//    cout << expRho << endl;
-//    invRho += expRho;
+    // Regularization
     //---------------------------
+    const double e = 1e-10;
+    cx_mat rho_U;
+    vec rho_lambda;
+    eig_sym(rho_lambda, rho_U, invRho);
+
+    rho_lambda = rho_lambda + e*exp(-rho_lambda*(1.0/e));
+    cx_mat X = rho_U*diagmat(1.0/rho_lambda)*rho_U.t();
+
+    invRho += X;
+    //---------------------------
+#endif
 
 }
 //------------------------------------------------------------------------------
@@ -214,6 +217,19 @@ cx_double OrbitalEquation::reducedOneParticleOperator(const int i, const int j)
             phase = 1;
             newState = slaterDeterminants[m];
 
+            //------------------------------------------------------------------
+            // The following is an ugly way of writing
+            //------------------------------------------------------------------
+            //            removeParticle(j, newState);
+            //            phase *= sign(j, newState);
+
+            //            addParticle(i, newState);
+            //            phase *= sign(i, newState);
+
+            //            if(slaterDeterminants[n] == newState)
+            //                value += phase*conj((*A)(n))*(*A)(m);
+            //------------------------------------------------------------------
+
             removeParticle(j, newState);
             if(newState[BITS-1] != 1){
                 phase *= sign(j, newState);
@@ -229,6 +245,7 @@ cx_double OrbitalEquation::reducedOneParticleOperator(const int i, const int j)
                     }
                 }
             }
+            //------------------------------------------------------------------
         }
     }
     return value;
@@ -248,6 +265,24 @@ cx_double OrbitalEquation::reducedTwoParticleOperator(const int p, const int q,
             phase = 1;
             newState = slaterDeterminants[m];
 
+            //------------------------------------------------------------------
+            // The following is an ugly way of writing
+            //------------------------------------------------------------------
+            //            removeParticle(s, newState);
+            //            phase *= sign(s, newState);
+
+            //            removeParticle(r, newState);
+            //            phase *= sign(r, newState);
+
+            //            addParticle(q, newState);
+            //            phase *= sign(q, newState);
+
+            //            addParticle(p, newState);
+            //            phase *= sign(p, newState);
+
+            //            if(slaterDeterminants[n] == newState)
+            //                value += phase*conj((*A)(n))*(*A)(m);
+            //------------------------------------------------------------------
             removeParticle(s, newState);
             if(newState[BITS-1] != 1){
                 phase *= sign(s, newState);
@@ -272,6 +307,7 @@ cx_double OrbitalEquation::reducedTwoParticleOperator(const int p, const int q,
                     }
                 }
             }
+            //------------------------------------------------------------------
         }
     }
 
@@ -281,12 +317,11 @@ cx_double OrbitalEquation::reducedTwoParticleOperator(const int p, const int q,
 double OrbitalEquation::getCorrelation(const cx_vec &A)
 {
     this->A = &A;
+
     computeOneParticleReducedDensity();
-    double correlation = 0;
-    for(int i=0; i< nOrbitals; i++){
-        correlation += pow(abs(invRho(i,i))/nParticles, 4);
-    }
-    return 1.0/correlation;
+    cx_mat rho1_sq = invRho*invRho/(nParticles*nParticles);
+
+    return 1.0/real(trace(rho1_sq));
 }
 //------------------------------------------------------------------------------
 cx_double OrbitalEquation::findRho2(int p, int q, int r, int s)
