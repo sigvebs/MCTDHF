@@ -107,41 +107,54 @@ void MctdhfApplication::setInteractionPotentials(Interaction &V)
 void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h)
 {
     Potential* I;
-    int potential = cfg.lookup("oneBodyPotential.potential");
+    const Setting& root = cfg.getRoot();
+    const Setting &oneBodyPotentials = root["oneBodyPotential"]["potential"];
+    int nPotentials = oneBodyPotentials.getLength();
 
-    switch (potential) {
-    case HARMONIC_OSCILLATOR_ONE_BODY:
-        I = new HarmonicOscillatorOneBody(&cfg);
-        h.addPotential(I);
-        break;
-    case COULOMB_INTERACTION_NUCLEUS:
-        I = new CoulombInteractionNucleus(&cfg);
-        h.addPotential(I);
-        break;
-    case ANHARMONIC_DOUBLE_WELL:
-        I = new AnharmonicDoubleWell(&cfg);
-        h.addPotential(I);
-        break;
-    default:
-        cerr << "Potential not implemented:: " << potential << endl;
-        exit(EXIT_FAILURE);
+    for(int i=0; i<nPotentials; i++){
+        int potential = oneBodyPotentials[i];
+        cout << potential << endl;
+        switch (potential) {
+        case HARMONIC_OSCILLATOR_ONE_BODY:
+            I = new HarmonicOscillatorOneBody(&cfg);
+            h.addPotential(I);
+            break;
+        case COULOMB_INTERACTION_NUCLEUS:
+            I = new CoulombInteractionNucleus(&cfg);
+            h.addPotential(I);
+            break;
+        case ANHARMONIC_DOUBLE_WELL:
+            I = new AnharmonicDoubleWell(&cfg);
+            h.addPotential(I);
+            break;
+        default:
+            cerr << "Potential not implemented:: " << potential << endl;
+            exit(EXIT_FAILURE);
+        }
     }
 }
 //------------------------------------------------------------------------------
 void MctdhfApplication::setTimeDepOneBodyPotentials(SingleParticleOperator &h)
 {
     Potential* I;
-     int potential = cfg.lookup("oneBodyPotential.timeDepPotential");
 
-     switch (potential) {
-     case SIMPLE_LASER:
-         I = new simpleLaser(&cfg);
-         h.addPotential(I);
-         break;
-     default:
-         cerr << "Time dependent potential not implemented:: " << potential << endl;
-         exit(EXIT_FAILURE);
-     }
+    const Setting& root = cfg.getRoot();
+    const Setting &oneBodyPotentials = root["oneBodyPotential"]["timeDepPotential"];
+    int nPotentials = oneBodyPotentials.getLength();
+
+    for(int i=0; i<nPotentials; i++){
+        int potential = oneBodyPotentials[i];
+
+        switch (potential) {
+        case SIMPLE_LASER:
+            I = new simpleLaser(&cfg);
+            h.addPotential(I);
+            break;
+        default:
+            cerr << "Time dependent potential not implemented:: " << potential << endl;
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 //------------------------------------------------------------------------------
 TimePropagation *MctdhfApplication::setTimeIntegrator()
