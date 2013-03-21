@@ -23,8 +23,9 @@ void MctdhfApplication::run()
     Basis* orb = setBasis();
     orb->createBasis();
     orb->createInitalDiscretization();
-    const vector<vec> &orbitals = orb->getBasis();
-    const cx_mat &C = orb->getInitalOrbitals();
+    const vector<vec> orbitals = orb->getBasis();
+    cx_mat C = orb->getInitalOrbitals();
+    delete orb;
 
     // Creating all possible Slater determinants from the set of orbitals
     SlaterDeterminants slater(&cfg, orbitals);
@@ -47,8 +48,9 @@ void MctdhfApplication::run()
 
     // Creating an initial coefficient vector for the Slater determinants.
     cx_vec A = randu<cx_vec>(slaterDeterminants.size());
+//    A.zeros();
+//    A(0) = 1.0;
     A = A/sqrt(cdot(A, A));
-
     // Setting up the orbital equation
     cout << "Setting up the Orbital equation" << endl;
     OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
@@ -61,7 +63,7 @@ void MctdhfApplication::run()
 
     cout << "Starting imaginary time propagation" << endl;
     complexTimePropagation->doComplexTimePropagation();
-
+    delete complexTimePropagation;
 
     // Time integration
     bool doTimeIntegration = cfg.lookup("systemSettings.doTimeIntegration");
@@ -76,10 +78,6 @@ void MctdhfApplication::run()
 
         delete timePropagator;
     }
-
-    // Cleaning memory
-    delete orb;
-    delete complexTimePropagation;
 }
 //------------------------------------------------------------------------------
 void MctdhfApplication::setInteractionPotentials(Interaction &V)
@@ -113,7 +111,6 @@ void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h)
 
     for(int i=0; i<nPotentials; i++){
         int potential = oneBodyPotentials[i];
-        cout << potential << endl;
         switch (potential) {
         case HARMONIC_OSCILLATOR_ONE_BODY:
             I = new HarmonicOscillatorOneBody(&cfg);
@@ -256,6 +253,9 @@ Basis *MctdhfApplication::setBasis()
         break;
     case OBT_HYDROGEN_LIKE:
         I = new BasisHydrogenLike(&cfg);
+        break;
+    case OBT_RAND_UNITARY_MATRIX:
+        I = new RandomUnitaryMatrix(&cfg);
         break;
     default:
         cerr << "Basis not implemented:: " << basisType << endl;

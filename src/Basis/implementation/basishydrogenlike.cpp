@@ -3,36 +3,6 @@
 BasisHydrogenLike::BasisHydrogenLike(Config *cfg):
     Basis(cfg)
 {
-    double L;
-    try{
-        nBasis = cfg->lookup("system.shells");
-        L = cfg->lookup("spatialDiscretization.latticeRange");
-        nGrid = cfg->lookup("spatialDiscretization.nGrid");
-    } catch (const SettingNotFoundException &nfex) {
-        cerr << "BasisHarmonicOscillator::BasisHarmonicOscillator(Config *cfg)"
-             << "::Error reading from config object." << endl;
-    }
-
-    dx = 2.0*L/(double)(nGrid);
-    nSpatialOrbitals = states.size()/2;
-
-    // Adding the number of gridpoints to the config file
-    Setting &root = cfg->getRoot();
-    Setting &tmp = root["spatialDiscretization"];
-
-    tmp.add("gridSpacing", Setting::TypeFloat) = dx;
-
-    x = mat(nGrid, dim);
-    for(int i=0; i<dim; i++)
-        x.col(i) = linspace<vec>(-L,L-dx,nGrid);
-
-#ifdef DEBUG
-    cout << "BasisHydrogenLike::BasisHydrogenLike(Config *cfg)" << endl
-         << "nBasis \t\t= " << nBasis << endl
-         << "latticeRange \t\t= " << latticeRange << endl
-         << "dx \t\t= " << dx << endl
-         << "nGrid \t\t= " << nGrid << endl;
-#endif
 }
 //------------------------------------------------------------------------------
 void BasisHydrogenLike::createInitalDiscretization()
@@ -59,19 +29,23 @@ void BasisHydrogenLike::discretization1d()
     for(int i=0; i<nSpatialOrbitals; i++){
         wf = new HydrogenLike(cfg, states[2*i]);
         Ctmp.col(i) = wf->evaluate(x);
-
-        // Re-normalizing to remove numerical errors
-        Ctmp.col(i) = Ctmp.col(i)/sqrt(dot(Ctmp.col(i),Ctmp.col(i)));
     }
 
     C.set_real(Ctmp);
-    x.save(filnameAxis, arma_ascii);
+
+    // Forcing orthogonality by performing a SVD decomposition
+    cx_mat X;
+    vec s;
+    cx_mat Y;
+    svd_econ(X, s, Y, C);
+    C = X*Y.t();
 
 #ifdef DEBUG
-//#if 1
-    cout << "BasisHarmonicOscillator::discretization1d()" << endl;
+    cout << "BasisHydrogenLike::discretization1d()" << endl;
     for(int i=0; i<nSpatialOrbitals; i++){
-        cout <<  "|C(" << i << ")|^2 = " << cdot(C.col(i),C.col(i)) << endl ;
+        for(int j=0; j<nSpatialOrbitals; j++){
+            cout <<  "|C(" << i << ", " << j << ")| = " << sqrt(cdot(C.col(i),C.col(j))) << endl ;
+        }
     }
 #endif
 }

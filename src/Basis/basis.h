@@ -43,6 +43,9 @@ protected:
     cx_mat C;
 
     string filnameAxis;
+
+    double dx;
+    mat x;
 };
 
 #endif // BASIS_H

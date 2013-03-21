@@ -4,16 +4,35 @@ Basis::Basis(Config *cfg):
     cfg(cfg)
 {
     string filePath;
+    double L;
     try{
         dim = cfg->lookup("system.dim");
         coordinateType = cfg->lookup("system.coordinateType");
         cfg->lookupValue("systemSettings.filePath", filePath);
+        L = cfg->lookup("spatialDiscretization.latticeRange");
+        nGrid = cfg->lookup("spatialDiscretization.nGrid");
+        nBasis = cfg->lookup("system.shells");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "Basis(Config *cfg)::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
 
+    dx = 2.0*L/(double)(nGrid);
+    nSpatialOrbitals = states.size()/2;
+
+    // Adding the number of gridpoints to the config file
+    Setting &root = cfg->getRoot();
+    Setting &tmp = root["spatialDiscretization"];
+
+    tmp.add("gridSpacing", Setting::TypeFloat) = dx;
+
+    x = mat(nGrid, dim);
+    for(int i=0; i<dim; i++)
+        x.col(i) = linspace<vec>(-L, L-dx,nGrid);
+
+    // Saving the grid basis
     filnameAxis = filePath + "x.mat";
+    x.save(filnameAxis, arma_ascii);
 
 #ifdef DEBUG
     cout << "Basis::Basis(Config *cfg)" << endl

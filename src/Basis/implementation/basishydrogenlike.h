@@ -15,9 +15,6 @@ public:
     virtual void createInitalDiscretization();
 private:
     void discretization1d();
-
-    double dx;
-    mat x;
 };
 
 #endif // BASISHYDROGENLIKE_H

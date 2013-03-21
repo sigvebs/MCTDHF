@@ -7,6 +7,7 @@
 #include <src/Basis/basis.h>
 #include <src/Basis/implementation/basisharmonicoscillator.h>
 #include <src/Basis/implementation/basishydrogenlike.h>
+#include <src/Basis/implementation/randomunitarymatrix.h>
 
 #include <src/SlaterDeterminants/slaterdeterminants.h>
 
