@@ -30,7 +30,6 @@ void SlaterDeterminants::createSlaterDeterminants()
     }
 
     if (!conservedEigenSpin || checkEigenSpin(state)) {
-        binStatesBool.push_back(createBinaryStateBool(state));
         binStates.push_back(createBinaryState(state));
     }
 
@@ -43,7 +42,6 @@ void SlaterDeterminants::createSlaterDeterminants()
 
         // Storing accepted states.
         if (!conservedEigenSpin || checkEigenSpin(state)) {
-            binStatesBool.push_back(createBinaryStateBool(state));
             binStates.push_back(createBinaryState(state));
         }
     }
@@ -74,27 +72,6 @@ bool SlaterDeterminants::checkEigenSpin(vec state)
     }
 
     return eigenSpin;
-}
-//------------------------------------------------------------------------------
-bool *SlaterDeterminants::createBinaryStateBool(vec state)
-{
-    // Constructing the binary representation
-    bool *binState = new bool[BITS];
-    for(int i=0; i<BITS; i++)
-        binState[i] = 0;
-
-    for (int i = 0; i < (int)state.size(); i++) {
-        try {
-            binState[(int)state(i)] = 1;
-        } catch (exception& e) {
-            cout << "Exception: " << e.what() << endl;
-            cout << "To run with this basis the number of bits must be increased. Current number of bits are " << BITS
-                 << " , increase BITS > " << state(i) - 1 << ". Change BITS in defines.h and recompile." << endl;
-            exit(1);
-        }
-    }
-
-    return binState;
 }
 //------------------------------------------------------------------------------
 bitset<BITS> SlaterDeterminants::createBinaryState(vec state)
@@ -138,10 +115,5 @@ vec SlaterDeterminants::odometer(const vec &oldState, int Nsp, int N)
 const vector<bitset<BITS> > &SlaterDeterminants::getSlaterDeterminants() const
 {
     return binStates;
-}
-//------------------------------------------------------------------------------
-const vector<bool *> &SlaterDeterminants::getSlaterDeterminantsBool() const
-{
-    return binStatesBool;
 }
 //------------------------------------------------------------------------------

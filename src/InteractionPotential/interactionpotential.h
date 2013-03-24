@@ -11,13 +11,13 @@ using namespace arma;
 class InteractionPotential
 {
 public:
-    InteractionPotential(Config* cfg);
+    InteractionPotential(Config* cfg, const vec &x);
     virtual mat computeInteractionSpace() = 0;
 protected:
     Config* cfg;
 
     mat interactionSpace;
-    vec x;
+    const vec &x;
     int nGrid;
 };
 

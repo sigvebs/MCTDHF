@@ -22,7 +22,6 @@ SlaterEquation::SlaterEquation(Config *cfg,
 cx_vec SlaterEquation::computeRightHandSide(const cx_vec &A)
 {
     computeHamiltonianMatrix();
-    vec eigval = eig_sym(H);
     return H*A;
 }
 //------------------------------------------------------------------------------
@@ -32,10 +31,6 @@ cx_vec SlaterEquation::computeRightHandSideComplexTime(const cx_vec &A)
     computeHamiltonianMatrix();
     cx_vec HA = H*A;
     cx_double E = cdot(A, HA)/cdot(A,A);
-
-//    vec eigval = eig_sym(H);
-//    cout << "min(eigval) = " << min(eigval) << endl;
-//    exit(1);
 
     return HA - E*A;
 }
@@ -61,10 +56,10 @@ void SlaterEquation::computeHamiltonianMatrix()
                     // where p is the same spatial orbital
 
                     phase = 0;
-                    phase += secondQuantizationOneBodyOperator(2*q, 2*p,
+                    phase += secondQuantizationOneBodyOperator(2*p, 2*q,
                                                                 slaterDeterminants[n],
                                                                 slaterDeterminants[m]);
-                    phase += secondQuantizationOneBodyOperator(2*q+1, 2*p+1,
+                    phase += secondQuantizationOneBodyOperator(2*p+1, 2*q+1,
                                                                 slaterDeterminants[n],
                                                                 slaterDeterminants[m]);
 
@@ -77,10 +72,8 @@ void SlaterEquation::computeHamiltonianMatrix()
                         for(int s=0; s<nOrbitals; s++){
                             Vpqrs = interaction->at(p, q, r, s);
 
-                            if(Vpqrs != cx_double(0,0)){
+                            if(Vpqrs != (cx_double) 0 ){
                                 phase = 0;
-
-
                                 phase += secondQuantizationTwoBodyOperator(2*p, 2*q, 2*r, 2*s,
                                                                            slaterDeterminants[n],
                                                                            slaterDeterminants[m]);
@@ -112,6 +105,14 @@ void SlaterEquation::computeHamiltonianMatrix()
             }
         }
     }
+#if 0
+    cout << (*h) << endl;
+    cout << real(H) << endl;
+    cout << imag(H) << endl;
+    vec eigval = eig_sym(H);
+    cout << "min(eigval) = " << min(eigval) << endl;
+#endif
+
 #ifdef DEBUG
 //#if 1
     cout << "SlaterEquation::computeHamiltonianMatrix()" << endl;
@@ -119,8 +120,10 @@ void SlaterEquation::computeHamiltonianMatrix()
     //    cx_vec eigval;
     //    cx_mat eigvec;
     //    eig_gen(eigval, eigvec, H);
-    vec eigval = eig_sym(H);
-    cout << "min(eigval) = " << min(eigval) << endl;
+//    cout << H << endl;
+//    cout << (*h) << endl;
+//    vec eigval = eig_sym(H);
+//    cout << "min(eigval) = " << min(eigval) << endl;
 #endif
 }
 //------------------------------------------------------------------------------
@@ -153,21 +156,26 @@ cx_double SlaterEquation::secondQuantizationTwoBodyOperator(const int p, const i
                                                            const bitset<BITS> &state2)
 {
     cx_double phase = 1;
+
+    // Removing r
     removeParticle(r, state1);
     if(state1[BITS-1] == 1)
         return 0;
     phase *= sign(r, state1);
 
+    // Removing s
     removeParticle(s, state1);
     if(state1[BITS-1] == 1)
         return 0;
     phase *= sign(s, state1);
 
+    // Adding q
     addParticle(q, state1);
     if(state1[BITS-1] == 1)
         return 0;
     phase *= sign(q, state1);
 
+    // Adding p
     addParticle(p, state1);
     if(state1[BITS-1] == 1)
         return 0;

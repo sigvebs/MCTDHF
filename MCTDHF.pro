@@ -48,7 +48,8 @@ SOURCES += main.cpp \
     src/TimePropagation/timepropagation.cpp \
     src/TimePropagation/implementation/rungekutta4.cpp \
     src/Potential/implementation/simplelaser.cpp \
-    src/Potential/implementation/anharmonicdoublewell.cpp
+    src/Potential/implementation/anharmonicdoublewell.cpp \
+    src/Basis/implementation/randomunitarymatrix.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -87,14 +88,15 @@ HEADERS += \
     src/TimePropagation/timepropagation.h \
     src/TimePropagation/implementation/rungekutta4.h \
     src/Potential/implementation/simplelaser.h \
-    src/Potential/implementation/anharmonicdoublewell.h
+    src/Potential/implementation/anharmonicdoublewell.h \
+    src/Basis/implementation/randomunitarymatrix.h
 
 OTHER_FILES += \
     ../config.cfg \
     README.md
 
 default{
-    LIBS += -lconfig++ -llapack -lblas -larmadillo -L/home/sigve/usr/lib -lfftw3 -lm
+    LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
 }
 
 cluster{
@@ -102,14 +104,10 @@ cluster{
 }
 
 home{
-    LIBS += -fopenmp -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
-    DEFINES += "OPENMP"
-    QMAKE_CXXFLAGS += -fopenmp
+    LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
 }
 UIO_noIntel{
     LIBS += -fopenmp -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
-#    DEFINES += "OPENMP"
-#    QMAKE_CXXFLAGS += -fopenmp
 }
 UIO{
     LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm \

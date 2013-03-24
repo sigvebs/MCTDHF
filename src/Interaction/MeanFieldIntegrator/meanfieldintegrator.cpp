@@ -15,11 +15,6 @@ MeanFieldIntegrator::MeanFieldIntegrator(Config *cfg):
     V2 = field<cx_vec>(nOrbitals, nOrbitals);
 }
 //------------------------------------------------------------------------------
-void MeanFieldIntegrator::addPotential(InteractionPotential *interactionPot)
-{
-    potential.push_back(interactionPot);
-}
-//------------------------------------------------------------------------------
 void MeanFieldIntegrator::computeMeanField(const cx_mat &C)
 {
     for (int q = 0; q < nOrbitals; q++) {
@@ -30,5 +25,20 @@ void MeanFieldIntegrator::computeMeanField(const cx_mat &C)
             V2(r,q) = conj(V2(q,r));
         }
     }
+}
+//------------------------------------------------------------------------------
+void MeanFieldIntegrator::addPotential(InteractionPotential *interactionPot)
+{
+    potential.push_back(interactionPot);
+}
+//------------------------------------------------------------------------------
+MeanFieldIntegrator::~MeanFieldIntegrator()
+{
+    while (!potential.empty())
+     {
+       InteractionPotential* pot = potential.back();
+       potential.pop_back();
+       delete pot;
+     }
 }
 //------------------------------------------------------------------------------

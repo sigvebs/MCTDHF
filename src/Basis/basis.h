@@ -24,6 +24,7 @@ public:
     const vector<vec> &getBasis() const;
     virtual void createInitalDiscretization() = 0;
     const cx_mat &getInitalOrbitals() const;
+    const vec &getX() const;
 protected:
     void createCartesianBasis();
     void createPolarBasis();
@@ -45,7 +46,7 @@ protected:
     string filnameAxis;
 
     double dx;
-    mat x;
+    vec x;
 };
 
 #endif // BASIS_H

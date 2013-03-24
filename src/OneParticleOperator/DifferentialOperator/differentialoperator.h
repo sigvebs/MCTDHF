@@ -17,7 +17,7 @@ using namespace arma;
 class DifferentialOperator
 {
 public:
-    DifferentialOperator(Config* cfg);
+    DifferentialOperator(Config* cfg, const vec &x);
     virtual cx_vec secondDerivative(const cx_vec &phi) = 0;
 protected:
     Config* cfg;
@@ -25,7 +25,7 @@ protected:
     int nGrid;
     double dx;
     double dxdx;
-    cx_vec x;
+    vec x;
 };
 
 #endif // DIFFERENTIALOPERATOR_H

@@ -16,6 +16,11 @@ ComplexTimeRungeKuttaFehlberg::ComplexTimeRungeKuttaFehlberg(Config *cfg):
 //------------------------------------------------------------------------------
 bool ComplexTimeRungeKuttaFehlberg::stepForward()
 {
+    cx_vec k1, k2, k3, k4,k5, k6;
+    cx_mat m1, m2, m3, m4, m5, m6;
+    cx_vec A_, A_1;
+    cx_mat C_, C_1;
+
     bool accepted = false;
 
     // Computing Runge-Kutta weights
@@ -88,7 +93,7 @@ bool ComplexTimeRungeKuttaFehlberg::stepForward()
         dt = delta*dt;
 
         // Normalizing
-        C = renormalize(C);
+        renormalize(C);
         A = A/sqrt(cdot(A,A));
 
         accepted = true;
@@ -97,19 +102,6 @@ bool ComplexTimeRungeKuttaFehlberg::stepForward()
         dt = delta*dt;
         step--;
     }
-
     return accepted;
-}
-//------------------------------------------------------------------------------
-cx_mat ComplexTimeRungeKuttaFehlberg::renormalize(cx_mat C)
-{
-    // Re-normalization of C using SVD
-    cx_mat X;
-    vec s;
-    cx_mat Y;
-    svd_econ(X, s, Y, C);
-    C = X*Y.t();
-
-    return C;
 }
 //------------------------------------------------------------------------------

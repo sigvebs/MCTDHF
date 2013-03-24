@@ -6,12 +6,11 @@
 
 // Library includes
 #include <fftw3.h>
-#define max(x,y) ((x) > (y) ? x : y)
 
 class Spectral1d: public DifferentialOperator
 {
 public:
-    Spectral1d(Config *cfg);
+    Spectral1d(Config *cfg, const vec &x);
     ~Spectral1d();
     virtual cx_vec secondDerivative(const cx_vec &phi);
 protected:

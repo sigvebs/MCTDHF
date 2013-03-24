@@ -27,10 +27,12 @@ public:
                          SingleParticleOperator *h);
     cx_vec getCoefficients();
     void setInititalState(cx_vec A, cx_mat C);
+    void renormalize(cx_mat &D);
 protected:
     Config *cfg;
     double dt;
     double t;
+    int nOrbitals;
 
     cx_vec A;
     cx_mat C;
@@ -42,15 +44,26 @@ protected:
     SingleParticleOperator *h;
 
     vec E;
+    vec dE;
+    double Eprev;
     int step;
     cx_double i;
     int N;
+    vec svdRho;
+    const cx_mat *rho;
 
     // Filenames
     int saveToFileInterval;
+    string filePath;
     string filenameOrbitals;
     string filenameSlaterDet;
     string filenameEnergy;
+    string filenameDeltaE;
+    string filenameSvdRho;
+    string filenameRho;
+
+    bool printProgress;
+    bool saveEveryTimeStep;
 };
 
 #endif // COMPLEXTIMEPROPAGATION_H

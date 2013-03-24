@@ -1,24 +1,19 @@
 #include "coulombinteractionnucleus.h"
 
 //------------------------------------------------------------------------------
-CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg):
-    Potential(cfg)
+CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg, const vec &x):
+    Potential(cfg, x)
 {
-    double L;
-    double b;
-    double Z;
-    double dx;
+    double b = 1;
+    double Z = 2;
     try{
-        L = cfg->lookup("spatialDiscretization.latticeRange");
         b = cfg->lookup("oneBodyPotential.coulombInteractionNucleus.b");
         Z = cfg->lookup("oneBodyPotential.coulombInteractionNucleus.Z");
-        dx = cfg->lookup("spatialDiscretization.gridSpacing");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
 
-    vec x = linspace(-L, L - dx, nGrid);
     potential = vec(nGrid);
 
     // Setting the potential

@@ -11,7 +11,7 @@
 #include <vector>
 #include <unordered_map>
 #include <libconfig.h++>
-#include <omp.h>
+//#include <omp.h>
 
 using namespace libconfig;
 using namespace std;
@@ -21,10 +21,11 @@ class MeanFieldIntegrator
 {
 public:
     MeanFieldIntegrator(Config* cfg);
+    ~MeanFieldIntegrator();
     void addPotential(InteractionPotential* interactionPot);
     const cx_vec& getMeanField(const int p, const int q);
-    virtual void initialize() = 0;
     void computeMeanField(const cx_mat &C);
+    virtual void initialize() = 0;
     virtual cx_vec integrate(const int q, const int r, const cx_mat &C) = 0;
     virtual cx_double integrate(const int p, const int q, const int r, const int s, const cx_mat &C) = 0;
 protected:
@@ -32,10 +33,9 @@ protected:
 
     Config* cfg;
 
+    field<cx_vec> V2;
     int nGrid;
     int nOrbitals;
-
-    field<cx_vec> V2;
 };
 
 //------------------------------------------------------------------------------

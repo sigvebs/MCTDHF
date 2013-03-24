@@ -35,8 +35,8 @@ const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_ve
 
     computeProjector(C);
     computeOneParticleReducedDensity();
-    invRho = inv(invRho);
     computeTwoParticleReducedDensity();
+    invRho = inv(invRho);
     computeUMatrix(C);
 
     // Computing the right hand side of the equation
@@ -47,20 +47,22 @@ const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_ve
 void OrbitalEquation::computeUMatrix(const cx_mat &C)
 {
     cx_vec Ui(nGrid);
-    cx_vec inner(nGrid);
-    pair<int,cx_double> rho_iqrs;
+    cx_vec rho_iqrs_Cs(nGrid);
 
     for(int j=0; j<nOrbitals; j++){
         U.col(j) = hC->col(j);
+
         for(int i=0; i<nOrbitals; i++){
             Ui.zeros();
+
             for(int q=0; q<nOrbitals; q++){
                 for(int r=0; r<nOrbitals; r++){
-                    inner.zeros();
+                    rho_iqrs_Cs.zeros();
+
                     for(int s=0; s<nOrbitals; s++){
-                        inner += findRho2(i,q,r,s) * C.col(s);
+                        rho_iqrs_Cs += findRho2(i,q,r,s) * C.col(s);
                     }
-                    Ui += V->meanField(q,r)%inner;
+                    Ui += V->meanField(q,r)%rho_iqrs_Cs;
                 }
             }
             U.col(j) += invRho(j,i)*Ui;
@@ -90,7 +92,7 @@ void OrbitalEquation::computeProjector(const cx_mat &C)
         }
     }
 #else
-    // NEED TO BE UPDATED - not working
+    // NEEDS TO BE UPDATED - not working
     // Slightly changing the projector to ensure orthonormality is conserved
     // Problems arise due to numerical inaccuracies.
     cx_mat O = zeros<cx_mat>(nSpatialOrbitals,nSpatialOrbitals);
@@ -107,17 +109,7 @@ void OrbitalEquation::computeProjector(const cx_mat &C)
             P += C.col(i)*C.col(l).t()*O(i,l);
         }
     }
-    P = -P; // TMP solution
-
-    // OLD VERSION
-    //    Q = zeros<cx_mat>(nGrid, nGrid);
-    // The exact mathematical defintion of the projector.
-    //    cx_mat Qn = zeros<cx_mat>(nGrid, nGrid);
-    //    for(int i=0; i<nOrbitals; i++){
-    //
-    //    cout << max(max(Qn - Q));
-    //    exit(1); Q -= C.col(i)*C.col(i).t();
-    //    }
+    P = -P;
 #endif
 
     // Adding the identity matrix
@@ -161,7 +153,7 @@ void OrbitalEquation::computeOneParticleReducedDensity()
     rho_lambda = rho_lambda + e*exp(-rho_lambda*(1.0/e));
     cx_mat X = rho_U*diagmat(1.0/rho_lambda)*rho_U.t();
 
-    invRho += X;
+    invRho += e*X;
     //---------------------------
 #endif
 
@@ -312,6 +304,20 @@ cx_double OrbitalEquation::reducedTwoParticleOperator(const int p, const int q,
     }
 
     return value;
+}
+//------------------------------------------------------------------------------
+const cx_mat &OrbitalEquation::reCalculateRho1()
+{
+    computeOneParticleReducedDensity();
+    return invRho; // This is not actually the inverse at this point
+}
+//------------------------------------------------------------------------------
+vec OrbitalEquation::getSvdRho1(){
+    cx_mat X;
+    vec s;
+    cx_mat Y;
+    svd_econ(X, s, Y, invRho);
+    return s;
 }
 //------------------------------------------------------------------------------
 double OrbitalEquation::getCorrelation(const cx_vec &A)

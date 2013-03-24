@@ -6,7 +6,7 @@
 class ScreenedCoulombInteraction: public InteractionPotential
 {
 public:
-    ScreenedCoulombInteraction(Config* cfg);
+    ScreenedCoulombInteraction(Config* cfg, const vec &x);
     virtual mat computeInteractionSpace();
 protected:
     double aa;

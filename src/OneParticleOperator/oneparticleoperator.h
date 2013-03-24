@@ -36,7 +36,6 @@ protected:
     // System details
     int nGrid;
     int nOrbitals;
-    cx_vec x;
 
     // Total single particle matrix
     cx_mat h;

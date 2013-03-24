@@ -1,22 +1,16 @@
 #include "harmonicoscillatoronebody.h"
 
 //------------------------------------------------------------------------------
-HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg):
-    Potential(cfg)
+HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg, const vec &x):
+    Potential(cfg, x)
 {
-    double L;
-    double w;
-    double dx;
+    double w = 1;
     try{
-        L = cfg->lookup("spatialDiscretization.latticeRange");
         w = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
-        dx = cfg->lookup("spatialDiscretization.gridSpacing");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
-
-    vec x = linspace(-L, L - dx, nGrid);
     potential = vec(nGrid);
 
     // Setting the potential

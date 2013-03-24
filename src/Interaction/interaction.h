@@ -25,6 +25,7 @@ public:
     const cx_vec &meanField(const int p, const int q);
     void addPotential(InteractionPotential* interactionPot);
     void updatePositionBasisElements();
+    void printInteractionElements();
     ~Interaction();
 protected:
     void computeInteractionelements(const cx_mat &C);

@@ -26,9 +26,7 @@ Basis::Basis(Config *cfg):
 
     tmp.add("gridSpacing", Setting::TypeFloat) = dx;
 
-    x = mat(nGrid, dim);
-    for(int i=0; i<dim; i++)
-        x.col(i) = linspace<vec>(-L, L-dx,nGrid);
+    x = linspace<vec>(-L, L-dx,nGrid);
 
     // Saving the grid basis
     filnameAxis = filePath + "x.mat";
@@ -174,6 +172,11 @@ const vector<vec> &Basis::getBasis() const
 const cx_mat &Basis::getInitalOrbitals() const
 {
     return C;
+}
+//------------------------------------------------------------------------------
+const vec &Basis::getX() const
+{
+    return x;
 }
 //------------------------------------------------------------------------------
 Basis::~Basis()

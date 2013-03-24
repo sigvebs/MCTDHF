@@ -1,6 +1,7 @@
 #include "spectral1d.h"
 //------------------------------------------------------------------------------
-Spectral1d::Spectral1d(Config* cfg): DifferentialOperator(cfg)
+Spectral1d::Spectral1d(Config* cfg, const vec &x):
+    DifferentialOperator(cfg, x)
 {
     // Setting up the frequencies.
     k = vec(nGrid);

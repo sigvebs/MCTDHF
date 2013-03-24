@@ -123,8 +123,8 @@ wavefunction:
 
 oneBodyPotential:
 {
-    potential = 0;
-    timeDepPotential = 2;
+    potential = [0];
+    timeDepPotential = [2];
 
     # "0"       " 0.5*w^2x^2 "
     harmonicOscillatorBinding:

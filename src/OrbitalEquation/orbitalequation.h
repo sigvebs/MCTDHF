@@ -29,6 +29,8 @@ public:
 //    cx_mat computeRightHandSide(const cx_mat &C, const cx_vec &A);
     const cx_mat &computeRightHandSide(const cx_mat &C, const cx_vec &A);
     double getCorrelation(const cx_vec &A);
+    const cx_mat &reCalculateRho1();
+    vec getSvdRho1();
 protected:
     cx_double findRho2(int p,int q, int r, int s);
     void computeProjector(const cx_mat &C);

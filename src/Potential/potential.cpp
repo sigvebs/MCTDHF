@@ -1,8 +1,9 @@
 #include "potential.h"
 
 //------------------------------------------------------------------------------
-Potential::Potential(Config *cfg):
-    cfg(cfg)
+Potential::Potential(Config *cfg, const vec &x):
+    cfg(cfg),
+    x(x)
 {
      try{
          nGrid = cfg->lookup("spatialDiscretization.nGrid");

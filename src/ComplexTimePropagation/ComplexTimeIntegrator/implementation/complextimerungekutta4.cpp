@@ -10,6 +10,35 @@ ComplexTimeRungeKutta4::ComplexTimeRungeKutta4(Config *cfg):
 //------------------------------------------------------------------------------
 bool ComplexTimeRungeKutta4::stepForward()
 {
+
+#if 0
+    // Testing -----------------
+    if(step == 0)
+        srand (time(NULL));
+    cx_vec B = randu<cx_vec>( A.n_rows );
+    cx_mat D = randn<cx_mat>(C.n_rows, C.n_cols);
+    D.load("../DATA/C.mat");
+    cx_mat X;
+    vec s;
+    cx_mat Y;
+    svd_econ(X, s, Y, D);
+    D = X*Y.t();
+
+    cout << D << endl;
+    B = B/sqrt(cdot(B, B));
+    V->computeNewElements(D);
+    h->computeNewElements(D);
+    V->printInteractionElements();
+
+    slater->computeRightHandSideComplexTime(B);
+    cout << s << endl;
+    cout <<"Done" << endl;
+    exit(1);
+    //-------------------
+#else
+    cx_vec k1, k2, k3, k4;
+    cx_mat m1, m2, m3, m4;
+
     // Computing Runge-Kutta weights
     V->computeNewElements(C);
     h->computeNewElements(C);
@@ -41,24 +70,9 @@ bool ComplexTimeRungeKutta4::stepForward()
     t += dt;
 
     // Normalizing
-    C = renormalize(C);
+    renormalize(C);
     A = A/sqrt(cdot(A,A));
-
-    V->computeNewElements(C);
-    h->computeNewElements(C);
-
-    return 1;
-}
-//------------------------------------------------------------------------------
-cx_mat ComplexTimeRungeKutta4::renormalize(cx_mat C)
-{
-    // Re-normalization of C using SVD
-    cx_mat X;
-    vec s;
-    cx_mat Y;
-    svd_econ(X, s, Y, C);
-    C = X*Y.t();
-
-    return C;
+#endif
+    return true;
 }
 //------------------------------------------------------------------------------

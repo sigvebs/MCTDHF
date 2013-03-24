@@ -12,9 +12,9 @@ int main(int argc, char** argv)
 
     MctdhfApplication *app;
     if (argc == 2)
-        app = new MctdhfApplication(&argc, &argv, argv[1]);
+        app = new MctdhfApplication(argv[1]);
     else
-        app = new MctdhfApplication(&argc, &argv, "../config.cfg");
+        app = new MctdhfApplication("../config.cfg");
 
     app->run();
 

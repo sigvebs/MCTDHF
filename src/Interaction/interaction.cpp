@@ -20,70 +20,58 @@ void Interaction::updatePositionBasisElements(){
 void Interaction::computeNewElements(const cx_mat &C)
 {
     interactionElements.clear();
-
     mfIntegrator->computeMeanField(C);
     computeInteractionelements(C);
 }
 //------------------------------------------------------------------------------
 void Interaction::computeInteractionelements(const cx_mat &C)
 {
-    double tolerance = 1e-13;
+#if 0
+    double threshold = 1e-10;
 
-//    cx_double V;
-//    for (int p = 0; p < nOrbitals; p++) {
-//        for (int q = 0; q < nOrbitals; q++) {
-//            for (int r = 0; r < nOrbitals; r++) {
-//                for (int s = 0; s < nOrbitals; s++) {
-//                    V = mfIntegrator->integrate(p,q,r,s, C);
+    cx_double V;
+    for (int p = 0; p < nOrbitals; p++) {
+        for (int q = 0; q < nOrbitals; q++) {
+            for (int r = 0; r < nOrbitals; r++) {
+                for (int s = 0; s < nOrbitals; s++) {
+                    V = mfIntegrator->integrate(p,q,r,s, C);
+#if 0
+                    if(abs(real(V)) < threshold){
+                        V = cx_double(0, imag(V));
+                    }
+                    if(abs(imag(V)) < threshold){
+                        V = cx_double(real(V), 0);
+                    }
+                    //                    cout << p << q << r << s;
+                    //                    cout << " V = " << V << endl;
+                    //                    cout << "V = " << V << endl;
+#endif
 
-////                    if(abs(real(V)) < tolerance){
-////                        V = cx_double(0, imag(V));
-////                    }
 
-////                    V = cx_double(real(V), 0);
-////                    if(abs(imag(V)) < tolerance){
-////                        V = cx_double(real(V), 0);
-////                    }
-
-////                    if (abs(V) > tolerance)
-//                        interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,r,s), V) );
-
-
-//                }
-//            }
-//        }
-//    }
+                    interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,r,s), V) );
+                }
+            }
+        }
+    }
+#endif
+#if 1
     cx_double V;
     for (int p = 0; p < nOrbitals; p++) {
         for (int q = p; q < nOrbitals; q++) {
             for (int r = 0; r < nOrbitals; r++) {
                 for (int s = r; s < nOrbitals; s++) {
-                    // Symmetric
                     V = mfIntegrator->integrate(p,q,r,s, C);
-//                    V = cx_double(real(V), 0);
+                    interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,r,s), V) );
+                    interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,s,r), V) );
 
-//                    if (abs(V) > tolerance) {
-                        interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,r,s), V) );
-                        interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,s,r), V) );
-//                        interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(r,s,p,q), conj(V)) );
-//                        interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(s,r,q,p), conj(V)) );
-//                    }
-
-                    // Anti-Symmetric
                     V = mfIntegrator->integrate(p,q,s,r, C);
-//                    V = cx_double(real(V), 0);
-
-//                    if (abs(V) > tolerance) {
-                        interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,s,r), V) );
-                        interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,r,s), V) );
-//                        interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(s,r,p,q), conj(V)) );
-//                        interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(r,s,q,p), conj(V)) );
-//                    }
+                    interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,s,r), V) );
+                    interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(q,p,r,s), V) );
                 }
             }
         }
     }
-
+#endif
 #ifdef DEBUG
 //#if 1
 //    cout << "Number of interaction elements = " << interactionElements.size() << endl;
@@ -113,6 +101,14 @@ void Interaction::addPotential(InteractionPotential *interactionPot)
 //------------------------------------------------------------------------------
 Interaction::~Interaction()
 {
-
+    delete mfIntegrator;
+}
+//------------------------------------------------------------------------------
+void Interaction::printInteractionElements(){
+    cout << "Interaction elements" << endl;
+    for(auto it = interactionElements.begin(); it != interactionElements.end(); it++){
+        cx_double a = it->second;
+        cout << "id = " << it->first << " value = \t" << real(a) << "\t" << imag(a) << endl;
+    }
 }
 //------------------------------------------------------------------------------

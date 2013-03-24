@@ -67,15 +67,15 @@ using namespace libconfig;
 class MctdhfApplication
 {
 public:
-    MctdhfApplication(int *argc, char ***argv, string configFilename = "../config.cfg");
+    MctdhfApplication(string configFilename = "../config.cfg");
     void run();
 protected:
-    void setInteractionPotentials(Interaction &V);
-    void setOneBodyPotentials(SingleParticleOperator &h);
-    void setTimeDepOneBodyPotentials(SingleParticleOperator &h);
+    void setInteractionPotentials(Interaction &V, const vec &x);
+    void setOneBodyPotentials(SingleParticleOperator &h, const vec &x);
+    void setTimeDepOneBodyPotentials(SingleParticleOperator &h, const vec &x);
     TimePropagation* setTimeIntegrator();
     ComplexTimePropagation *setComplexTimeIntegrator();
-    DifferentialOperator* setDifferentialOpertor();
+    DifferentialOperator* setDifferentialOpertor(const vec &x);
     MeanFieldIntegrator* setMeanFieldIntegrator();
     Basis* setBasis();
     Config cfg;

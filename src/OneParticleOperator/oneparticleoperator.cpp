@@ -4,14 +4,10 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator
     cfg(cfg),
     kineticOperator(kineticOperator)
 {
-    double L;
-    double dx;
     string filePath;
     try{
         ww = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
         ww *= ww;
-        L = cfg->lookup("spatialDiscretization.latticeRange");
-        dx = cfg->lookup("spatialDiscretization.gridSpacing");
         nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
         cfg->lookupValue("systemSettings.filePath", filePath);
@@ -20,7 +16,6 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator
              << "::Error reading from config object." << endl;
     }
 
-    x = linspace<cx_vec>(-L, L - dx, nGrid);
     h = zeros<cx_mat>(nOrbitals, nOrbitals);
     Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
     Uspatial = zeros<cx_mat>(nGrid, nOrbitals);
@@ -35,6 +30,18 @@ void SingleParticleOperator::computeNewElements(const cx_mat &C, double t)
     computePotential(C, t);
     computeMatrixElements(C);
     TU = Tspatial + Uspatial;
+
+#if 1
+    for(int i=0; i<h.n_rows; i++){
+        for(int j=0; j<h.n_rows; j++){
+            if(abs(real( h(i,j)) ) < 1e-10)
+                h(i,j) = cx_double(0, imag(h(i,j)));
+
+            if(abs(imag( h(i,j)) ) < 1e-10)
+                h(i,j) = cx_double(real(h(i,j)), 0);
+        }
+    }
+#endif
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::addPotential(Potential *potential)
@@ -84,7 +91,6 @@ void SingleParticleOperator::computeKinetic(const cx_mat &C)
 void SingleParticleOperator::computePotential(const cx_mat &C, double t)
 {
     Uspatial.zeros();
-
     for(Potential* potential: potentials){
         for(int i=0;i<nOrbitals; i++){
             Uspatial.col(i) += potential->evaluate(C.col(i), t);
@@ -107,7 +113,14 @@ const cx_mat &SingleParticleOperator::getHspatial()
 //------------------------------------------------------------------------------
 SingleParticleOperator::~SingleParticleOperator()
 {
+    // Cleaning memory
     delete kineticOperator;
-    // TODO: delete all potentials.
+
+    while (!potentials.empty())
+     {
+       Potential* pot = potentials.back();
+       potentials.pop_back();
+       delete pot;
+     }
 }
 //------------------------------------------------------------------------------

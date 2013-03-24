@@ -1,7 +1,7 @@
 #include "mctdhfapplication.h"
 
 //------------------------------------------------------------------------------
-MctdhfApplication::MctdhfApplication(int* argc, char ***argv, string configFilename)
+MctdhfApplication::MctdhfApplication(string configFilename)
 {
     cout << "Loading " << configFilename << endl;
 
@@ -25,6 +25,7 @@ void MctdhfApplication::run()
     orb->createInitalDiscretization();
     const vector<vec> orbitals = orb->getBasis();
     cx_mat C = orb->getInitalOrbitals();
+    vec x = orb->getX();
     delete orb;
 
     // Creating all possible Slater determinants from the set of orbitals
@@ -35,12 +36,12 @@ void MctdhfApplication::run()
     // Interaction operator
     cout << "Setting up the interaction operator" << endl;
     Interaction V(&cfg, setMeanFieldIntegrator());
-    setInteractionPotentials(V);
+    setInteractionPotentials(V, x);
 
     // Setting the single particle operator
     cout << "Setting up the single particle operator" << endl;
-    SingleParticleOperator h(&cfg, setDifferentialOpertor());
-    setOneBodyPotentials(h);
+    SingleParticleOperator h(&cfg, setDifferentialOpertor(x));
+    setOneBodyPotentials(h, x);
 
     // Setting up the Slater equation
     cout << "Setting up the Slater determiant equation" << endl;
@@ -48,8 +49,6 @@ void MctdhfApplication::run()
 
     // Creating an initial coefficient vector for the Slater determinants.
     cx_vec A = randu<cx_vec>(slaterDeterminants.size());
-//    A.zeros();
-//    A(0) = 1.0;
     A = A/sqrt(cdot(A, A));
     // Setting up the orbital equation
     cout << "Setting up the Orbital equation" << endl;
@@ -69,7 +68,7 @@ void MctdhfApplication::run()
     bool doTimeIntegration = cfg.lookup("systemSettings.doTimeIntegration");
     if(doTimeIntegration){
         TimePropagation *timePropagator = setTimeIntegrator();
-        setTimeDepOneBodyPotentials(h);
+        setTimeDepOneBodyPotentials(h, x);
         timePropagator->setDependencies(&slaterEquation, &orbEq, &V, &h);
         timePropagator->setInititalState(A, C);
 
@@ -80,18 +79,18 @@ void MctdhfApplication::run()
     }
 }
 //------------------------------------------------------------------------------
-void MctdhfApplication::setInteractionPotentials(Interaction &V)
+void MctdhfApplication::setInteractionPotentials(Interaction &V, const vec &x)
 {
     InteractionPotential* I;
     int interactionType = cfg.lookup("interactionPotential.interactionType");
 
     switch (interactionType) {
     case IP_HARMONIC_OSCILLATOR:
-        I = new HarmonicOscillatorInteraction(&cfg);
+        I = new HarmonicOscillatorInteraction(&cfg, x);
         V.addPotential(I);
         break;
     case IP_SHEILDED_COULOMB:
-        I = new ScreenedCoulombInteraction(&cfg);
+        I = new ScreenedCoulombInteraction(&cfg, x);
         V.addPotential(I);
         break;
     default:
@@ -102,7 +101,7 @@ void MctdhfApplication::setInteractionPotentials(Interaction &V)
     V.updatePositionBasisElements();
 }
 //------------------------------------------------------------------------------
-void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h)
+void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h, const vec &x)
 {
     Potential* I;
     const Setting& root = cfg.getRoot();
@@ -113,15 +112,15 @@ void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h)
         int potential = oneBodyPotentials[i];
         switch (potential) {
         case HARMONIC_OSCILLATOR_ONE_BODY:
-            I = new HarmonicOscillatorOneBody(&cfg);
+            I = new HarmonicOscillatorOneBody(&cfg, x);
             h.addPotential(I);
             break;
         case COULOMB_INTERACTION_NUCLEUS:
-            I = new CoulombInteractionNucleus(&cfg);
+            I = new CoulombInteractionNucleus(&cfg, x);
             h.addPotential(I);
             break;
         case ANHARMONIC_DOUBLE_WELL:
-            I = new AnharmonicDoubleWell(&cfg);
+            I = new AnharmonicDoubleWell(&cfg, x);
             h.addPotential(I);
             break;
         default:
@@ -131,7 +130,7 @@ void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h)
     }
 }
 //------------------------------------------------------------------------------
-void MctdhfApplication::setTimeDepOneBodyPotentials(SingleParticleOperator &h)
+void MctdhfApplication::setTimeDepOneBodyPotentials(SingleParticleOperator &h, const vec &x)
 {
     Potential* I;
 
@@ -144,7 +143,7 @@ void MctdhfApplication::setTimeDepOneBodyPotentials(SingleParticleOperator &h)
 
         switch (potential) {
         case SIMPLE_LASER:
-            I = new simpleLaser(&cfg);
+            I = new simpleLaser(&cfg, x);
             h.addPotential(I);
             break;
         default:
@@ -199,7 +198,7 @@ ComplexTimePropagation* MctdhfApplication::setComplexTimeIntegrator()
     return I;
 }
 //------------------------------------------------------------------------------
-DifferentialOperator* MctdhfApplication::setDifferentialOpertor()
+DifferentialOperator* MctdhfApplication::setDifferentialOpertor(const vec &x)
 {
     // Setting the integrator
     DifferentialOperator *I;
@@ -207,13 +206,13 @@ DifferentialOperator* MctdhfApplication::setDifferentialOpertor()
 
     switch (differentialOperator) {
     case DO_FINITE_DIFFERENCE_1d:
-        I = new FiniteDifference1d(&cfg);
+        I = new FiniteDifference1d(&cfg, x);
         break;
     case DO_FINITE_DIFFERENCE_FIVE_POINT_1D:
-        I = new FiniteDifferenceFivePoint1d(&cfg);
+        I = new FiniteDifferenceFivePoint1d(&cfg, x);
         break;
     case DO_SPECTRAL_1D:
-        I = new Spectral1d(&cfg);
+        I = new Spectral1d(&cfg, x);
         break;
     default:
         cerr << "Differential Operator not implemented:: " << differentialOperator << endl;
