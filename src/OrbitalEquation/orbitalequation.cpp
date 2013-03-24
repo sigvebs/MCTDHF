@@ -35,8 +35,8 @@ const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_ve
 
     computeProjector(C);
     computeOneParticleReducedDensity();
-    computeTwoParticleReducedDensity();
     invRho = inv(invRho);
+    computeTwoParticleReducedDensity();
     computeUMatrix(C);
 
     // Computing the right hand side of the equation

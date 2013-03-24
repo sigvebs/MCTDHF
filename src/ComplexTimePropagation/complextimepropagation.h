@@ -45,6 +45,7 @@ protected:
 
     vec E;
     vec dE;
+    vec K;
     double Eprev;
     int step;
     cx_double i;
@@ -61,6 +62,7 @@ protected:
     string filenameDeltaE;
     string filenameSvdRho;
     string filenameRho;
+    string filenameCorrelation;
 
     bool printProgress;
     bool saveEveryTimeStep;

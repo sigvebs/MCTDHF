@@ -112,8 +112,6 @@ void MfLowRankApproximation::initialize()
 //------------------------------------------------------------------------------
 cx_vec MfLowRankApproximation::integrate(const int q, const int r, const cx_mat &C)
 {
-
-    Vm.zeros();
     Vqr.zeros();
 
     for(int m=0; m<M; m++){
@@ -129,6 +127,12 @@ cx_vec MfLowRankApproximation::integrate(const int q, const int r, const cx_mat 
     }
 
     return Vqr;
+}
+//------------------------------------------------------------------------------
+void MfLowRankApproximation::integrate(const int q, const int r, const cx_mat &C, cx_vec &V2)
+{
+    cerr << "MfLowRankApproximation::integrate(const int q, const int r, const cx_mat &C, cx_vec &V2)" << endl;
+    exit(0);
 }
 //------------------------------------------------------------------------------
 cx_double MfLowRankApproximation::integrate(const int p, const int q, const int r, const int s, const cx_mat &C)
