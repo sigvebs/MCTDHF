@@ -20,6 +20,7 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
     t = 0;
     E = zeros(N/saveToFileInterval+1);
     dE = zeros(N/saveToFileInterval+1);
+    K = vec(1);
     Eprev = 99;
     filenameOrbitals = filePath + "C.mat";
     filenameSlaterDet = filePath + "A.mat";
@@ -27,6 +28,7 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
     filenameDeltaE = filePath + "dE.mat";
     filenameSvdRho = filePath + "svdRho.mat";
     filenameRho = filePath + "rho.mat";
+    filenameCorrelation = filePath + "K.mat";
 #ifdef DEBUG
     cout << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::" << endl
          << "dt \t= " << dt << endl
@@ -36,7 +38,6 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
 //------------------------------------------------------------------------------
 void ComplexTimePropagation::doComplexTimePropagation()
 {
-    double correlation;
     cout.precision(16);
     int counter = 0;
     bool accepted;
@@ -55,7 +56,7 @@ void ComplexTimePropagation::doComplexTimePropagation()
             // Collecting data
             E(counter) = slater->getEnergy(A) ;
             dE(counter) = E(counter) - Eprev;
-            correlation = orbital->getCorrelation(A);
+            K = orbital->getCorrelation(A);
             rho = &orbital->reCalculateRho1();
             svdRho = orbital->getSvdRho1();
 
@@ -65,6 +66,7 @@ void ComplexTimePropagation::doComplexTimePropagation()
             A.save(filenameSlaterDet, arma_ascii);
             E.save(filenameEnergy, arma_ascii);
             dE.save(filenameDeltaE, arma_ascii);
+            K.save(filenameCorrelation, arma_ascii);
             svdRho.save(filenameSvdRho, arma_ascii);
             (*rho).save(filenameRho, arma_ascii);
 
@@ -80,7 +82,7 @@ void ComplexTimePropagation::doComplexTimePropagation()
                 cout << "step = " << step << endl
                      << "E = " << E(counter) << endl
                      << "dE = " << dE(counter) << endl
-                     << "k = " << correlation << endl
+                     << "k = " << K << endl
                      << "dt = " << dt << endl
                      << "svdRho1 = ";
                 svdRho.raw_print();
