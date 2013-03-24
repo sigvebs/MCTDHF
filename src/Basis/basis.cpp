@@ -5,6 +5,7 @@ Basis::Basis(Config *cfg):
 {
     string filePath;
     double L;
+    bool periodicBoundaries;
     try{
         dim = cfg->lookup("system.dim");
         coordinateType = cfg->lookup("system.coordinateType");
@@ -12,12 +13,12 @@ Basis::Basis(Config *cfg):
         L = cfg->lookup("spatialDiscretization.latticeRange");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
         nBasis = cfg->lookup("system.shells");
+        periodicBoundaries = cfg->lookup("spatialDiscretization.periodicBoundaries");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "Basis(Config *cfg)::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
 
-    dx = 2.0*L/(double)(nGrid);
     nSpatialOrbitals = states.size()/2;
 
     // Adding the number of gridpoints to the config file
@@ -26,8 +27,15 @@ Basis::Basis(Config *cfg):
 
     tmp.add("gridSpacing", Setting::TypeFloat) = dx;
 
-    x = linspace<vec>(-L, L-dx,nGrid);
-
+    if(periodicBoundaries){
+        dx = 2.0*L/(double)(nGrid);
+        cout << "hei" << endl;
+        x = linspace<vec>(-L, L-dx,nGrid);
+    }else{
+        cout << "nei" << endl;
+        x = linspace<vec>(-L, L, nGrid);
+        dx = x(1) - x(0);
+    }
     // Saving the grid basis
     filnameAxis = filePath + "x.mat";
     x.save(filnameAxis, arma_ascii);
