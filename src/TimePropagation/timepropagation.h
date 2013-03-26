@@ -51,6 +51,7 @@ protected:
     int N;
 
     // Filenames
+    string filePath;
     string filenameOverlap;
     string filenameT;
 };

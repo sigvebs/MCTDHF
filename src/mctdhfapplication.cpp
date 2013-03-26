@@ -12,6 +12,14 @@ MctdhfApplication::MctdhfApplication(string configFilename)
         exit(EXIT_FAILURE);
     }
 
+    try {
+        loadDataset = cfg.lookup("systemSettings.loadDataset");
+        cfg.lookupValue("systemSettings.loadDatasetPath", loadDatasetPath);
+    }catch (const SettingNotFoundException &fioex) {
+        loadDataset = false;
+        loadDatasetPath = "";
+    }
+
 #ifdef DEBUG
     cout << "Reading configuration from file" << endl;
 #endif
@@ -19,52 +27,90 @@ MctdhfApplication::MctdhfApplication(string configFilename)
 //------------------------------------------------------------------------------
 void MctdhfApplication::run()
 {
-    // Creating the orbitals
+
+    //--------------------------------------------------------------------------
+    // Creating the orbitals and spatial discretization
+    //--------------------------------------------------------------------------
     Basis* orb = setBasis();
     orb->createBasis();
-    orb->createInitalDiscretization();
     const vector<vec> orbitals = orb->getBasis();
-    cx_mat C = orb->getInitalOrbitals();
-    vec x = orb->getX();
+    vec x;
+    cx_mat C;
+    if(loadDataset){
+        x.load(loadDatasetPath + "/x.mat");
+        C.load(loadDatasetPath + "/C.mat");
+
+        checkXC(x, C, orbitals);
+    }else{
+        orb->createInitalDiscretization();
+        C = orb->getInitalOrbitals();
+        x = orb->getX();
+    }
     delete orb;
 
+    //--------------------------------------------------------------------------
     // Creating all possible Slater determinants from the set of orbitals
+    //--------------------------------------------------------------------------
     SlaterDeterminants slater(&cfg, orbitals);
     slater.createSlaterDeterminants();
     const vector<bitset<BITS> > &slaterDeterminants = slater.getSlaterDeterminants();
 
+    //--------------------------------------------------------------------------
     // Interaction operator
+    //--------------------------------------------------------------------------
     cout << "Setting up the interaction operator" << endl;
     Interaction V(&cfg, setMeanFieldIntegrator());
     setInteractionPotentials(V, x);
 
+    //--------------------------------------------------------------------------
     // Setting the single particle operator
+    //--------------------------------------------------------------------------
     cout << "Setting up the single particle operator" << endl;
     SingleParticleOperator h(&cfg, setDifferentialOpertor(x));
     setOneBodyPotentials(h, x);
 
+    //--------------------------------------------------------------------------
     // Setting up the Slater equation
+    //--------------------------------------------------------------------------
     cout << "Setting up the Slater determiant equation" << endl;
     SlaterEquation slaterEquation(&cfg, slaterDeterminants, &V, &h);
 
-    // Creating an initial coefficient vector for the Slater determinants.
-    cx_vec A = randu<cx_vec>(slaterDeterminants.size());
-    A = A/sqrt(cdot(A, A));
+    //--------------------------------------------------------------------------
+    // Loading/Creating an initial coefficient vector for the Slater determinants.
+    //--------------------------------------------------------------------------
+    cx_vec A;
+    if(loadDataset){
+        A.load(loadDatasetPath + "/A.mat");
+    }else{
+        A = randu<cx_vec>(slaterDeterminants.size());
+        A = A/sqrt(cdot(A, A));
+    }
+
+    //--------------------------------------------------------------------------
     // Setting up the orbital equation
+    //--------------------------------------------------------------------------
     cout << "Setting up the Orbital equation" << endl;
     OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
 
-
+    //--------------------------------------------------------------------------
     // Setting up the complex time integrator
+    //--------------------------------------------------------------------------
     ComplexTimePropagation* complexTimePropagation = setComplexTimeIntegrator();
     complexTimePropagation->setDependencies(&slaterEquation, &orbEq, &V, &h);
     complexTimePropagation->setInititalState(A, C);
 
+    //--------------------------------------------------------------------------
+    // Performing complex time integrator
+    //--------------------------------------------------------------------------
     cout << "Starting imaginary time propagation" << endl;
     complexTimePropagation->doComplexTimePropagation();
+    A = complexTimePropagation->getCurrentA();
+    C = complexTimePropagation->getCurrentC();
     delete complexTimePropagation;
 
+    //--------------------------------------------------------------------------
     // Time integration
+    //--------------------------------------------------------------------------
     bool doTimeIntegration = cfg.lookup("systemSettings.doTimeIntegration");
     if(doTimeIntegration){
         TimePropagation *timePropagator = setTimeIntegrator();
@@ -77,6 +123,7 @@ void MctdhfApplication::run()
 
         delete timePropagator;
     }
+    //--------------------------------------------------------------------------
 }
 //------------------------------------------------------------------------------
 void MctdhfApplication::setInteractionPotentials(Interaction &V, const vec &x)
@@ -261,5 +308,25 @@ Basis *MctdhfApplication::setBasis()
         exit(EXIT_FAILURE);
     }
     return I;
+}
+//------------------------------------------------------------------------------
+void MctdhfApplication::checkXC(const vec &x, const cx_mat &C, const vector<vec> &orbitals)
+{
+    // Checking that x has the right dimensions
+    int nGrid = cfg.lookup("spatialDiscretization.nGrid");
+    if(x.n_elem != nGrid){
+        cerr << "The loaded x-matrix does not have the right dimensions" << endl;
+        cerr << "elements(x): " << x.n_elem << endl;
+        cerr << "config nGrid: = " << nGrid << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Checking that C has the right dimensions
+    if(C.n_cols != orbitals.size()/2){
+        cerr << "The loaded C-matrix does not have the right dimensions" << endl;
+        cerr << "Orbitals(C): " << 2*C.n_cols << endl;
+        cerr << "orbitlas config: = " << orbitals.size()<< endl;
+        exit(EXIT_FAILURE);
+    }
 }
 //-----------------------------------------------------------------------------

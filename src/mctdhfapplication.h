@@ -78,7 +78,11 @@ protected:
     DifferentialOperator* setDifferentialOpertor(const vec &x);
     MeanFieldIntegrator* setMeanFieldIntegrator();
     Basis* setBasis();
+    void checkXC(const vec &x, const cx_mat &C, const vector<vec> &orbitals);
     Config cfg;
+
+    bool loadDataset;
+    string loadDatasetPath;
 };
 
 #endif // MCTDHFAPPLICATION_H

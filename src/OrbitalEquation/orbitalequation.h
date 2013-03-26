@@ -27,14 +27,15 @@ public:
                     Interaction *V,
                     SingleParticleOperator *h);
     const cx_mat &computeRightHandSide(const cx_mat &C, const cx_vec &A);
-    double getCorrelation(const cx_vec &A);
-    const cx_mat &reCalculateRho1();
+    double getCorrelation();
+    const cx_mat &reCalculateRho1(const cx_vec &A);
     vec getSvdRho1();
 protected:
     cx_double findRho2(int p,int q, int r, int s);
     void computeProjector(const cx_mat &C);
     void computeUMatrix(const cx_mat &C);
     void computeOneParticleReducedDensity();
+    void computeOneParticleReducedDensityWithSpin();
     void computeTwoParticleReducedDensity();
     cx_double reducedOneParticleOperator(const int i, const int j);
     cx_double reducedTwoParticleOperator(const int p, const int q,
@@ -61,6 +62,7 @@ protected:
     cx_mat Q;
 
     cx_mat rightHandSide;
+    cx_mat rho1; // TMP
 };
 
 #endif // ORBITALEQUATION_H

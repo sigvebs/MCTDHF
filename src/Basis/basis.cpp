@@ -13,7 +13,7 @@ Basis::Basis(Config *cfg):
         L = cfg->lookup("spatialDiscretization.latticeRange");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
         nBasis = cfg->lookup("system.shells");
-        periodicBoundaries = cfg->lookup("spatialDiscretization.periodicBoundaries");
+        periodicBoundaries=cfg->lookup("spatialDiscretization.periodicBoundaries");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "Basis(Config *cfg)::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
@@ -25,8 +25,6 @@ Basis::Basis(Config *cfg):
     Setting &root = cfg->getRoot();
     Setting &tmp = root["spatialDiscretization"];
 
-    tmp.add("gridSpacing", Setting::TypeFloat) = dx;
-
     if(periodicBoundaries){
         dx = 2.0*L/(double)(nGrid);
         cout << "hei" << endl;
@@ -36,9 +34,11 @@ Basis::Basis(Config *cfg):
         x = linspace<vec>(-L, L, nGrid);
         dx = x(1) - x(0);
     }
+
     // Saving the grid basis
     filnameAxis = filePath + "x.mat";
-    x.save(filnameAxis, arma_ascii);
+    x.save(filnameAxis);
+    tmp.add("gridSpacing", Setting::TypeFloat) = dx;
 
 #ifdef DEBUG
     cout << "Basis::Basis(Config *cfg)" << endl

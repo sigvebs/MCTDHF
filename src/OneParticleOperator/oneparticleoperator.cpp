@@ -32,8 +32,8 @@ void SingleParticleOperator::computeNewElements(const cx_mat &C, double t)
     TU = Tspatial + Uspatial;
 
 #if 1
-    for(int i=0; i<h.n_rows; i++){
-        for(int j=0; j<h.n_rows; j++){
+    for(uint i=0; i<h.n_rows; i++){
+        for(uint j=0; j<h.n_rows; j++){
             if(abs(real( h(i,j)) ) < 1e-10)
                 h(i,j) = cx_double(0, imag(h(i,j)));
 
@@ -52,10 +52,10 @@ void SingleParticleOperator::addPotential(Potential *potential)
 void SingleParticleOperator::saveOperators()
 {
     // Saving kinetic spatial distribution to file.
-    Tspatial.save(filenameT, arma_ascii);
+    Tspatial.save(filenameT);
 
     // Saving potential spatial distribution to file.
-    Uspatial.save(filenameU, arma_ascii);
+    Uspatial.save(filenameU);
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeMatrixElements(const cx_mat &C)

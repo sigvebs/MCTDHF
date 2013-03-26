@@ -25,6 +25,7 @@ void MfLowRankApproximation::initialize()
         exit(EXIT_FAILURE);
     }
 
+
     int nConst = constEnd/dx;
     int constCenter = nGrid/2;
     V_ = zeros(nGrid, nGrid);
@@ -39,8 +40,8 @@ void MfLowRankApproximation::initialize()
 //    mat h = hPiecewiseLinear();
     mat Q = eye(nGrid,nGrid);
 
-    // Using a consant weight in the center of the postential
-    // and a linear decrese from the center.
+    // Using a consant weight in the center of the potential
+    // and a linear decrease from the center.
     vec g = gLinear(nGrid, constCenter, nConst, constValue, endValue);
     mat C = cMatrix(g, h, dx);
 
@@ -53,16 +54,19 @@ void MfLowRankApproximation::initialize()
 
     // Sorting the eigenvalues by absoulte value and finding the number
     // of eigenvalues with abs(eigenval(i)) > epsilon
-    uvec indices = sort_index(abs(lambda),1);
+    uvec indices = sort_index(abs(lambda), 1);
     M = -1;
     for(uint m=0; m <lambda.n_rows; m++){
+        cout << abs(lambda(indices(m))) << endl;
         if(abs(lambda(indices(m))) < epsilon){
             M = m;
             break;
         }
     }
-    cout << min(abs(lambda)) << endl;
-    M = 250;
+//    cout << min(abs(lambda)) << endl;
+//    cout << "hei" << endl;
+//    cout << lambda << endl;
+//    M = 63;
     if(M < 0){
         cerr << "MfLowRankApproximation:: no eigenvalues < epsilon found."
              << " Try setting epsilon to a higher number" << endl;
@@ -131,8 +135,19 @@ cx_vec MfLowRankApproximation::integrate(const int q, const int r, const cx_mat 
 //------------------------------------------------------------------------------
 void MfLowRankApproximation::integrate(const int q, const int r, const cx_mat &C, cx_vec &V2)
 {
-    cerr << "MfLowRankApproximation::integrate(const int q, const int r, const cx_mat &C, cx_vec &V2)" << endl;
-    exit(0);
+    V2.zeros();
+
+    for(int m=0; m<M; m++){
+        for(int j=0; j<nGrid; j++){
+            Vm(m) += conj(C(j,q))*U(j,m)*C(j,r);
+        }
+    }
+
+    for(int i=0; i<nGrid; i++){
+        for(int m=0; m<M; m++){
+            V2(i) += eigenval(m)*U(i,m)*Vm(m);
+        }
+    }
 }
 //------------------------------------------------------------------------------
 cx_double MfLowRankApproximation::integrate(const int p, const int q, const int r, const int s, const cx_mat &C)
@@ -191,7 +206,7 @@ mat MfLowRankApproximation::cMatrix(const vec &g, const mat &h, double dx)
         for(int j=0; j<n; j++){
             S(i,j) = 0;
             for(int m=0; m<nSpatial; m++){
-                S(i,j) += g(m)*h(m,i)*h(m,j)*dx;
+                S(i,j) += g(m)*h(m,i)*h(m,j);
             }
         }
     }

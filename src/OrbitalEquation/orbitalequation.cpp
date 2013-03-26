@@ -25,6 +25,8 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
 
     U = zeros<cx_mat>(nGrid, nOrbitals);
     Q = cx_mat(nGrid, nGrid);
+
+    rho1 = zeros<cx_mat>(2*nOrbitals, 2*nOrbitals); // TMP
 }
 //------------------------------------------------------------------------------
 const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
@@ -306,27 +308,41 @@ cx_double OrbitalEquation::reducedTwoParticleOperator(const int p, const int q,
     return value;
 }
 //------------------------------------------------------------------------------
-const cx_mat &OrbitalEquation::reCalculateRho1()
+const cx_mat &OrbitalEquation::reCalculateRho1(const cx_vec &A)
 {
+    this->A = &A;
+#if 0
+    computeOneParticleReducedDensityWithSpin();
+    return rho1;
+#else
     computeOneParticleReducedDensity();
     return invRho; // This is not actually the inverse at this point
+#endif
 }
 //------------------------------------------------------------------------------
 vec OrbitalEquation::getSvdRho1(){
     cx_mat X;
     vec s;
     cx_mat Y;
+#if 0
+    svd_econ(X, s, Y, rho1);
+#else
     svd_econ(X, s, Y, invRho);
+#endif
     return s;
 }
 //------------------------------------------------------------------------------
-double OrbitalEquation::getCorrelation(const cx_vec &A)
+double OrbitalEquation::getCorrelation()
 {
-    this->A = &A;
-
-    computeOneParticleReducedDensity();
-    cx_mat rho1_sq = invRho*invRho/(nParticles*nParticles);
-
+    cx_mat rho1_sq;
+#if 0
+    rho1_sq = rho1*rho1/(pow(nParticles,2));
+    cout << trace(rho1_sq) << endl;
+    return 1.0/real(trace(rho1_sq));
+#else
+//    computeOneParticleReducedDensity();
+    rho1_sq = invRho*invRho/(nParticles*nParticles);
+#endif
     return 1.0/real(trace(rho1_sq));
 }
 //------------------------------------------------------------------------------
@@ -339,5 +355,16 @@ cx_double OrbitalEquation::findRho2(int p, int q, int r, int s)
     if(foundInteraction != rho2.end())
         result = foundInteraction->second;
     return result;
+}
+//------------------------------------------------------------------------------
+void OrbitalEquation::computeOneParticleReducedDensityWithSpin()
+{
+    for(int i=0; i < 2*nOrbitals; i++){
+        rho1(i,i) = reducedOneParticleOperator(i,i);
+        for(int j=i+1; j < 2*nOrbitals; j++){
+            rho1(i,j) = reducedOneParticleOperator(i,j);
+            rho1(j,i) = conj( rho1(i,j) );
+        }
+    }
 }
 //------------------------------------------------------------------------------

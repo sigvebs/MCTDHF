@@ -56,38 +56,12 @@ void ComplexTimePropagation::doComplexTimePropagation()
             // Collecting data
             E(counter) = slater->getEnergy(A) ;
             dE(counter) = E(counter) - Eprev;
-            K = orbital->getCorrelation(A);
-            rho = &orbital->reCalculateRho1();
+            rho = &orbital->reCalculateRho1(A);
+            K = orbital->getCorrelation();
             svdRho = orbital->getSvdRho1();
 
-            // Saving progress
-            h->saveOperators();
-            C.save(filenameOrbitals, arma_ascii);
-            A.save(filenameSlaterDet, arma_ascii);
-            E.save(filenameEnergy, arma_ascii);
-            dE.save(filenameDeltaE, arma_ascii);
-            K.save(filenameCorrelation, arma_ascii);
-            svdRho.save(filenameSvdRho, arma_ascii);
-            (*rho).save(filenameRho, arma_ascii);
-
-            if(saveEveryTimeStep){
-                stringstream file;
-                file << filePath << "Time/C" << counter << ".mat";
-                C.save(file.str(), arma_ascii);
-            }
-
-            // Printing progress to screen
-            if( printProgress ){
-                cout << "---------------------------------------------------------------\n";
-                cout << "step = " << step << endl
-                     << "E = " << E(counter) << endl
-                     << "dE = " << dE(counter) << endl
-                     << "k = " << K << endl
-                     << "dt = " << dt << endl
-                     << "svdRho1 = ";
-                svdRho.raw_print();
-                cout << endl;
-            }
+            saveProgress(counter);
+            printProgressToScreen(counter);
 
             Eprev = E(counter);
             counter++;
@@ -111,7 +85,7 @@ cx_vec ComplexTimePropagation::getCoefficients()
     return A;
 }
 //------------------------------------------------------------------------------
-void ComplexTimePropagation::setInititalState(cx_vec A, cx_mat C)
+void ComplexTimePropagation::setInititalState(cx_vec &A, cx_mat &C)
 {
     this->A = A;
     this->C = C;
@@ -126,5 +100,54 @@ void ComplexTimePropagation::renormalize(cx_mat &D)
     cx_mat Y;
     svd_econ(X, s, Y, D);
     D = X*Y.t();
+}
+//------------------------------------------------------------------------------
+cx_mat ComplexTimePropagation::getCurrentC()
+{
+    return C;
+}
+//------------------------------------------------------------------------------
+cx_vec ComplexTimePropagation::getCurrentA()
+{
+    return A;
+}
+//------------------------------------------------------------------------------
+void ComplexTimePropagation::printProgressToScreen(uint counter)
+{
+    if( printProgress ){
+        cout << "---------------------------------------------------------------\n";
+        cout << "step = " << step << endl
+             << "E = " << E(counter) << endl
+             << "dE = " << dE(counter) << endl
+             << "k = " << K(0) << endl
+             << "dt = " << dt << endl
+             << "svdRho1 = ";
+        svdRho.raw_print();
+        cout << endl;
+    }
+}
+//------------------------------------------------------------------------------
+void ComplexTimePropagation::saveProgress(uint counter)
+{
+    h->saveOperators();
+    C.save(filenameOrbitals);
+    A.save(filenameSlaterDet, arma_ascii);
+    E.save(filenameEnergy);
+    dE.save(filenameDeltaE);
+    K.save(filenameCorrelation);
+    svdRho.save(filenameSvdRho);
+    (*rho).save(filenameRho);
+
+    if(saveEveryTimeStep){
+        stringstream fileName;
+        fileName << filePath << "cx_C" << counter << ".mat";
+        C.save(fileName.str());
+        fileName.str("");
+        fileName << filePath << "cx_A" << counter << ".mat";
+        A.save(fileName.str());
+        fileName.str("");
+        fileName << filePath << "cx_rho" << counter << ".mat";
+         (*rho).save(fileName.str());
+    }
 }
 //------------------------------------------------------------------------------

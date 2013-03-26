@@ -4,7 +4,6 @@
 TimePropagation::TimePropagation(Config *cfg):
     cfg(cfg)
 {
-    string filePath;
     try{
         dt = cfg->lookup("timeIntegration.dt");
         cfg->lookupValue("systemSettings.filePath", filePath);
@@ -38,9 +37,22 @@ void TimePropagation::doComplexTimePropagation()
         // Saving C and A to disk
         if(accepted){
             time(step) = t;
+
+            stringstream fileName;
+            fileName << filePath << "/t_C" << step << ".mat";
+//            C.save(fileName.str(), arma_ascii);
+            C.save(fileName.str());
+            fileName.str("");
+            fileName << filePath << "/t_A" << step << ".mat";
+//            A.save(fileName.str(), arma_ascii);
+            A.save(fileName.str());
+
             overlap(step) = pow(fabs(cdot(A0, A)),2);
+
+
+
 //            cout << "-------------------------------------------------------\n";
-//            cout << "step = " << step << endl
+            cout << "step = " << step << endl;
 //                 << "E = " << slater->getEnergy(A) << endl
 //                 << "t = " << t << endl
 //                 << "|<A0|A>|^2 = " << overlap(step) << endl
