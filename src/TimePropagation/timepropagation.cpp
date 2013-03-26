@@ -64,8 +64,6 @@ void TimePropagation::doTimePropagation()
 
             saveProgress(step);
             printProgressToScreen(step);
-
-            cout << "step = " << step << endl;
             t += dt;
         }
     }
