@@ -44,7 +44,6 @@ void TimePropagation::doTimePropagation()
     bool accepted;
 
     for(step=0; step < N; step++){
-        cout << "before step: " << step << " N = " << N << endl;
         accepted = this->stepForward();
 
         // Saving C and A to disk
@@ -57,7 +56,6 @@ void TimePropagation::doTimePropagation()
 
             // Collecting data
             E(step) = slater->getEnergy(A);
-            cout << "bla= " << step << endl;
             rho = &orbital->reCalculateRho1(A);
             K = orbital->getCorrelation();
             svdRho = orbital->getSvdRho1();
