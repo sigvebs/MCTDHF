@@ -119,7 +119,7 @@ void MctdhfApplication::run()
         timePropagator->setInititalState(A, C);
 
         cout << "Starting time propagation" << endl;
-        timePropagator->doComplexTimePropagation();
+        timePropagator->doTimePropagation();
 
         delete timePropagator;
     }

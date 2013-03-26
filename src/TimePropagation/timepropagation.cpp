@@ -6,64 +6,72 @@ TimePropagation::TimePropagation(Config *cfg):
 {
     try{
         dt = cfg->lookup("timeIntegration.dt");
-        cfg->lookupValue("systemSettings.filePath", filePath);
         N = cfg->lookup("timeIntegration.N");
         cfg->lookupValue("systemSettings.filePath", filePath);
+        cfg->lookupValue("systemSettings.filePath", filePath);
+        saveToFileInterval = cfg->lookup("systemSettings.saveToFileInterval");
+        printProgress  = cfg->lookup("systemSettings.printProgress");
+        saveEveryTimeStep = cfg->lookup("systemSettings.saveEveryTimeStep");
     } catch (const SettingNotFoundException &nfex) {
-        cerr << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::Error reading parameter from config object." << endl;
+        cerr << "TimePropagation::TimePropagation(Config *cfg)::Error reading parameter from config object." << endl;
         exit(EXIT_FAILURE);
     }
     step = 0;
     t = 0;
-    overlap = zeros(N);
+    E = zeros(N);
+    K = vec(1);
     time = zeros(N);
-    filenameOverlap = filePath + "overlap.mat";
+
+    filenameOrbitals = filePath + "C.mat";
+    filenameSlaterDet = filePath + "A.mat";
+    filenameEnergy = filePath + "E.mat";
+    filenameDeltaE = filePath + "dE.mat";
+    filenameSvdRho = filePath + "svdRho.mat";
+    filenameRho = filePath + "rho.mat";
+    filenameCorrelation = filePath + "K.mat";
     filenameT = filePath + "time.mat";
+
 #ifdef DEBUG
-    cout << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::" << endl
+    cout << "TimePropagation::TimePropagation(Config *cfg)::" << endl
          << "dt \t= " << dt << endl
          << "N \t= " << N << endl;
 #endif
 }
 //------------------------------------------------------------------------------
-void TimePropagation::doComplexTimePropagation()
+void TimePropagation::doTimePropagation()
 {
     cout << "\n" << endl;
     bool accepted;
 
     for(step=0; step < N; step++){
+        cout << "before step: " << step << " N = " << N << endl;
         accepted = this->stepForward();
 
         // Saving C and A to disk
         if(accepted){
             time(step) = t;
 
-            stringstream fileName;
-            fileName << filePath << "/t_C" << step << ".mat";
-//            C.save(fileName.str(), arma_ascii);
-            C.save(fileName.str());
-            fileName.str("");
-            fileName << filePath << "/t_A" << step << ".mat";
-//            A.save(fileName.str(), arma_ascii);
-            A.save(fileName.str());
+            // Updating the one-body- and interaction-elements
+            V->computeNewElements(C);
+            h->computeNewElements(C);
 
-            overlap(step) = pow(fabs(cdot(A0, A)),2);
+            // Collecting data
+            E(step) = slater->getEnergy(A);
+            cout << "bla= " << step << endl;
+            rho = &orbital->reCalculateRho1(A);
+            K = orbital->getCorrelation();
+            svdRho = orbital->getSvdRho1();
 
+            saveProgress(step);
+            printProgressToScreen(step);
 
-
-//            cout << "-------------------------------------------------------\n";
             cout << "step = " << step << endl;
-//                 << "E = " << slater->getEnergy(A) << endl
-//                 << "t = " << t << endl
-//                 << "|<A0|A>|^2 = " << overlap(step) << endl
-//                 << "dt = " << dt << endl;
             t += dt;
         }
     }
 
     // Saving results
     time.save(filenameT, arma_ascii);
-    overlap.save(filenameOverlap, arma_ascii);
 }
 //------------------------------------------------------------------------------
 void TimePropagation::setDependencies(SlaterEquation *slater,
@@ -77,17 +85,50 @@ void TimePropagation::setDependencies(SlaterEquation *slater,
     this->h = h;
 }
 //------------------------------------------------------------------------------
-void TimePropagation::setInititalState(cx_vec A, cx_mat C)
+void TimePropagation::setInititalState(cx_vec &A, cx_mat &C)
 {
     this->A = A;
-    A0 = A;
     this->C = C;
-    C0 = C;
 }
 //------------------------------------------------------------------------------
-double TimePropagation::computeOverlap()
+cx_mat TimePropagation::getCurrentC()
 {
-    return 0;
+    return C;
+}
+//------------------------------------------------------------------------------
+cx_vec TimePropagation::getCurrentA()
+{
+    return A;
+}
+//------------------------------------------------------------------------------
+void TimePropagation::printProgressToScreen(uint counter)
+{
+    if( printProgress ){
+        cout << "---------------------------------------------------------------\n";
+        cout << "step = " << step << endl
+             << "E = " << E(counter) << endl
+             << "k = " << K(0) << endl
+             << "dt = " << dt << endl
+             << "svdRho1 = ";
+        svdRho.raw_print();
+        cout << endl;
+    }
+}
+//------------------------------------------------------------------------------
+void TimePropagation::saveProgress(uint counter)
+{
+    E.save(filePath + "t_E", arma_ascii);
+    if(saveEveryTimeStep){
+        stringstream fileName;
+        fileName << filePath << "t_C" << counter << ".mat";
+        C.save(fileName.str());
+        fileName.str("");
+        fileName << filePath << "t_A" << counter << ".mat";
+        A.save(fileName.str());
+        fileName.str("");
+        fileName << filePath << "t_rho" << counter << ".mat";
+         (*rho).save(fileName.str());
+    }
 }
 //------------------------------------------------------------------------------
 

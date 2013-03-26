@@ -19,25 +19,26 @@ class TimePropagation
 {
 public:
     TimePropagation(Config *cfg);
-    void doComplexTimePropagation();
+    void doTimePropagation();
 
     virtual bool stepForward() = 0;
     void setDependencies(SlaterEquation *slater,
                          OrbitalEquation *orbital,
                          Interaction *V,
                          SingleParticleOperator *h);
-    void setInititalState(cx_vec A, cx_mat C);
+    void setInititalState(cx_vec &A, cx_mat &C);
+    cx_mat getCurrentC();
+    cx_vec getCurrentA();
 protected:
-    double computeOverlap();
+    void printProgressToScreen(uint counter);
+    void saveProgress(uint counter);
     Config *cfg;
     double dt;
     double t;
-    vec time;
+    int nOrbitals;
 
     cx_vec A;
-    cx_vec A0;
     cx_mat C;
-    cx_mat C0;
 
     SlaterEquation *slater;
     OrbitalEquation *orbital;
@@ -45,15 +46,31 @@ protected:
     Interaction *V;
     SingleParticleOperator *h;
 
-    vec overlap;
+    vec E;
+    vec dE;
+    vec K;
+    double Eprev;
     int step;
     cx_double i;
     int N;
+    vec svdRho;
+    const cx_mat *rho;
+    vec time;
 
     // Filenames
+    int saveToFileInterval;
     string filePath;
-    string filenameOverlap;
+    string filenameOrbitals;
+    string filenameSlaterDet;
+    string filenameEnergy;
+    string filenameDeltaE;
+    string filenameSvdRho;
+    string filenameRho;
+    string filenameCorrelation;
     string filenameT;
+
+    bool printProgress;
+    bool saveEveryTimeStep;
 };
 
 #endif // TIMEPROPAGATION_H
