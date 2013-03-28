@@ -50,6 +50,7 @@ void Basis::discretizeBasis()
     try{
         L = cfg->lookup("spatialDiscretization.latticeRange");
         periodicBoundaries=cfg->lookup("spatialDiscretization.periodicBoundaries");
+        cfg->lookupValue("systemSettings.filePath", filePath);
     } catch (const SettingNotFoundException &nfex) {
         cerr << "discretizeBasis()::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
@@ -71,7 +72,6 @@ void Basis::discretizeBasis()
     filnameAxis = filePath + "x.mat";
     x.save(filnameAxis);
     tmp.add("gridSpacing", Setting::TypeFloat) = dx;
-
     // Performing the discretization
     this->createInitalDiscretization();
 }
