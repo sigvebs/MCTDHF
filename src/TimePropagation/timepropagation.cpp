@@ -52,7 +52,7 @@ void TimePropagation::doTimePropagation()
 
             // Updating the one-body- and interaction-elements
             V->computeNewElements(C);
-            h->computeNewElements(C);
+            h->computeNewElements(C, t);
 
             // Collecting data
             E(step) = slater->getEnergy(A);
@@ -87,6 +87,16 @@ void TimePropagation::setInititalState(cx_vec &A, cx_mat &C)
     this->C = C;
 }
 //------------------------------------------------------------------------------
+void TimePropagation::renormalize(cx_mat &D)
+{
+    // Re-normalization of C using SVD
+    cx_mat X;
+    vec s;
+    cx_mat Y;
+    svd_econ(X, s, Y, D);
+    D = X*Y.t();
+}
+//------------------------------------------------------------------------------
 cx_mat TimePropagation::getCurrentC()
 {
     return C;
@@ -104,6 +114,7 @@ void TimePropagation::printProgressToScreen(uint counter)
         cout << "step = " << step << endl
              << "E = " << E(counter) << endl
              << "k = " << K(0) << endl
+             << "t = " << t << endl
              << "dt = " << dt << endl
              << "svdRho1 = ";
         svdRho.raw_print();
@@ -113,7 +124,7 @@ void TimePropagation::printProgressToScreen(uint counter)
 //------------------------------------------------------------------------------
 void TimePropagation::saveProgress(uint counter)
 {
-    E.save(filePath + "t_E", arma_ascii);
+    E.save(filePath + "t_E.mat", arma_ascii);
     if(saveEveryTimeStep){
         stringstream fileName;
         fileName << filePath << "t_C" << counter << ".mat";
@@ -127,4 +138,3 @@ void TimePropagation::saveProgress(uint counter)
     }
 }
 //------------------------------------------------------------------------------
-

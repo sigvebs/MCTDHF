@@ -4,41 +4,18 @@ Basis::Basis(Config *cfg):
     cfg(cfg)
 {
     string filePath;
-    double L;
-    bool periodicBoundaries;
     try{
         dim = cfg->lookup("system.dim");
         coordinateType = cfg->lookup("system.coordinateType");
         cfg->lookupValue("systemSettings.filePath", filePath);
-        L = cfg->lookup("spatialDiscretization.latticeRange");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
         nBasis = cfg->lookup("system.shells");
-        periodicBoundaries=cfg->lookup("spatialDiscretization.periodicBoundaries");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "Basis(Config *cfg)::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
 
     nSpatialOrbitals = states.size()/2;
-
-    // Adding the number of gridpoints to the config file
-    Setting &root = cfg->getRoot();
-    Setting &tmp = root["spatialDiscretization"];
-
-    if(periodicBoundaries){
-        dx = 2.0*L/(double)(nGrid);
-        cout << "hei" << endl;
-        x = linspace<vec>(-L, L-dx,nGrid);
-    }else{
-        cout << "nei" << endl;
-        x = linspace<vec>(-L, L, nGrid);
-        dx = x(1) - x(0);
-    }
-
-    // Saving the grid basis
-    filnameAxis = filePath + "x.mat";
-    x.save(filnameAxis);
-    tmp.add("gridSpacing", Setting::TypeFloat) = dx;
 
 #ifdef DEBUG
     cout << "Basis::Basis(Config *cfg)" << endl
@@ -63,6 +40,40 @@ void Basis::createBasis()
     Setting &root = cfg->getRoot();
     Setting &tmp = root["spatialDiscretization"];
     tmp.add("nSpatialOrbitals", Setting::TypeInt) = nSpatialOrbitals;
+}
+//------------------------------------------------------------------------------
+void Basis::discretizeBasis()
+{
+    string filePath;
+    double L;
+    bool periodicBoundaries;
+    try{
+        L = cfg->lookup("spatialDiscretization.latticeRange");
+        periodicBoundaries=cfg->lookup("spatialDiscretization.periodicBoundaries");
+    } catch (const SettingNotFoundException &nfex) {
+        cerr << "discretizeBasis()::Error reading from config object." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Adding dx to the config file
+    Setting &root = cfg->getRoot();
+    Setting &tmp = root["spatialDiscretization"];
+
+    if(periodicBoundaries){
+        dx = 2.0*L/(double)(nGrid);
+        x = linspace<vec>(-L, L-dx,nGrid);
+    }else{
+        x = linspace<vec>(-L, L, nGrid);
+        dx = x(1) - x(0);
+    }
+
+    // Saving the grid basis
+    filnameAxis = filePath + "x.mat";
+    x.save(filnameAxis);
+    tmp.add("gridSpacing", Setting::TypeFloat) = dx;
+
+    // Performing the discretization
+    this->createInitalDiscretization();
 }
 //------------------------------------------------------------------------------
 void Basis::createCartesianBasis()

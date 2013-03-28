@@ -39,21 +39,9 @@ bool RungeKutta4::stepForward()
     C += 1.0/6.0*(m1 + 2*(m2 + m3) + m4);
 
     // Normalizing
-    C = renormalize(C);
+    renormalize(C);
     A = A/sqrt(cdot(A,A));
 
     return 1;
-}
-//------------------------------------------------------------------------------
-cx_mat RungeKutta4::renormalize(cx_mat C)
-{
-    // Re-normalization of C using SVD
-    cx_mat X;
-    vec s;
-    cx_mat Y;
-    svd_econ(X, s, Y, C);
-    C = X*Y.t();
-
-    return C;
 }
 //------------------------------------------------------------------------------

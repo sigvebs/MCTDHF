@@ -8,7 +8,6 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
         dt = cfg->lookup("ComplexTimeIntegration.dt");
         cfg->lookupValue("systemSettings.filePath", filePath);
         N = cfg->lookup("ComplexTimeIntegration.N");
-        cfg->lookupValue("systemSettings.filePath", filePath);
         saveToFileInterval = cfg->lookup("systemSettings.saveToFileInterval");
         printProgress  = cfg->lookup("systemSettings.printProgress");
         saveEveryTimeStep = cfg->lookup("systemSettings.saveEveryTimeStep");

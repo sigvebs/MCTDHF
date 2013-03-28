@@ -21,6 +21,7 @@ public:
     Basis(Config* cfg);
     ~Basis();
     void createBasis();
+    void discretizeBasis();
     const vector<vec> &getBasis() const;
     virtual void createInitalDiscretization() = 0;
     const cx_mat &getInitalOrbitals() const;

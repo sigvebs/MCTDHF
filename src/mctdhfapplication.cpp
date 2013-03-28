@@ -14,6 +14,8 @@ MctdhfApplication::MctdhfApplication(string configFilename)
 
     try {
         loadDataset = cfg.lookup("systemSettings.loadDataset");
+        doTimeIntegration = cfg.lookup("systemSettings.doTimeIntegration");
+        doComplexTimeIntegration = cfg.lookup("systemSettings.doComplexTimeIntegration");
         cfg.lookupValue("systemSettings.loadDatasetPath", loadDatasetPath);
     }catch (const SettingNotFoundException &fioex) {
         loadDataset = false;
@@ -27,22 +29,40 @@ MctdhfApplication::MctdhfApplication(string configFilename)
 //------------------------------------------------------------------------------
 void MctdhfApplication::run()
 {
-
     //--------------------------------------------------------------------------
     // Creating the orbitals and spatial discretization
     //--------------------------------------------------------------------------
-    Basis* orb = setBasis();
-    orb->createBasis();
-    const vector<vec> orbitals = orb->getBasis();
     vec x;
     cx_mat C;
     if(loadDataset){
         x.load(loadDatasetPath + "/x.mat");
         C.load(loadDatasetPath + "/C.mat");
 
-        checkXC(x, C, orbitals);
-    }else{
-        orb->createInitalDiscretization();
+        // Saving the discretization in the new project folder
+        string filePath;
+        cfg.lookupValue("systemSettings.filePath", filePath);
+        x.save(filePath + "x.mat");
+
+        // Updating the config-file
+        double dx = x(1) - x(0);
+
+        Setting &root = cfg.getRoot();
+        Setting &tmp = root["spatialDiscretization"];
+        tmp.add("gridSpacing", Setting::TypeFloat) = dx;
+        tmp.remove("nGrid");
+        tmp.add("nGrid", Setting::TypeInt) = (int)x.n_rows;
+
+        Setting &tmp2 = root["system"];
+        tmp2.remove("shells");
+        tmp2.add("shells", Setting::TypeInt) = (int)C.n_cols - 1;
+    }
+
+    Basis* orb = setBasis();
+    orb->createBasis();
+    const vector<vec> orbitals = orb->getBasis();
+
+    if(!loadDataset){
+        orb->discretizeBasis();
         C = orb->getInitalOrbitals();
         x = orb->getX();
     }
@@ -93,25 +113,23 @@ void MctdhfApplication::run()
     OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
 
     //--------------------------------------------------------------------------
-    // Setting up the complex time integrator
+    // Setting up and performing complex time integration
     //--------------------------------------------------------------------------
-    ComplexTimePropagation* complexTimePropagation = setComplexTimeIntegrator();
-    complexTimePropagation->setDependencies(&slaterEquation, &orbEq, &V, &h);
-    complexTimePropagation->setInititalState(A, C);
+    if(doComplexTimeIntegration){
+        ComplexTimePropagation* complexTimePropagation = setComplexTimeIntegrator();
+        complexTimePropagation->setDependencies(&slaterEquation, &orbEq, &V, &h);
+        complexTimePropagation->setInititalState(A, C);
 
-    //--------------------------------------------------------------------------
-    // Performing complex time integrator
-    //--------------------------------------------------------------------------
-    cout << "Starting imaginary time propagation" << endl;
-    complexTimePropagation->doComplexTimePropagation();
-    A = complexTimePropagation->getCurrentA();
-    C = complexTimePropagation->getCurrentC();
-    delete complexTimePropagation;
+        cout << "Starting imaginary time propagation" << endl;
+        complexTimePropagation->doComplexTimePropagation();
+        A = complexTimePropagation->getCurrentA();
+        C = complexTimePropagation->getCurrentC();
+        delete complexTimePropagation;
+    }
 
     //--------------------------------------------------------------------------
     // Time integration
     //--------------------------------------------------------------------------
-    bool doTimeIntegration = cfg.lookup("systemSettings.doTimeIntegration");
     if(doTimeIntegration){
         TimePropagation *timePropagator = setTimeIntegrator();
         setTimeDepOneBodyPotentials(h, x);
@@ -120,7 +138,6 @@ void MctdhfApplication::run()
 
         cout << "Starting time propagation" << endl;
         timePropagator->doTimePropagation();
-
         delete timePropagator;
     }
     //--------------------------------------------------------------------------
@@ -211,7 +228,7 @@ TimePropagation *MctdhfApplication::setTimeIntegrator()
         I = new RungeKutta4(&cfg);
         break;
     case RUNGE_KUTTA_FEHLBERG :
-        I = new RungeKutta4(&cfg);
+        I = new RungeKuttaFehlberg(&cfg);
         break;
     default:
         cerr << "Time Integrator not implemented:: " << integrator << endl;
@@ -228,9 +245,6 @@ ComplexTimePropagation* MctdhfApplication::setComplexTimeIntegrator()
     int integrator = cfg.lookup("ComplexTimeIntegration.integrator");
 
     switch (integrator) {
-    case CT_CRANK_NICOLSON:
-        I = new ComplexTimeCrankNicholson(&cfg);
-        break;
     case CT_RUNGE_KUTTA4:
         I = new ComplexTimeRungeKutta4(&cfg);
         break;

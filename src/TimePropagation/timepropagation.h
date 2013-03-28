@@ -27,6 +27,7 @@ public:
                          Interaction *V,
                          SingleParticleOperator *h);
     void setInititalState(cx_vec &A, cx_mat &C);
+    void renormalize(cx_mat &D);
     cx_mat getCurrentC();
     cx_vec getCurrentA();
 protected:

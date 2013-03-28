@@ -22,6 +22,7 @@ public:
     SlaterDeterminants(Config *cfg, vector<vec> sps);
     void createSlaterDeterminants();
     const vector<bitset<BITS> > &getSlaterDeterminants() const;
+    void saveSlaterDeterminantsToDisk();
 protected:
     vec odometer(const vec &, int, int);
     bitset<BITS> createBinaryState(vec state);
@@ -33,6 +34,7 @@ protected:
     int nParticles;
     bool conservedEigenSpin;
     int conservedEigenSpinValue;
+    string filePath;
 
     vector<vec> sps;
     vector<bitset<BITS> > binStates;

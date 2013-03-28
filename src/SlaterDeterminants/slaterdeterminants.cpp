@@ -2,10 +2,12 @@
 
 //------------------------------------------------------------------------------
 SlaterDeterminants::SlaterDeterminants(Config *cfg, vector<vec> sps): cfg(cfg), sps(sps)
-{ try {
+{
+    try {
         nParticles = cfg->lookup("system.nParticles");
         conservedEigenSpin = cfg->lookup("system.conserveSpin");
         conservedEigenSpinValue = cfg->lookup("system.spinValue");
+        cfg->lookupValue("systemSettings.filePath", filePath);
     } catch (const SettingNotFoundException &nfex) {
         cerr << "SlaterDeterminants(Config *cfg, vector<vec> sps)::Error reading config object." << endl;
         exit(EXIT_FAILURE);
@@ -48,6 +50,7 @@ void SlaterDeterminants::createSlaterDeterminants()
 
     cout << binStates.size()  << " Slater determinants created." << endl;
 
+    saveSlaterDeterminantsToDisk();
 #ifdef DEBUG
     cout << "SlaterDeterminants::createSlaterDeterminants()" << endl;
     for(int i=0; i<(int)binStates.size(); i++){
@@ -115,5 +118,19 @@ vec SlaterDeterminants::odometer(const vec &oldState, int Nsp, int N)
 const vector<bitset<BITS> > &SlaterDeterminants::getSlaterDeterminants() const
 {
     return binStates;
+}
+
+//------------------------------------------------------------------------------
+void SlaterDeterminants::saveSlaterDeterminantsToDisk()
+{
+
+    ofstream SdFile;
+    SdFile.open (filePath + "/SlaterDeterminants.sd");
+
+    SdFile << (int)binStates.size() << " " << BITS << endl;
+    for(int i=0; i<(int)binStates.size(); i++){
+        SdFile << binStates[i] << endl;
+    }
+    SdFile.close();
 }
 //------------------------------------------------------------------------------

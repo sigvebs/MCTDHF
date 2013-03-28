@@ -10,7 +10,6 @@ public:
     RungeKutta4(Config* cfg);
     virtual bool stepForward();
 protected:
-    cx_mat renormalize(cx_mat C);
     cx_vec k1;
     cx_vec k2;
     cx_vec k3;

@@ -44,7 +44,6 @@
 // Imaginary time integration
 #include <src/ComplexTimePropagation/complextimepropagation.h>
 
-#include <src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimecranknicholson.h>
 #include <src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekutta4.h>
 #include <src/ComplexTimePropagation/ComplexTimeIntegrator/implementation/complextimerungekuttafehlberg.h>
 
@@ -52,6 +51,7 @@
 #include <src/TimePropagation/timepropagation.h>
 
 #include <src/TimePropagation/implementation/rungekutta4.h>
+#include <src/TimePropagation/implementation/rungekuttafehlberg.h>
 
 
 // Libary incldues
@@ -83,6 +83,8 @@ protected:
 
     bool loadDataset;
     string loadDatasetPath;
+    bool doTimeIntegration;
+    bool doComplexTimeIntegration;
 };
 
 #endif // MCTDHFAPPLICATION_H

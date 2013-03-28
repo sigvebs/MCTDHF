@@ -11,7 +11,6 @@ public:
     virtual bool stepForward();
 protected:
     double epsilon;
-
 };
 
 #endif // COMPLEXTIMERUNGEKUTTAFEHLBERG_H

@@ -49,7 +49,8 @@ SOURCES += main.cpp \
     src/TimePropagation/implementation/rungekutta4.cpp \
     src/Potential/implementation/simplelaser.cpp \
     src/Potential/implementation/anharmonicdoublewell.cpp \
-    src/Basis/implementation/randomunitarymatrix.cpp
+    src/Basis/implementation/randomunitarymatrix.cpp \
+    src/TimePropagation/implementation/rungekuttafehlberg.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -89,7 +90,8 @@ HEADERS += \
     src/TimePropagation/implementation/rungekutta4.h \
     src/Potential/implementation/simplelaser.h \
     src/Potential/implementation/anharmonicdoublewell.h \
-    src/Basis/implementation/randomunitarymatrix.h
+    src/Basis/implementation/randomunitarymatrix.h \
+    src/TimePropagation/implementation/rungekuttafehlberg.h
 
 OTHER_FILES += \
     ../config.cfg \
