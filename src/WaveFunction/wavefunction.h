@@ -16,7 +16,8 @@ class Wavefunction
 public:
     Wavefunction(Config *cfg, vec quantumNumbers);
     ~Wavefunction();
-    virtual mat evaluate(const mat &x) = 0;
+    virtual double evaluate(double x) = 0;
+    virtual double evaluate(double x, double y) = 0;
 protected:
     Config *cfg;
     vec quantumNumbers;

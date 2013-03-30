@@ -20,8 +20,8 @@ SingleParticleOperator::SingleParticleOperator(Config *cfg, DifferentialOperator
     Tspatial = zeros<cx_mat>(nGrid, nOrbitals);
     Uspatial = zeros<cx_mat>(nGrid, nOrbitals);
 
-    filenameT = filePath + "T.mat";
-    filenameU= filePath + "U.mat";
+    filenameT = filePath + "/T.mat";
+    filenameU= filePath + "/U.mat";
 }
 //------------------------------------------------------------------------------
 void SingleParticleOperator::computeNewElements(const cx_mat &C, double t)

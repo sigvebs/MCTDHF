@@ -4,6 +4,7 @@
 // Local includes
 #include <src/includes/defines.h>
 #include <src/includes/lib.h>
+#include <src/Grid/grid.h>
 
 // Library includes
 #include <armadillo>
@@ -17,15 +18,15 @@ using namespace arma;
 class DifferentialOperator
 {
 public:
-    DifferentialOperator(Config* cfg, const vec &x);
+    DifferentialOperator(Config* cfg, const Grid &grid);
     virtual cx_vec secondDerivative(const cx_vec &phi) = 0;
 protected:
-    Config* cfg;
-
-    int nGrid;
     double dx;
     double dxdx;
-    vec x;
+    const Grid &grid;
+    int nGrid;
+
+    Config* cfg;
 };
 
 #endif // DIFFERENTIALOPERATOR_H

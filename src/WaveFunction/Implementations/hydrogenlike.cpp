@@ -7,13 +7,19 @@ HydrogenLike::HydrogenLike(Config *cfg, vec quantumNumbers):
     n = quantumNumbers(1);
 }
 //------------------------------------------------------------------------------
-mat HydrogenLike::evaluate(const mat &x)
+double HydrogenLike::evaluate(double x)
 {
-    mat psi(x.n_rows, 1);
-     for(uint i=0;i<x.n_rows; i++){
-         psi(i,0) = laguerrePolynomial(n, x(i))*exp(-abs(x(i)));
-     }
+     double psi = laguerrePolynomial(n, x)*exp(-abs(x));
+
      return psi;
+}
+//------------------------------------------------------------------------------
+double HydrogenLike::evaluate(double x, double y)
+{
+    cerr << "HydrogenLike::evaluate(double x, double y)::";
+    cerr << "NOT IMPLEMENTED YET";
+    exit(1);
+    return 0;
 }
 //------------------------------------------------------------------------------
 double HydrogenLike::laguerrePolynomial(const int n, const double x)

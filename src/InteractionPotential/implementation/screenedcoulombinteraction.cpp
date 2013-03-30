@@ -1,7 +1,7 @@
 #include "screenedcoulombinteraction.h"
 //------------------------------------------------------------------------------
-ScreenedCoulombInteraction::ScreenedCoulombInteraction(Config *cfg, const vec &x):
-    InteractionPotential(cfg, x)
+ScreenedCoulombInteraction::ScreenedCoulombInteraction(Config *cfg, const Grid &grid):
+    InteractionPotential(cfg, grid)
 {
     try{
         aa = cfg->lookup("interactionPotential.shieldedCoulombInteraction.a");
@@ -18,7 +18,7 @@ mat ScreenedCoulombInteraction::computeInteractionSpace()
 {
     for(int i=0; i<nGrid; i++){
         for(int j=0; j<nGrid; j++){
-            interactionSpace(i,j) = lambda/sqrt(pow(x(j) - x(i),2) + aa);
+            interactionSpace(i,j) = lambda/sqrt(pow(grid.x(j) - grid.x(i),2) + aa);
         }
     }
     return interactionSpace;

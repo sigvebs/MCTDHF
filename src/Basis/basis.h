@@ -3,6 +3,7 @@
 
 // Local includes
 #include <src/includes/defines.h>
+#include <src/Grid/grid.h>
 #include <src/WaveFunction/wavefunction.h>
 
 // Library incldues
@@ -21,33 +22,29 @@ public:
     Basis(Config* cfg);
     ~Basis();
     void createBasis();
-    void discretizeBasis();
     const vector<vec> &getBasis() const;
+    const field<cx_mat> &getOrbitals() const;
+    void setGrid(Grid *grid);
+    void loadOrbitals();
     virtual void createInitalDiscretization() = 0;
-    const cx_mat &getInitalOrbitals() const;
-    const vec &getX() const;
 protected:
     void createCartesianBasis();
     void createPolarBasis();
+    void SVD(cx_mat &D);
 
-    Config* cfg;
+    vector<vec> states;
+    field<cx_mat> C;
 
     // Sysmte settings
     int coordinateType;
     int nBasis;
     int dim;
-
     int nGrid;
     int nSpatialOrbitals;
-
-    Wavefunction *wf;
-    vector<vec> states;
-    cx_mat C;
+    Grid *grid;
 
     string filnameAxis;
-
-    double dx;
-    vec x;
+    Config* cfg;
 };
 
 #endif // BASIS_H

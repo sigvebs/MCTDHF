@@ -1,8 +1,8 @@
 #include "harmonicoscillatoronebody.h"
 
 //------------------------------------------------------------------------------
-HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg, const vec &x):
-    Potential(cfg, x)
+HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg, const Grid &grid):
+    Potential(cfg, grid)
 {
     double w = 1;
     try{
@@ -15,7 +15,7 @@ HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg, const vec &x):
 
     // Setting the potential
     for(int j=0; j<nGrid; j++){
-        potential(j) = 0.5*w*w*x(j)*x(j);
+        potential(j) = 0.5*w*w*grid.x(j)*grid.x(j);
     }
 }
 //------------------------------------------------------------------------------

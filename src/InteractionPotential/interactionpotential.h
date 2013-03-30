@@ -1,5 +1,9 @@
 #ifndef INTERACTIONPOTENTIAL_H
 #define INTERACTIONPOTENTIAL_H
+
+//Local includes
+#include <src/Grid/grid.h>
+
 // Library includes
 #include <armadillo>
 #include <libconfig.h++>
@@ -11,14 +15,14 @@ using namespace arma;
 class InteractionPotential
 {
 public:
-    InteractionPotential(Config* cfg, const vec &x);
+    InteractionPotential(Config* cfg, const Grid &grid);
     virtual mat computeInteractionSpace() = 0;
 protected:
-    Config* cfg;
-
     mat interactionSpace;
-    const vec &x;
+
+    const Grid &grid;
     int nGrid;
+    Config* cfg;
 };
 
 #endif // INTERACTIONPOTENTIAL_H

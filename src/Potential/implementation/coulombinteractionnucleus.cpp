@@ -1,8 +1,8 @@
 #include "coulombinteractionnucleus.h"
 
 //------------------------------------------------------------------------------
-CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg, const vec &x):
-    Potential(cfg, x)
+CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg, const Grid &grid):
+    Potential(cfg, grid)
 {
     double b = 1;
     double Z = 2;
@@ -18,7 +18,7 @@ CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg, const vec &x):
 
     // Setting the potential
     for(int j=0; j<nGrid; j++){
-        potential(j) = - Z/sqrt(x(j)*x(j) + b*b);
+        potential(j) = - Z/sqrt(grid.x(j)*grid.x(j) + b*b);
     }
 }
 //------------------------------------------------------------------------------

@@ -24,17 +24,15 @@ void RandomUnitaryMatrix::createInitalDiscretization()
 void RandomUnitaryMatrix::discretization1d()
 {
     srand (time(NULL));
-    C = randn<cx_mat>(nGrid, nSpatialOrbitals);
-    cx_mat X;
-    vec s;
-    cx_mat Y;
-    svd_econ(X, s, Y, C);
-    C = X*Y.t();
+
+    C = field<cx_mat>(1);
+    C(0) = randn<cx_mat>(nGrid, nSpatialOrbitals);
+    SVD(C(0));
 #ifdef DEBUG
     cout << "RandomUnitaryMatrix::discretization1d()" << endl;
     for(int i=0; i<nSpatialOrbitals; i++){
         for(int j=0; j<nSpatialOrbitals; j++){
-            cout <<  "|C(" << i << ", " << j << ")| = " << sqrt(cdot(C.col(i),C.col(j))) << endl ;
+            cout <<  "|C(" << i << ", " << j << ")| = " << sqrt(cdot(C(0).col(i),C(0).col(j))) << endl ;
         }
     }
 #endif

@@ -1,7 +1,7 @@
 #include "spectral1d.h"
 //------------------------------------------------------------------------------
-Spectral1d::Spectral1d(Config* cfg, const vec &x):
-    DifferentialOperator(cfg, x)
+Spectral1d::Spectral1d(Config* cfg, const Grid &grid):
+    DifferentialOperator(cfg, grid)
 {
     // Setting up the frequencies.
     k = vec(nGrid);
@@ -24,28 +24,11 @@ Spectral1d::Spectral1d(Config* cfg, const vec &x):
 cx_vec Spectral1d::secondDerivative(const cx_vec &phi)
 {
     diff = phi;
-//    double L = 10.0;
-//    cx_vec x = linspace<cx_vec>(-L,L-dx, nGrid);
-//    cx_vec old = cos(x*PI/L);
-//    diff =  cos(x*PI/L);
-//    cout << real(diff) << endl;
 
     fftw_execute(forward);
     diff = k % diff;
     fftw_execute(backward);
 
-//    cout << real(diff) << endl;
-
-//    for(int i=0; i<nGrid/2; i++){
-//        cout << real(diff(i)/ old(i)) << endl;
-//    }
-//    cout << "---" << endl;
-//    for(int i=nGrid/2; i<nGrid;i++) {
-//        cout << real(diff(i)/ old(i)) << endl;
-//    }
-//    cout << k << endl;
-////    cout << x << endl;
-//    exit(1);
     return diff;
 }
 //------------------------------------------------------------------------------

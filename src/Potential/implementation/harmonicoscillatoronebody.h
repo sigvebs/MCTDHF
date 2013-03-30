@@ -7,7 +7,7 @@
 class HarmonicOscillatorOneBody: public Potential
 {
 public:
-    HarmonicOscillatorOneBody(Config *cfg, const vec &x);
+    HarmonicOscillatorOneBody(Config *cfg,const Grid &grid);
     virtual cx_vec evaluate(const cx_vec &psi, double t);
 };
 

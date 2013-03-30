@@ -1,8 +1,8 @@
 #include "simplelaser.h"
 
 //------------------------------------------------------------------------------
-simpleLaser::simpleLaser(Config *cfg, const vec &x):
-    Potential(cfg, x)
+simpleLaser::simpleLaser(Config *cfg, const Grid &grid):
+    Potential(cfg, grid)
 {
     double W = 1;
     double e0 = 1;
@@ -15,7 +15,7 @@ simpleLaser::simpleLaser(Config *cfg, const vec &x):
              << "::Error reading from config object." << endl;
     }
     w *= W;
-    potential = x*e0;
+    potential = grid.X*e0;
 }
 //------------------------------------------------------------------------------
 cx_vec simpleLaser::evaluate(const cx_vec &psi, double t)

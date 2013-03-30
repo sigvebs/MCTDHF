@@ -19,7 +19,6 @@ MctdhfApplication::MctdhfApplication(string configFilename)
         cfg.lookupValue("systemSettings.loadDatasetPath", loadDatasetPath);
     }catch (const SettingNotFoundException &fioex) {
         loadDataset = false;
-        loadDatasetPath = "";
     }
 
 #ifdef DEBUG
@@ -30,81 +29,66 @@ MctdhfApplication::MctdhfApplication(string configFilename)
 void MctdhfApplication::run()
 {
     //--------------------------------------------------------------------------
-    // Creating the orbitals and spatial discretization
+    // Setting up the spatial discretization
     //--------------------------------------------------------------------------
-    vec x;
-    cx_mat C;
+    Grid grid(&cfg);
     if(loadDataset){
-        x.load(loadDatasetPath + "/x.mat");
-        C.load(loadDatasetPath + "/C.mat");
-
-        // Saving the discretization in the new project folder
-        string filePath;
-        cfg.lookupValue("systemSettings.filePath", filePath);
-        x.save(filePath + "x.mat");
-
-        // Updating the config-file
-        double dx = x(1) - x(0);
-
-        Setting &root = cfg.getRoot();
-        Setting &tmp = root["spatialDiscretization"];
-        tmp.add("gridSpacing", Setting::TypeFloat) = dx;
-        tmp.remove("nGrid");
-        tmp.add("nGrid", Setting::TypeInt) = (int)x.n_rows;
-
-        Setting &tmp2 = root["system"];
-        tmp2.remove("shells");
-        tmp2.add("shells", Setting::TypeInt) = (int)C.n_cols - 1;
+        grid.loadGrid();
+    }else{
+        grid.createInitalDiscretization();
     }
+    grid.saveGrid();
 
-    Basis* orb = setBasis();
-    orb->createBasis();
-    const vector<vec> orbitals = orb->getBasis();
+    //--------------------------------------------------------------------------
+    // Setting up the orbitals
+    //--------------------------------------------------------------------------
+    cx_mat C;
+    Basis *orbitalBasis = setBasis();
+    orbitalBasis->setGrid(&grid);
 
-    if(!loadDataset){
-        orb->discretizeBasis();
-        C = orb->getInitalOrbitals();
-        x = orb->getX();
+    if(loadDataset){
+        orbitalBasis->loadOrbitals();
+    }else{
+        orbitalBasis->createBasis();
+        orbitalBasis->createInitalDiscretization();
     }
-    delete orb;
+    const vector<vec> orbitals = orbitalBasis->getBasis();
+    C = orbitalBasis->getOrbitals()(0);
+    delete orbitalBasis;
 
     //--------------------------------------------------------------------------
     // Creating all possible Slater determinants from the set of orbitals
     //--------------------------------------------------------------------------
     SlaterDeterminants slater(&cfg, orbitals);
-    slater.createSlaterDeterminants();
+
+    if(loadDataset){
+        slater.load();
+    }else{
+        slater.createSlaterDeterminants();
+        slater.createInitialState();
+    }
     const vector<bitset<BITS> > &slaterDeterminants = slater.getSlaterDeterminants();
+    cx_vec A = slater.getCoefficients();
 
     //--------------------------------------------------------------------------
     // Interaction operator
     //--------------------------------------------------------------------------
     cout << "Setting up the interaction operator" << endl;
     Interaction V(&cfg, setMeanFieldIntegrator());
-    setInteractionPotentials(V, x);
+    setInteractionPotentials(V, grid);
 
     //--------------------------------------------------------------------------
     // Setting the single particle operator
     //--------------------------------------------------------------------------
     cout << "Setting up the single particle operator" << endl;
-    SingleParticleOperator h(&cfg, setDifferentialOpertor(x));
-    setOneBodyPotentials(h, x);
+    SingleParticleOperator h(&cfg, setDifferentialOpertor(grid));
+    setOneBodyPotentials(h, grid);
 
     //--------------------------------------------------------------------------
     // Setting up the Slater equation
     //--------------------------------------------------------------------------
     cout << "Setting up the Slater determiant equation" << endl;
     SlaterEquation slaterEquation(&cfg, slaterDeterminants, &V, &h);
-
-    //--------------------------------------------------------------------------
-    // Loading/Creating an initial coefficient vector for the Slater determinants.
-    //--------------------------------------------------------------------------
-    cx_vec A;
-    if(loadDataset){
-        A.load(loadDatasetPath + "/A.mat");
-    }else{
-        A = randu<cx_vec>(slaterDeterminants.size());
-        A = A/sqrt(cdot(A, A));
-    }
 
     //--------------------------------------------------------------------------
     // Setting up the orbital equation
@@ -132,7 +116,7 @@ void MctdhfApplication::run()
     //--------------------------------------------------------------------------
     if(doTimeIntegration){
         TimePropagation *timePropagator = setTimeIntegrator();
-        setTimeDepOneBodyPotentials(h, x);
+        setTimeDepOneBodyPotentials(h, grid);
         timePropagator->setDependencies(&slaterEquation, &orbEq, &V, &h);
         timePropagator->setInititalState(A, C);
 
@@ -143,18 +127,18 @@ void MctdhfApplication::run()
     //--------------------------------------------------------------------------
 }
 //------------------------------------------------------------------------------
-void MctdhfApplication::setInteractionPotentials(Interaction &V, const vec &x)
+void MctdhfApplication::setInteractionPotentials(Interaction &V, const Grid &grid)
 {
     InteractionPotential* I;
     int interactionType = cfg.lookup("interactionPotential.interactionType");
 
     switch (interactionType) {
     case IP_HARMONIC_OSCILLATOR:
-        I = new HarmonicOscillatorInteraction(&cfg, x);
+        I = new HarmonicOscillatorInteraction(&cfg, grid);
         V.addPotential(I);
         break;
     case IP_SHEILDED_COULOMB:
-        I = new ScreenedCoulombInteraction(&cfg, x);
+        I = new ScreenedCoulombInteraction(&cfg, grid);
         V.addPotential(I);
         break;
     default:
@@ -165,7 +149,7 @@ void MctdhfApplication::setInteractionPotentials(Interaction &V, const vec &x)
     V.updatePositionBasisElements();
 }
 //------------------------------------------------------------------------------
-void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h, const vec &x)
+void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h, const Grid &grid)
 {
     Potential* I;
     const Setting& root = cfg.getRoot();
@@ -176,15 +160,15 @@ void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h, const ve
         int potential = oneBodyPotentials[i];
         switch (potential) {
         case HARMONIC_OSCILLATOR_ONE_BODY:
-            I = new HarmonicOscillatorOneBody(&cfg, x);
+            I = new HarmonicOscillatorOneBody(&cfg, grid);
             h.addPotential(I);
             break;
         case COULOMB_INTERACTION_NUCLEUS:
-            I = new CoulombInteractionNucleus(&cfg, x);
+            I = new CoulombInteractionNucleus(&cfg, grid);
             h.addPotential(I);
             break;
         case ANHARMONIC_DOUBLE_WELL:
-            I = new AnharmonicDoubleWell(&cfg, x);
+            I = new AnharmonicDoubleWell(&cfg, grid);
             h.addPotential(I);
             break;
         default:
@@ -194,7 +178,7 @@ void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h, const ve
     }
 }
 //------------------------------------------------------------------------------
-void MctdhfApplication::setTimeDepOneBodyPotentials(SingleParticleOperator &h, const vec &x)
+void MctdhfApplication::setTimeDepOneBodyPotentials(SingleParticleOperator &h, const Grid &grid)
 {
     Potential* I;
 
@@ -207,7 +191,7 @@ void MctdhfApplication::setTimeDepOneBodyPotentials(SingleParticleOperator &h, c
 
         switch (potential) {
         case SIMPLE_LASER:
-            I = new simpleLaser(&cfg, x);
+            I = new simpleLaser(&cfg, grid);
             h.addPotential(I);
             break;
         default:
@@ -259,7 +243,7 @@ ComplexTimePropagation* MctdhfApplication::setComplexTimeIntegrator()
     return I;
 }
 //------------------------------------------------------------------------------
-DifferentialOperator* MctdhfApplication::setDifferentialOpertor(const vec &x)
+DifferentialOperator* MctdhfApplication::setDifferentialOpertor(const Grid &grid)
 {
     // Setting the integrator
     DifferentialOperator *I;
@@ -267,13 +251,13 @@ DifferentialOperator* MctdhfApplication::setDifferentialOpertor(const vec &x)
 
     switch (differentialOperator) {
     case DO_FINITE_DIFFERENCE_1d:
-        I = new FiniteDifference1d(&cfg, x);
+        I = new FiniteDifference1d(&cfg, grid);
         break;
     case DO_FINITE_DIFFERENCE_FIVE_POINT_1D:
-        I = new FiniteDifferenceFivePoint1d(&cfg, x);
+        I = new FiniteDifferenceFivePoint1d(&cfg, grid);
         break;
     case DO_SPECTRAL_1D:
-        I = new Spectral1d(&cfg, x);
+        I = new Spectral1d(&cfg, grid);
         break;
     default:
         cerr << "Differential Operator not implemented:: " << differentialOperator << endl;
@@ -324,23 +308,3 @@ Basis *MctdhfApplication::setBasis()
     return I;
 }
 //------------------------------------------------------------------------------
-void MctdhfApplication::checkXC(const vec &x, const cx_mat &C, const vector<vec> &orbitals)
-{
-    // Checking that x has the right dimensions
-    int nGrid = cfg.lookup("spatialDiscretization.nGrid");
-    if(x.n_elem != nGrid){
-        cerr << "The loaded x-matrix does not have the right dimensions" << endl;
-        cerr << "elements(x): " << x.n_elem << endl;
-        cerr << "config nGrid: = " << nGrid << endl;
-        exit(EXIT_FAILURE);
-    }
-
-    // Checking that C has the right dimensions
-    if(C.n_cols != orbitals.size()/2){
-        cerr << "The loaded C-matrix does not have the right dimensions" << endl;
-        cerr << "Orbitals(C): " << 2*C.n_cols << endl;
-        cerr << "orbitlas config: = " << orbitals.size()<< endl;
-        exit(EXIT_FAILURE);
-    }
-}
-//-----------------------------------------------------------------------------

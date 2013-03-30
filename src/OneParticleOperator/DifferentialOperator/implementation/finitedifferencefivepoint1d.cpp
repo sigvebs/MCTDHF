@@ -1,7 +1,7 @@
 #include "finitedifferencefivepoint1d.h"
 //------------------------------------------------------------------------------
-FiniteDifferenceFivePoint1d::FiniteDifferenceFivePoint1d(Config *cfg, const vec &x):
-    DifferentialOperator(cfg, x)
+FiniteDifferenceFivePoint1d::FiniteDifferenceFivePoint1d(Config *cfg, const Grid &grid):
+    DifferentialOperator(cfg, grid)
 {
 }
 //------------------------------------------------------------------------------

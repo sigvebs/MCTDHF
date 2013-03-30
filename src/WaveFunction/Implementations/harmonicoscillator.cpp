@@ -7,14 +7,29 @@ HarmonicOscillator::HarmonicOscillator(Config *cfg, vec quantumNumbers):
     try {
         w = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
     } catch (const SettingNotFoundException &nfex) {
-        cerr << "OrbitalHarmonicOscillator::Error reading from 'systemSettings' object setting." << endl;
+        cerr << "HarmonicOscillator::Error reading from config object." << endl;
+        exit(EXIT_FAILURE);
     }
     sqrtW = sqrt(w);
-#if DEBUG
-//    cout << "OrbitalHarmonicOscillator::OrbitalHarmonicOscillator(Setting* systemSettings, vec quantumNumbers)" << endl;
-//    cout << "w = " << w << endl;
-//    cout << "dim = " << dim << endl;
-#endif
+}
+
+//------------------------------------------------------------------------------
+double HarmonicOscillator::evaluate(double x)
+{
+    int n = quantumNumbers(1);
+    double psi = exp(-0.5*w*x*x) * hermitePolynomial(n, sqrtW * x);
+    return psi;
+}
+//------------------------------------------------------------------------------
+double HarmonicOscillator::evaluate(double x, double y)
+{
+    int n = quantumNumbers(1);
+    int m = quantumNumbers(2);
+
+    double psi = exp(-0.5*w*(x*x + y*y))
+            * hermitePolynomial(n, sqrtW * x)
+            * hermitePolynomial(m, sqrtW * y);
+    return psi;
 }
 //------------------------------------------------------------------------------
 double HarmonicOscillator::hermitePolynomial(const int n, const double x)

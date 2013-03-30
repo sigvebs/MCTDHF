@@ -26,6 +26,8 @@ Basis::Basis(Config *cfg):
 //------------------------------------------------------------------------------
 void Basis::createBasis()
 {
+    states.clear();
+
     switch(coordinateType){
     case CARTESIAN:
         createCartesianBasis();
@@ -39,41 +41,16 @@ void Basis::createBasis()
     nSpatialOrbitals = states.size()/2;
     Setting &root = cfg->getRoot();
     Setting &tmp = root["spatialDiscretization"];
-    tmp.add("nSpatialOrbitals", Setting::TypeInt) = nSpatialOrbitals;
-}
-//------------------------------------------------------------------------------
-void Basis::discretizeBasis()
-{
-    string filePath;
-    double L;
-    bool periodicBoundaries;
     try{
-        L = cfg->lookup("spatialDiscretization.latticeRange");
-        periodicBoundaries=cfg->lookup("spatialDiscretization.periodicBoundaries");
-        cfg->lookupValue("systemSettings.filePath", filePath);
-    } catch (const SettingNotFoundException &nfex) {
-        cerr << "discretizeBasis()::Error reading from config object." << endl;
-        exit(EXIT_FAILURE);
+        tmp.remove("nSpatialOrbitals");
+    }catch(const SettingNotFoundException &nfex) {
     }
+    tmp.add("nSpatialOrbitals", Setting::TypeInt) = nSpatialOrbitals;
 
-    // Adding dx to the config file
-    Setting &root = cfg->getRoot();
-    Setting &tmp = root["spatialDiscretization"];
-
-    if(periodicBoundaries){
-        dx = 2.0*L/(double)(nGrid);
-        x = linspace<vec>(-L, L-dx,nGrid);
-    }else{
-        x = linspace<vec>(-L, L, nGrid);
-        dx = x(1) - x(0);
+    cout << "--------------------_" << endl;
+    for(vec state:states){
+        cout << state << endl;
     }
-
-    // Saving the grid basis
-    filnameAxis = filePath + "x.mat";
-    x.save(filnameAxis);
-    tmp.add("gridSpacing", Setting::TypeFloat) = dx;
-    // Performing the discretization
-    this->createInitalDiscretization();
 }
 //------------------------------------------------------------------------------
 void Basis::createCartesianBasis()
@@ -183,19 +160,67 @@ void Basis::createPolarBasis()
 #endif
 }
 //------------------------------------------------------------------------------
+void Basis::SVD(cx_mat &D)
+{
+    // Forcing orthogonality by performing a SVD decomposition
+    cx_mat X;
+    vec s;
+    cx_mat Y;
+    svd_econ(X, s, Y, D);
+    D = X*Y.t();
+}
+//------------------------------------------------------------------------------
 const vector<vec> &Basis::getBasis() const
 {
     return states;
 }
 //------------------------------------------------------------------------------
-const cx_mat &Basis::getInitalOrbitals() const
+const field<cx_mat> &Basis::getOrbitals() const
 {
     return C;
 }
 //------------------------------------------------------------------------------
-const vec &Basis::getX() const
+void Basis::setGrid(Grid *grid)
 {
-    return x;
+    this->grid = grid;
+}
+//------------------------------------------------------------------------------
+void Basis::loadOrbitals()
+{
+
+    string loadPath;
+    string filenameC;
+    try{
+        cfg->lookupValue("loadDataset.loadDatasetPath", loadPath);
+        cfg->lookupValue("loadDataset.C", filenameC);
+    }catch (const SettingNotFoundException &fioex) {
+        cerr << "Basis::loadOrbitals(string path)::Loadpath not found in config file." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    Setting &root = cfg->getRoot();
+    Setting &tmp2 = root["system"];
+
+    switch (dim) {
+    case 1:
+        C = field<cx_mat>(1);
+        C(0).load(loadPath + "/" + filenameC);
+
+        tmp2.remove("shells");
+        tmp2.add("shells", Setting::TypeInt) = (int)C(0).n_cols - 1;
+        nBasis =  (int)C(0).n_cols - 1;
+        break;
+    case 2:
+        C = field<cx_mat>(nSpatialOrbitals);
+        for(int i=0; i<nSpatialOrbitals; i++){
+            stringstream fileName;
+            fileName << loadPath << "C" << i << ".mat";
+            C(i).load(loadPath + "/" + filenameC);
+        }
+    }
+
+    // Recreating the orbital states.
+    this->createBasis();
 }
 //------------------------------------------------------------------------------
 Basis::~Basis()

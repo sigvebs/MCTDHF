@@ -1,8 +1,8 @@
 #include "anharmonicdoublewell.h"
 
 //------------------------------------------------------------------------------
-AnharmonicDoubleWell::AnharmonicDoubleWell(Config *cfg, const vec &x):
-    Potential(cfg, x)
+AnharmonicDoubleWell::AnharmonicDoubleWell(Config *cfg, const Grid &grid):
+    Potential(cfg, grid)
 {
     double d = 1;
     try{
@@ -16,7 +16,7 @@ AnharmonicDoubleWell::AnharmonicDoubleWell(Config *cfg, const vec &x):
 
     // Setting the potential
     for(int j=0; j<nGrid; j++){
-        potential(j) = pow(x(j) - 0.5*d, 2) * pow(x(j) + 0.5*d, 2);
+        potential(j) = pow(grid.x(j) - 0.5*d, 2) * pow(grid.x(j) + 0.5*d, 2);
     }
 
     potential *= 1.0/(2*d*d);

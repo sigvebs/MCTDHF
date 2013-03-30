@@ -1,8 +1,9 @@
 #include "differentialoperator.h"
+
 //------------------------------------------------------------------------------
-DifferentialOperator::DifferentialOperator(Config *cfg, const vec &x):
+DifferentialOperator::DifferentialOperator(Config *cfg, const Grid &grid):
     cfg(cfg),
-    x(x)
+    grid(grid)
 {
      try{
          nGrid = cfg->lookup("spatialDiscretization.nGrid");
@@ -10,7 +11,7 @@ DifferentialOperator::DifferentialOperator(Config *cfg, const vec &x):
          cerr << "DifferentialOperator::DifferentialOperator(Config *cfg)"
               << "::Error reading from config object." << endl;
      }
-    dx = x(1) - x(0);
+    dx = grid.x(1) - grid.x(0);
     dxdx = dx*dx;
 }
 //------------------------------------------------------------------------------

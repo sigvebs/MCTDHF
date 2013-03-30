@@ -29,6 +29,7 @@ public:
     cx_vec computeRightHandSide(const cx_vec &A);
     cx_vec computeRightHandSideComplexTime(const cx_vec &A);
     double getEnergy(const cx_vec &A);
+
 protected:
     void computeHamiltonianMatrix();
     cx_double secondQuantizationOneBodyOperator(const int p, const int q,

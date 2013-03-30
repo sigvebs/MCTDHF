@@ -7,7 +7,7 @@
 class CoulombInteractionNucleus: public Potential
 {
 public:
-    CoulombInteractionNucleus(Config *cfg, const vec &x);
+    CoulombInteractionNucleus(Config *cfg, const Grid &grid);
     virtual cx_vec evaluate(const cx_vec &psi, double t);
 };
 

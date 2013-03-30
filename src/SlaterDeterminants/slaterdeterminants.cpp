@@ -119,11 +119,9 @@ const vector<bitset<BITS> > &SlaterDeterminants::getSlaterDeterminants() const
 {
     return binStates;
 }
-
 //------------------------------------------------------------------------------
 void SlaterDeterminants::saveSlaterDeterminantsToDisk()
 {
-
     ofstream SdFile;
     SdFile.open (filePath + "/SlaterDeterminants.sd");
 
@@ -132,5 +130,78 @@ void SlaterDeterminants::saveSlaterDeterminantsToDisk()
         SdFile << binStates[i] << endl;
     }
     SdFile.close();
+}
+//------------------------------------------------------------------------------
+cx_vec SlaterDeterminants::getCoefficients()
+{
+    return A;
+}
+//------------------------------------------------------------------------------
+void SlaterDeterminants::createInitialState()
+{
+    A = randu<cx_vec>(binStates.size());
+    A = A/sqrt(cdot(A, A));
+}
+//------------------------------------------------------------------------------
+void SlaterDeterminants::load()
+{
+    string loadPath;
+    string filenameA;
+    string filenameSlatderDet;
+    try{
+        cfg->lookupValue("loadDataset.loadDatasetPath", loadPath);
+        cfg->lookupValue("loadDataset.A", filenameA);
+        cfg->lookupValue("loadDataset.slatderDet", filenameSlatderDet);
+    }catch (const SettingNotFoundException &fioex) {
+        cerr << "Basis::loadOrbitals()::Loadpath not found in config file." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Laoding the Slater determinants
+    int nSlater;
+    int bits;
+    vec state = zeros(nParticles);
+    ifstream SdFile(loadPath + "/" + filenameSlatderDet);
+    string line;
+    if (SdFile.is_open())
+    {
+        // Assuming the Slater determinant file has the structure
+        // nSlater BITS
+        // 001110000000000000000000000
+        // 001100100000000000000000000
+        // 000001001000000000000000000
+        // 00...
+
+        getline (SdFile, line);
+        string word;
+        stringstream stream(line);
+        getline(stream, word, ' ');
+        nSlater = atoi(word.c_str());
+        getline(stream, word, ' ');
+        bits = atoi(word.c_str());
+
+        for(int n=0; n<nSlater; n++){
+            state.zeros();
+            getline (SdFile, line);
+
+            int counter = 0;
+            for(int i= bits-1; i>=0; i--){
+                int occupied = line[i] - 48;
+
+                if(occupied){
+                    state(counter++) = bits - i - 1;
+                }
+            }
+            binStates.push_back(createBinaryState(state));
+        }
+        SdFile.close();
+    }else{
+        cerr << "SlaterDeterminants::load()::Error reading Slater determint from file." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+
+    // Loading the coefficients
+    A.load(loadPath + "/" + filenameA);
 }
 //------------------------------------------------------------------------------

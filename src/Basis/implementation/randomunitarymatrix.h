@@ -8,7 +8,6 @@
 // Local includes
 #include <src/Basis/basis.h>
 #include <src/WaveFunction/wavefunction.h>
-#include <src/WaveFunction/Implementations/harmonicoscillator1d.h>
 
 #include <src/includes/lib.h>
 

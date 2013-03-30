@@ -18,7 +18,6 @@ SOURCES += main.cpp \
     src/SlaterDeterminants/slaterdeterminants.cpp \
     src/Interaction/interaction.cpp \
     src/WaveFunction/wavefunction.cpp \
-    src/WaveFunction/Implementations/harmonicoscillator1d.cpp \
     src/WaveFunction/Implementations/harmonicoscillator.cpp \
     src/includes/lib.cpp \
     src/OrbitalEquation/orbitalequation.cpp \
@@ -50,7 +49,8 @@ SOURCES += main.cpp \
     src/Potential/implementation/simplelaser.cpp \
     src/Potential/implementation/anharmonicdoublewell.cpp \
     src/Basis/implementation/randomunitarymatrix.cpp \
-    src/TimePropagation/implementation/rungekuttafehlberg.cpp
+    src/TimePropagation/implementation/rungekuttafehlberg.cpp \
+    src/Grid/grid.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -59,7 +59,6 @@ HEADERS += \
     src/SlaterDeterminants/slaterdeterminants.h \
     src/Interaction/interaction.h \
     src/WaveFunction/wavefunction.h \
-    src/WaveFunction/Implementations/harmonicoscillator1d.h \
     src/WaveFunction/Implementations/harmonicoscillator.h \
     src/includes/lib.h \
     src/OrbitalEquation/orbitalequation.h \
@@ -91,7 +90,8 @@ HEADERS += \
     src/Potential/implementation/simplelaser.h \
     src/Potential/implementation/anharmonicdoublewell.h \
     src/Basis/implementation/randomunitarymatrix.h \
-    src/TimePropagation/implementation/rungekuttafehlberg.h
+    src/TimePropagation/implementation/rungekuttafehlberg.h \
+    src/Grid/grid.h
 
 OTHER_FILES += \
     ../config.cfg \

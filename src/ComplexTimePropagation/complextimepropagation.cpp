@@ -21,13 +21,13 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
     dE = zeros(N/saveToFileInterval+1);
     K = vec(1);
     Eprev = 99;
-    filenameOrbitals = filePath + "C.mat";
-    filenameSlaterDet = filePath + "A.mat";
-    filenameEnergy = filePath + "E.mat";
-    filenameDeltaE = filePath + "dE.mat";
-    filenameSvdRho = filePath + "svdRho.mat";
-    filenameRho = filePath + "rho.mat";
-    filenameCorrelation = filePath + "K.mat";
+    filenameOrbitals = filePath + "/C.mat";
+    filenameSlaterDet = filePath + "/A.mat";
+    filenameEnergy = filePath + "/E.mat";
+    filenameDeltaE = filePath + "/dE.mat";
+    filenameSvdRho = filePath + "/svdRho.mat";
+    filenameRho = filePath + "/rho.mat";
+    filenameCorrelation = filePath + "/K.mat";
 #ifdef DEBUG
     cout << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::" << endl
          << "dt \t= " << dt << endl
@@ -139,13 +139,13 @@ void ComplexTimePropagation::saveProgress(uint counter)
 
     if(saveEveryTimeStep){
         stringstream fileName;
-        fileName << filePath << "cx_C" << counter << ".mat";
+        fileName << filePath << "/cx_C" << counter << ".mat";
         C.save(fileName.str());
         fileName.str("");
-        fileName << filePath << "cx_A" << counter << ".mat";
+        fileName << filePath << "/cx_A" << counter << ".mat";
         A.save(fileName.str());
         fileName.str("");
-        fileName << filePath << "cx_rho" << counter << ".mat";
+        fileName << filePath << "/cx_rho" << counter << ".mat";
          (*rho).save(fileName.str());
     }
 }

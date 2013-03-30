@@ -4,6 +4,8 @@
 // Local includes
 #include <src/includes/defines.h>
 
+#include <src/Grid/grid.h>
+
 #include <src/Basis/basis.h>
 #include <src/Basis/implementation/basisharmonicoscillator.h>
 #include <src/Basis/implementation/basishydrogenlike.h>
@@ -70,15 +72,14 @@ public:
     MctdhfApplication(string configFilename = "../config.cfg");
     void run();
 protected:
-    void setInteractionPotentials(Interaction &V, const vec &x);
-    void setOneBodyPotentials(SingleParticleOperator &h, const vec &x);
-    void setTimeDepOneBodyPotentials(SingleParticleOperator &h, const vec &x);
+    void setInteractionPotentials(Interaction &V, const Grid &grid);
+    void setOneBodyPotentials(SingleParticleOperator &h, const Grid &grid);
+    void setTimeDepOneBodyPotentials(SingleParticleOperator &h, const Grid &grid);
     TimePropagation* setTimeIntegrator();
     ComplexTimePropagation *setComplexTimeIntegrator();
-    DifferentialOperator* setDifferentialOpertor(const vec &x);
+    DifferentialOperator* setDifferentialOpertor(const Grid &grid);
     MeanFieldIntegrator* setMeanFieldIntegrator();
     Basis* setBasis();
-    void checkXC(const vec &x, const cx_mat &C, const vector<vec> &orbitals);
     Config cfg;
 
     bool loadDataset;

@@ -6,7 +6,7 @@
 class HarmonicOscillatorInteraction: public InteractionPotential
 {
 public:
-    HarmonicOscillatorInteraction(Config* cfg, const vec &x);
+    HarmonicOscillatorInteraction(Config* cfg, const Grid &grid);
     virtual mat computeInteractionSpace();
 protected:
     double epsilon;

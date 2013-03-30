@@ -7,7 +7,7 @@
 class AnharmonicDoubleWell: public Potential
 {
 public:
-    AnharmonicDoubleWell(Config *cfg, const vec &x);
+    AnharmonicDoubleWell(Config *cfg, const Grid &grid);
     virtual cx_vec evaluate(const cx_vec &psi, double t);
 };
 

@@ -7,7 +7,8 @@ class HarmonicOscillator: public Wavefunction
 {
 public:
     HarmonicOscillator(Config *cfg, vec quantumNumbers);
-    virtual mat evaluate(const mat &x) = 0;
+    virtual double evaluate(double x);
+    virtual double evaluate(double x, double y);
 protected:
     double hermitePolynomial(const int degree, const double x);
     double w;

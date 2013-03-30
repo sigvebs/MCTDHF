@@ -4,7 +4,7 @@
 // Local includes
 #include <src/Basis/basis.h>
 #include <src/WaveFunction/wavefunction.h>
-#include <src/WaveFunction/Implementations/harmonicoscillator1d.h>
+#include <src/WaveFunction/Implementations/harmonicoscillator.h>
 
 #include <src/includes/lib.h>
 
@@ -15,6 +15,7 @@ public:
     virtual void createInitalDiscretization();
 private:
     void discretization1d();
+    void discretization2d();
 };
 
 #endif // BASISHARMONICOSCILLATOR_H

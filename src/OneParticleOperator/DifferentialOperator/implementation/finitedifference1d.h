@@ -6,7 +6,7 @@
 class FiniteDifference1d: public DifferentialOperator
 {
 public:
-    FiniteDifference1d(Config* cfg, const vec &x);
+    FiniteDifference1d(Config* cfg, const Grid &grid);
     virtual cx_vec secondDerivative(const cx_vec &phi);
 };
 

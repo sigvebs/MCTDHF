@@ -22,14 +22,14 @@ TimePropagation::TimePropagation(Config *cfg):
     K = vec(1);
     time = zeros(N);
 
-    filenameOrbitals = filePath + "C.mat";
-    filenameSlaterDet = filePath + "A.mat";
-    filenameEnergy = filePath + "E.mat";
-    filenameDeltaE = filePath + "dE.mat";
-    filenameSvdRho = filePath + "svdRho.mat";
-    filenameRho = filePath + "rho.mat";
-    filenameCorrelation = filePath + "K.mat";
-    filenameT = filePath + "time.mat";
+    filenameOrbitals = filePath + "/C.mat";
+    filenameSlaterDet = filePath + "/A.mat";
+    filenameEnergy = filePath + "/E.mat";
+    filenameDeltaE = filePath + "/dE.mat";
+    filenameSvdRho = filePath + "/svdRho.mat";
+    filenameRho = filePath + "/rho.mat";
+    filenameCorrelation = filePath + "/K.mat";
+    filenameT = filePath + "/time.mat";
 
 #ifdef DEBUG
     cout << "TimePropagation::TimePropagation(Config *cfg)::" << endl
@@ -124,16 +124,16 @@ void TimePropagation::printProgressToScreen(uint counter)
 //------------------------------------------------------------------------------
 void TimePropagation::saveProgress(uint counter)
 {
-    E.save(filePath + "t_E.mat", arma_ascii);
+    E.save(filePath + "/t_E.mat", arma_ascii);
     if(saveEveryTimeStep){
         stringstream fileName;
-        fileName << filePath << "t_C" << counter << ".mat";
+        fileName << filePath << "/t_C" << counter << ".mat";
         C.save(fileName.str());
         fileName.str("");
-        fileName << filePath << "t_A" << counter << ".mat";
+        fileName << filePath << "/t_A" << counter << ".mat";
         A.save(fileName.str());
         fileName.str("");
-        fileName << filePath << "t_rho" << counter << ".mat";
+        fileName << filePath << "/t_rho" << counter << ".mat";
          (*rho).save(fileName.str());
     }
 }

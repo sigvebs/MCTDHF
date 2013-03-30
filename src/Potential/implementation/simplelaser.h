@@ -7,7 +7,7 @@
 class simpleLaser: public Potential
 {
 public:
-    simpleLaser(Config *cfg, const vec &x);
+    simpleLaser(Config *cfg, const Grid &grid);
     virtual cx_vec evaluate(const cx_vec &psi, double t);
 protected:
     double w;

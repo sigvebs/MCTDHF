@@ -1,12 +1,11 @@
 #ifndef SLATERDETERMINANTS_H
 #define SLATERDETERMINANTS_H
 
-
+// Local includes
 #include "src/includes/defines.h"
 
+// Library includes
 #include <cstdlib>
-//#include <stdio.h>
-//#include <iostream>
 #include <armadillo>
 #include <vector>
 #include <bitset>
@@ -21,14 +20,19 @@ class SlaterDeterminants
 public:
     SlaterDeterminants(Config *cfg, vector<vec> sps);
     void createSlaterDeterminants();
+    void createInitialState();
     const vector<bitset<BITS> > &getSlaterDeterminants() const;
     void saveSlaterDeterminantsToDisk();
+    cx_vec getCoefficients();
+    void load();
 protected:
     vec odometer(const vec &, int, int);
     bitset<BITS> createBinaryState(vec state);
     bool checkEigenSpin(vec state);
 
-    Config *cfg;
+    vector<vec> sps;
+    vector<bitset<BITS> > binStates;
+    cx_vec A;
 
     // System
     int nParticles;
@@ -36,8 +40,7 @@ protected:
     int conservedEigenSpinValue;
     string filePath;
 
-    vector<vec> sps;
-    vector<bitset<BITS> > binStates;
+    Config *cfg;
 };
 
 #endif // SLATERDETERMINANTS_H
