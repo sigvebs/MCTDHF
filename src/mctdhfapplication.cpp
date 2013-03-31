@@ -263,6 +263,9 @@ DifferentialOperator* MctdhfApplication::setDifferentialOpertor(const Grid &grid
     case DO_FINITE_DIFFERENCE_2d:
         I = new FiniteDifference2d(&cfg, grid);
         break;
+    case DO_FiniteDifferenceFivePoint2d:
+        I = new FiniteDifferenceFivePoint2d(&cfg, grid);
+        break;
     default:
         cerr << "Differential Operator not implemented:: " << differentialOperator << endl;
         exit(EXIT_FAILURE);

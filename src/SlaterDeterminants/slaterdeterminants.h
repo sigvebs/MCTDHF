@@ -26,21 +26,20 @@ public:
     cx_vec getCoefficients();
     void load();
 protected:
-    vec odometer(const vec &, int, int);
-    bitset<BITS> createBinaryState(vec state);
-    bool checkEigenSpin(vec state);
-
+    Config *cfg;
     vector<vec> sps;
     vector<bitset<BITS> > binStates;
     cx_vec A;
+
+    vec odometer(const vec &, int, int);
+    bitset<BITS> createBinaryState(vec state);
+    bool checkEigenSpin(vec state);
 
     // System
     int nParticles;
     bool conservedEigenSpin;
     int conservedEigenSpinValue;
     string filePath;
-
-    Config *cfg;
 };
 
 #endif // SLATERDETERMINANTS_H

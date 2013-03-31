@@ -20,7 +20,7 @@ cx_vec FiniteDifference2d::secondDerivative(const cx_vec &phi)
     for(int i=0; i<nGrid; i++){
 
         // Center point
-        diffX = -2*phi(i);
+        diffX = -(cx_double)2*phi(i);
         diffY = diffX;
 
 

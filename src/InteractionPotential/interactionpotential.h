@@ -18,6 +18,7 @@ public:
     InteractionPotential(Config* cfg, const Grid &grid);
     virtual mat computeInteractionSpace() = 0;
 protected:
+    Config* cfg;
     mat interactionSpace;
     vec ri;
     vec rj;
@@ -25,7 +26,6 @@ protected:
     const Grid &grid;
     int nGrid;
     int dim;
-    Config* cfg;
 };
 
 #endif // INTERACTIONPOTENTIAL_H

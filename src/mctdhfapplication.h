@@ -32,6 +32,7 @@
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifference1d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.h>
+#include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint2d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h>
 
 // One body operators

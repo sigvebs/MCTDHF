@@ -21,12 +21,11 @@ public:
     Potential(Config* cfg, const Grid &grid);
     virtual cx_vec evaluate(const cx_vec &psi, double t=0) = 0;
 protected:
+    Config* cfg;
     vec potential;
     int nGrid;
     int dim;
     const Grid &grid;
-
-    Config* cfg;
 };
 
 #endif // POTENTIAL_H

@@ -51,7 +51,8 @@ SOURCES += main.cpp \
     src/Basis/implementation/randomunitarymatrix.cpp \
     src/TimePropagation/implementation/rungekuttafehlberg.cpp \
     src/Grid/grid.cpp \
-    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.cpp
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.cpp \
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint2d.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -93,11 +94,13 @@ HEADERS += \
     src/Basis/implementation/randomunitarymatrix.h \
     src/TimePropagation/implementation/rungekuttafehlberg.h \
     src/Grid/grid.h \
-    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.h
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.h \
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint2d.h
 
 OTHER_FILES += \
     ../config.cfg \
-    README.md
+    README.md \
+    ../config.cfg
 
 default{
     LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm

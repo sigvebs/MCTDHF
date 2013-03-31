@@ -16,7 +16,6 @@ ScreenedCoulombInteraction::ScreenedCoulombInteraction(Config *cfg, const Grid &
 //------------------------------------------------------------------------------
 mat ScreenedCoulombInteraction::computeInteractionSpace()
 {
-    int counter = 0;
     for(int i=0; i<nGrid; i++){
         for(int j=0; j<nGrid; j++){
             const vec& r_i = grid.at(i);

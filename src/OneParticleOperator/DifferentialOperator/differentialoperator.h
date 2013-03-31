@@ -21,16 +21,15 @@ public:
     DifferentialOperator(Config* cfg, const Grid &grid);
     virtual cx_vec secondDerivative(const cx_vec &phi) = 0;
 protected:
+    Config* cfg;
+    const Grid &grid;
+    int nGrid;
     double dx;
     double dy;
     double dz;
     double dxdx;
     double dydy;
     double dzdz;
-    const Grid &grid;
-    int nGrid;
-
-    Config* cfg;
 };
 
 #endif // DIFFERENTIALOPERATOR_H
