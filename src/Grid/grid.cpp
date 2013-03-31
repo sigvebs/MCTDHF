@@ -111,9 +111,9 @@ void Grid::threeDimDiscretization()
     exit(EXIT_FAILURE);
 }
 //------------------------------------------------------------------------------
-const vec &Grid::at(int i) const
+const vec Grid::at(int i) const
 {
-    return R.col(i).get_ref();
+    return R.col(i);
 }
 //------------------------------------------------------------------------------
 void Grid::saveGrid()

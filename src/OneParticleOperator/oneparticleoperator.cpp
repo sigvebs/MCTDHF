@@ -31,7 +31,7 @@ void SingleParticleOperator::computeNewElements(const cx_mat &C, double t)
     computeMatrixElements(C);
     TU = Tspatial + Uspatial;
 
-#if 1
+#if 0
     for(uint i=0; i<h.n_rows; i++){
         for(uint j=0; j<h.n_rows; j++){
             if(abs(real( h(i,j)) ) < 1e-10)

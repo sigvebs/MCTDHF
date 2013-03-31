@@ -5,8 +5,8 @@ ScreenedCoulombInteraction::ScreenedCoulombInteraction(Config *cfg, const Grid &
 {
     try{
         aa = cfg->lookup("interactionPotential.shieldedCoulombInteraction.a");
-        lambda = cfg->lookup("interactionPotential.shieldedCoulombInteraction.lambda");
         aa *=aa;
+        lambda = cfg->lookup("interactionPotential.shieldedCoulombInteraction.lambda");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "ScreenedCoulombInteraction(Config *cfg)"
              << "::Error reading from config object." << endl;
@@ -16,12 +16,19 @@ ScreenedCoulombInteraction::ScreenedCoulombInteraction(Config *cfg, const Grid &
 //------------------------------------------------------------------------------
 mat ScreenedCoulombInteraction::computeInteractionSpace()
 {
+    int counter = 0;
     for(int i=0; i<nGrid; i++){
         for(int j=0; j<nGrid; j++){
-            vec ri = grid.at(i);
-            vec rj = grid.at(j);
+            const vec& r_i = grid.at(i);
+            const vec& r_j = grid.at(j);
 
-            interactionSpace(i,j) = lambda/sqrt(pow(rj(0) - ri(0),2) + aa);
+            double denominator = 0;
+            for(int d=0; d<dim; d++){
+                denominator += pow(r_i(d) - r_j(d), 2);
+            }
+            denominator += aa;
+
+            interactionSpace(i,j) = lambda/sqrt(denominator);
         }
     }
     return interactionSpace;

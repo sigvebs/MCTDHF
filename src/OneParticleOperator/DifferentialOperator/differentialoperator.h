@@ -25,6 +25,8 @@ protected:
     double dy;
     double dz;
     double dxdx;
+    double dydy;
+    double dzdz;
     const Grid &grid;
     int nGrid;
 

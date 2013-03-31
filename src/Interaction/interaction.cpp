@@ -26,35 +26,6 @@ void Interaction::computeNewElements(const cx_mat &C)
 //------------------------------------------------------------------------------
 void Interaction::computeInteractionelements(const cx_mat &C)
 {
-#if 0
-    double threshold = 1e-10;
-
-    cx_double V;
-    for (int p = 0; p < nOrbitals; p++) {
-        for (int q = 0; q < nOrbitals; q++) {
-            for (int r = 0; r < nOrbitals; r++) {
-                for (int s = 0; s < nOrbitals; s++) {
-                    V = mfIntegrator->integrate(p,q,r,s, C);
-#if 0
-                    if(abs(real(V)) < threshold){
-                        V = cx_double(0, imag(V));
-                    }
-                    if(abs(imag(V)) < threshold){
-                        V = cx_double(real(V), 0);
-                    }
-                    //                    cout << p << q << r << s;
-                    //                    cout << " V = " << V << endl;
-                    //                    cout << "V = " << V << endl;
-#endif
-
-
-                    interactionElements.insert( pair<int,cx_double>(mapTwoParticleStates(p,q,r,s), V) );
-                }
-            }
-        }
-    }
-#endif
-#if 1
     cx_double V;
     for (int p = 0; p < nOrbitals; p++) {
         for (int q = p; q < nOrbitals; q++) {
@@ -71,7 +42,6 @@ void Interaction::computeInteractionelements(const cx_mat &C)
             }
         }
     }
-#endif
 #ifdef DEBUG
 //#if 1
 //    cout << "Number of interaction elements = " << interactionElements.size() << endl;

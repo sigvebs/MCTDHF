@@ -5,6 +5,7 @@ InteractionPotential::InteractionPotential(Config *cfg,  const Grid &grid):
     grid(grid)
 {
     try{
+        dim = cfg->lookup("system.dim");
         nGrid = cfg->lookup("spatialDiscretization.nGrid");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "InteractionPotential(Config *cfg,  const Grid &grid)"

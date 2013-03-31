@@ -23,6 +23,7 @@ public:
 protected:
     vec potential;
     int nGrid;
+    int dim;
     const Grid &grid;
 
     Config* cfg;

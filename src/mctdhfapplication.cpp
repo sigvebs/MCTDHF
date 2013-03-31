@@ -53,6 +53,7 @@ void MctdhfApplication::run()
     }
     const vector<vec> orbitals = orbitalBasis->getBasis();
     cx_mat C = orbitalBasis->getOrbitals();
+    C.save("../DATA/C.mat");
     delete orbitalBasis;
 
     //--------------------------------------------------------------------------
@@ -94,6 +95,7 @@ void MctdhfApplication::run()
     //--------------------------------------------------------------------------
     cout << "Setting up the Orbital equation" << endl;
     OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
+//    exit(1);
 
     //--------------------------------------------------------------------------
     // Setting up and performing complex time integration
@@ -257,6 +259,9 @@ DifferentialOperator* MctdhfApplication::setDifferentialOpertor(const Grid &grid
         break;
     case DO_SPECTRAL_1D:
         I = new Spectral1d(&cfg, grid);
+        break;
+    case DO_FINITE_DIFFERENCE_2d:
+        I = new FiniteDifference2d(&cfg, grid);
         break;
     default:
         cerr << "Differential Operator not implemented:: " << differentialOperator << endl;

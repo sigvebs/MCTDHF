@@ -19,9 +19,12 @@ public:
     virtual mat computeInteractionSpace() = 0;
 protected:
     mat interactionSpace;
+    vec ri;
+    vec rj;
 
     const Grid &grid;
     int nGrid;
+    int dim;
     Config* cfg;
 };
 

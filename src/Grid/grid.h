@@ -17,7 +17,7 @@ public:
     void createInitalDiscretization();
     void saveGrid();
     void loadGrid();
-    const vec &at(int i) const;
+    const vec at(int i) const;
 //    double x(int i) const;
 
     int nGrid = 0;

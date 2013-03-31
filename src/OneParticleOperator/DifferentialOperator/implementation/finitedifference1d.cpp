@@ -1,4 +1,5 @@
 #include "finitedifference1d.h"
+
 //------------------------------------------------------------------------------
 FiniteDifference1d::FiniteDifference1d(Config *cfg, const Grid &grid):
     DifferentialOperator(cfg, grid)
@@ -17,6 +18,6 @@ cx_vec FiniteDifference1d::secondDerivative(const cx_vec &phi)
     diff(0) = - cx_double(2,2)*phi(0) + phi(1);
     diff(nGrid-1) = phi(nGrid-2) - cx_double(2,2)*phi(nGrid-1);
 
-    return diff/(dx*dx);
+    return diff/(dxdx);
 }
 //------------------------------------------------------------------------------

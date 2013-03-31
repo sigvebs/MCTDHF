@@ -1,6 +1,7 @@
 #ifndef FINITEDIFFERENCE1D_H
 #define FINITEDIFFERENCE1D_H
 
+// Local includes
 #include <src/OneParticleOperator/DifferentialOperator/differentialoperator.h>
 
 class FiniteDifference1d: public DifferentialOperator
