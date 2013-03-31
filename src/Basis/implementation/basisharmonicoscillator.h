@@ -13,9 +13,6 @@ class BasisHarmonicOscillator: public Basis
 public:
     BasisHarmonicOscillator(Config* cfg);
     virtual void createInitalDiscretization();
-private:
-    void discretization1d();
-    void discretization2d();
 };
 
 #endif // BASISHARMONICOSCILLATOR_H

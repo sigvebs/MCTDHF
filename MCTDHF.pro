@@ -120,7 +120,7 @@ QMAKE_CXXFLAGS_DEBUG += -std=c++0x
 QMAKE_CXXFLAGS_RELEASE += -std=c++0x
 
 CONFIG(debug, debug|release) {
-    DEFINES += DEBUG
+#    DEFINES += DEBUG
 }
 
 release {

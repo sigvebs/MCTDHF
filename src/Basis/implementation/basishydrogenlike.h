@@ -13,8 +13,6 @@ class BasisHydrogenLike: public Basis
 public:
     BasisHydrogenLike(Config* cfg);
     virtual void createInitalDiscretization();
-private:
-    void discretization1d();
 };
 
 #endif // BASISHYDROGENLIKE_H

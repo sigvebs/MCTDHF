@@ -16,8 +16,6 @@ class RandomUnitaryMatrix: public Basis
 public:
     RandomUnitaryMatrix(Config* cfg);
     virtual void createInitalDiscretization();
-private:
-    void discretization1d();
 };
 
 #endif // RANDOMUNITARYMATRIX_H

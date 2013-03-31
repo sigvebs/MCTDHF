@@ -11,7 +11,9 @@ DifferentialOperator::DifferentialOperator(Config *cfg, const Grid &grid):
          cerr << "DifferentialOperator::DifferentialOperator(Config *cfg)"
               << "::Error reading from config object." << endl;
      }
-    dx = grid.x(1) - grid.x(0);
+    dx = grid.DX;
+    dy = grid.DX;
+    dz = grid.DZ;
     dxdx = dx*dx;
 }
 //------------------------------------------------------------------------------

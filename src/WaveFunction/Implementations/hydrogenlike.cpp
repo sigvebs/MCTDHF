@@ -4,22 +4,20 @@
 HydrogenLike::HydrogenLike(Config *cfg, vec quantumNumbers):
     Wavefunction(cfg, quantumNumbers)
 {
-    n = quantumNumbers(1);
 }
-//------------------------------------------------------------------------------
-double HydrogenLike::evaluate(double x)
-{
-     double psi = laguerrePolynomial(n, x)*exp(-abs(x));
 
-     return psi;
-}
 //------------------------------------------------------------------------------
-double HydrogenLike::evaluate(double x, double y)
+double HydrogenLike::evaluate(const vec &r)
 {
-    cerr << "HydrogenLike::evaluate(double x, double y)::";
-    cerr << "NOT IMPLEMENTED YET";
-    exit(1);
-    return 0;
+    int dim = r.n_rows;
+    double laguerre = 1;
+    double rNorm = norm(r,2);
+
+    for(int d=0; d<dim; d++){
+        laguerre *= laguerrePolynomial(quantumNumbers(d+1), r(d));
+    }
+
+    return laguerre*exp(-rNorm);
 }
 //------------------------------------------------------------------------------
 double HydrogenLike::laguerrePolynomial(const int n, const double x)

@@ -7,8 +7,7 @@ class HydrogenLike: public Wavefunction
 {
 public:
     HydrogenLike(Config *cfg, vec quantumNumbers);
-    virtual double evaluate(double x);
-    virtual double evaluate(double x, double y);
+    virtual double evaluate(const vec &r);
 protected:
     int n;
     double laguerrePolynomial(const int n, const double x);

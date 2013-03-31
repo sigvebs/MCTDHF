@@ -18,7 +18,10 @@ mat ScreenedCoulombInteraction::computeInteractionSpace()
 {
     for(int i=0; i<nGrid; i++){
         for(int j=0; j<nGrid; j++){
-            interactionSpace(i,j) = lambda/sqrt(pow(grid.x(j) - grid.x(i),2) + aa);
+            vec ri = grid.at(i);
+            vec rj = grid.at(j);
+
+            interactionSpace(i,j) = lambda/sqrt(pow(rj(0) - ri(0),2) + aa);
         }
     }
     return interactionSpace;

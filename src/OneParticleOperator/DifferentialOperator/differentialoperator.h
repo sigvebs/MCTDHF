@@ -22,6 +22,8 @@ public:
     virtual cx_vec secondDerivative(const cx_vec &phi) = 0;
 protected:
     double dx;
+    double dy;
+    double dz;
     double dxdx;
     const Grid &grid;
     int nGrid;

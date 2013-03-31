@@ -15,7 +15,12 @@ simpleLaser::simpleLaser(Config *cfg, const Grid &grid):
              << "::Error reading from config object." << endl;
     }
     w *= W;
-    potential = grid.X*e0;
+    int nGridX = grid.nGridX;
+    potential = vec(nGridX);
+    for(int i=0; i<nGridX; i++){
+        vec r = grid.at(i);
+        potential = r(0)*e0;
+    }
 }
 //------------------------------------------------------------------------------
 cx_vec simpleLaser::evaluate(const cx_vec &psi, double t)

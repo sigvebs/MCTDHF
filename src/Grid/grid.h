@@ -17,40 +17,34 @@ public:
     void createInitalDiscretization();
     void saveGrid();
     void loadGrid();
-    double x(int i) const;
-    double y(int i) const;
-    double z(int i) const;
+    const vec &at(int i) const;
+//    double x(int i) const;
 
-    vec X;
-    vec Y;
-    vec Z;
-protected:
-    int nGrid;
-    int dim;
+    int nGrid = 0;
+    int nGridX = 0;
+    int nGridY = 0;
+    int nGridZ = 0;
     double DX = 0;
     double DY = 0;
     double DZ = 0;
+protected:
+    mat R;
+    int dim;
 
+    void oneDimDiscretization();
+    void twoDimDiscretization();
+    void threeDimDiscretization();
     Config* cfg;
     string path;
+    bool periodicBoundaries;
 };
 
 //------------------------------------------------------------------------------
 // Inline functions
 //------------------------------------------------------------------------------
-inline double Grid::x(int i) const
-{
-    return X(i);
-}
-//------------------------------------------------------------------------------
-inline double Grid::y(int i) const
-{
-    return Y(i);
-}
-//------------------------------------------------------------------------------
-inline double Grid::z(int i) const
-{
-    return Z(i);
-}
+//inline double Grid::x(int i) const
+//{
+//    return R(i);
+//}
 //------------------------------------------------------------------------------
 #endif // GRID_H

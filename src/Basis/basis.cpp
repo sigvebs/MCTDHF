@@ -14,7 +14,6 @@ Basis::Basis(Config *cfg):
         cerr << "Basis(Config *cfg)::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
-
     nSpatialOrbitals = states.size()/2;
 
 #ifdef DEBUG
@@ -41,16 +40,7 @@ void Basis::createBasis()
     nSpatialOrbitals = states.size()/2;
     Setting &root = cfg->getRoot();
     Setting &tmp = root["spatialDiscretization"];
-    try{
-        tmp.remove("nSpatialOrbitals");
-    }catch(const SettingNotFoundException &nfex) {
-    }
     tmp.add("nSpatialOrbitals", Setting::TypeInt) = nSpatialOrbitals;
-
-    cout << "--------------------_" << endl;
-    for(vec state:states){
-        cout << state << endl;
-    }
 }
 //------------------------------------------------------------------------------
 void Basis::createCartesianBasis()
@@ -175,7 +165,7 @@ const vector<vec> &Basis::getBasis() const
     return states;
 }
 //------------------------------------------------------------------------------
-const field<cx_mat> &Basis::getOrbitals() const
+const cx_mat &Basis::getOrbitals() const
 {
     return C;
 }
@@ -198,25 +188,16 @@ void Basis::loadOrbitals()
         exit(EXIT_FAILURE);
     }
 
+    C.load(loadPath + "/" + filenameC);
+
     Setting &root = cfg->getRoot();
     Setting &tmp2 = root["system"];
-
-    switch (dim) {
-    case 1:
-        C = field<cx_mat>(1);
-        C(0).load(loadPath + "/" + filenameC);
-
-        tmp2.remove("shells");
-        tmp2.add("shells", Setting::TypeInt) = (int)C(0).n_cols - 1;
-        nBasis =  (int)C(0).n_cols - 1;
-        break;
-    case 2:
-        C = field<cx_mat>(nSpatialOrbitals);
-        for(int i=0; i<nSpatialOrbitals; i++){
-            stringstream fileName;
-            fileName << loadPath << "C" << i << ".mat";
-            C(i).load(loadPath + "/" + filenameC);
-        }
+    tmp2.remove("shells");
+    tmp2.add("shells", Setting::TypeInt) = (int)C.n_cols - 1;
+    nBasis =  (int)C.n_cols - 1;
+    if(dim >= 2){
+        cerr << "Basis::loadOrbitals()::Load function not completed for 2D" << endl;
+        exit(EXIT_FAILURE);
     }
 
     // Recreating the orbital states.

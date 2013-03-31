@@ -42,7 +42,6 @@ void MctdhfApplication::run()
     //--------------------------------------------------------------------------
     // Setting up the orbitals
     //--------------------------------------------------------------------------
-    cx_mat C;
     Basis *orbitalBasis = setBasis();
     orbitalBasis->setGrid(&grid);
 
@@ -53,7 +52,7 @@ void MctdhfApplication::run()
         orbitalBasis->createInitalDiscretization();
     }
     const vector<vec> orbitals = orbitalBasis->getBasis();
-    C = orbitalBasis->getOrbitals()(0);
+    cx_mat C = orbitalBasis->getOrbitals();
     delete orbitalBasis;
 
     //--------------------------------------------------------------------------

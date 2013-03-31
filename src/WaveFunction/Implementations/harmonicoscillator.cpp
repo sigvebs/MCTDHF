@@ -12,24 +12,19 @@ HarmonicOscillator::HarmonicOscillator(Config *cfg, vec quantumNumbers):
     }
     sqrtW = sqrt(w);
 }
-
 //------------------------------------------------------------------------------
-double HarmonicOscillator::evaluate(double x)
+double HarmonicOscillator::evaluate(const vec &r)
 {
-    int n = quantumNumbers(1);
-    double psi = exp(-0.5*w*x*x) * hermitePolynomial(n, sqrtW * x);
-    return psi;
-}
-//------------------------------------------------------------------------------
-double HarmonicOscillator::evaluate(double x, double y)
-{
-    int n = quantumNumbers(1);
-    int m = quantumNumbers(2);
+    int dim = r.n_rows;
+    double hermite = 1;
+    double r2 = 0;
 
-    double psi = exp(-0.5*w*(x*x + y*y))
-            * hermitePolynomial(n, sqrtW * x)
-            * hermitePolynomial(m, sqrtW * y);
-    return psi;
+    for(int d=0; d<dim; d++){
+        r2 += r(d)*r(d);
+        hermite *= hermitePolynomial(quantumNumbers(d+1), sqrtW * r(d));
+    }
+
+    return hermite*exp(-0.5*w*r2);
 }
 //------------------------------------------------------------------------------
 double HarmonicOscillator::hermitePolynomial(const int n, const double x)

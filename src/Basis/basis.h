@@ -20,20 +20,20 @@ class Basis
 {
 public:
     Basis(Config* cfg);
-    ~Basis();
     void createBasis();
     const vector<vec> &getBasis() const;
-    const field<cx_mat> &getOrbitals() const;
+    const cx_mat &getOrbitals() const;
     void setGrid(Grid *grid);
     void loadOrbitals();
     virtual void createInitalDiscretization() = 0;
+    ~Basis();
 protected:
     void createCartesianBasis();
     void createPolarBasis();
     void SVD(cx_mat &D);
 
     vector<vec> states;
-    field<cx_mat> C;
+    cx_mat C;
 
     // Sysmte settings
     int coordinateType;

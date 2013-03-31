@@ -15,7 +15,9 @@ HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg, const Grid &gr
 
     // Setting the potential
     for(int j=0; j<nGrid; j++){
-        potential(j) = 0.5*w*w*grid.x(j)*grid.x(j);
+        vec r = grid.at(j);
+
+        potential(j) = 0.5*w*w*r(0)*r(0);
     }
 }
 //------------------------------------------------------------------------------
