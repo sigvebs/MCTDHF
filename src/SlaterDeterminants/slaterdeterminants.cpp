@@ -1,7 +1,9 @@
 #include "slaterdeterminants.h"
 
 //------------------------------------------------------------------------------
-SlaterDeterminants::SlaterDeterminants(Config *cfg, vector<vec> sps): cfg(cfg), sps(sps)
+SlaterDeterminants::SlaterDeterminants(Config *cfg, vector<vec> sps):
+    sps(sps),
+    cfg(cfg)
 {
     try {
         nParticles = cfg->lookup("system.nParticles");
@@ -140,6 +142,8 @@ cx_vec SlaterDeterminants::getCoefficients()
 void SlaterDeterminants::createInitialState()
 {
     A = randu<cx_vec>(binStates.size());
+    A = randu<cx_vec>(binStates.size())/20;
+    A(0) = 1;
     A = A/sqrt(cdot(A, A));
 }
 //------------------------------------------------------------------------------

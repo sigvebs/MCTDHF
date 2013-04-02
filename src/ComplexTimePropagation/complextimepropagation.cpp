@@ -15,6 +15,7 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
         cerr << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::Error reading parameter from config object." << endl;
         exit(EXIT_FAILURE);
     }
+
     step = 0;
     t = 0;
     E = zeros(N/saveToFileInterval+1);
@@ -28,6 +29,12 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
     filenameSvdRho = filePath + "/svdRho.mat";
     filenameRho = filePath + "/rho.mat";
     filenameCorrelation = filePath + "/K.mat";
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nNodes);
+
+    isMaster = (bool)(myRank == 0);
+
 #ifdef DEBUG
     cout << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::" << endl
          << "dt \t= " << dt << endl
@@ -53,14 +60,16 @@ void ComplexTimePropagation::doComplexTimePropagation()
             h->computeNewElements(C);
 
             // Collecting data
-            E(counter) = slater->getEnergy(A) ;
-            dE(counter) = E(counter) - Eprev;
-            rho = &orbital->reCalculateRho1(A);
-            K = orbital->getCorrelation();
-            svdRho = orbital->getSvdRho1();
+            if(isMaster){
+                E(counter) = slater->getEnergy(A) ;
+                dE(counter) = E(counter) - Eprev;
+                rho = &orbital->reCalculateRho1(A);
+                K = orbital->getCorrelation();
+                svdRho = orbital->getSvdRho1();
 
-            saveProgress(counter);
-            printProgressToScreen(counter);
+                saveProgress(counter);
+                printProgressToScreen(counter);
+            }
 
             Eprev = E(counter);
             counter++;

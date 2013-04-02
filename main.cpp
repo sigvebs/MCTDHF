@@ -1,14 +1,17 @@
-
 #include <src/mctdhfapplication.h>
 
+// Library includes
 #include <cstdlib>
 #include <ctime>
+#include <armadillo>
+
+using namespace arma;
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
-    clock_t start = clock();
+    wall_clock timer;
 
     MctdhfApplication *app;
     if (argc == 2)
@@ -16,11 +19,11 @@ int main(int argc, char** argv)
     else
         app = new MctdhfApplication("../config.cfg");
 
+    timer.tic();
     app->run();
 
     cout << "Run complete" << endl;
-    clock_t ends = clock();
-    cout << "Time elapsed " << (double) (ends - start) / CLOCKS_PER_SEC << "s" << endl;
+    cout << "Time elapsed " << timer.toc() << "s" << endl;
 
     delete app;
     return 0;

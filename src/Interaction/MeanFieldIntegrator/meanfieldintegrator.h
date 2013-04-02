@@ -11,7 +11,11 @@
 #include <vector>
 #include <unordered_map>
 #include <libconfig.h++>
-//#include <omp.h>
+// disable annoying unused parameter warnings from the MPI library which we don't have any control over
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#include <mpi.h>
+// Enable warnings again
+#pragma GCC diagnostic warning "-Wunused-parameter"
 
 using namespace libconfig;
 using namespace std;
@@ -26,9 +30,9 @@ public:
     const cx_vec& getMeanField(const int p, const int q);
     void computeMeanField(const cx_mat &C);
     virtual void initialize() = 0;
-//    virtual cx_vec integrate(const int q, const int r, const cx_mat &C) = 0;
     virtual void integrate(const int q, const int r, const cx_mat &C, cx_vec &V2) = 0;
     virtual cx_double integrate(const int p, const int q, const int r, const int s, const cx_mat &C) = 0;
+    void cleanUp();
 protected:
     vector<InteractionPotential*> potential;
 
@@ -37,6 +41,11 @@ protected:
     field<cx_vec> V2;
     int nGrid;
     int nOrbitals;
+
+    // MPI
+    imat allQR;
+    int myRank, nNodes;
+    vector<pair<int,int> > myQR;
 };
 
 //------------------------------------------------------------------------------

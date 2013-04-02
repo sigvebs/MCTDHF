@@ -19,13 +19,14 @@ enum coordinateTypes_t {
     CARTESIAN, POLAR
 };
 enum differentialOpertor {
-    DO_FINITE_DIFFERENCE_1d, DO_FINITE_DIFFERENCE_FIVE_POINT_1D,DO_SPECTRAL_1D, DO_FINITE_DIFFERENCE_2d
+    DO_FINITE_DIFFERENCE_1d, DO_FINITE_DIFFERENCE_FIVE_POINT_1D, DO_FOURIER_1D,
+    DO_FINITE_DIFFERENCE_2d, DO_FiniteDifferenceFivePoint2d
 };
 enum orbitalBasisType_t{
     OBT_HARMONIC_OSCILLATOR, OBT_HYDROGEN_LIKE, OBT_RAND_UNITARY_MATRIX
 };
 enum interactionPotential_t{
-    IP_HARMONIC_OSCILLATOR, IP_SHEILDED_COULOMB
+    IP_HARMONIC_OSCILLATOR, IP_SHIELDED_COULOMB
 };
 enum meanFieldIntegrator_t{
     MF_TRAPEZODIAL, MF_LOW_RANK_APPROXIMATION
@@ -33,5 +34,12 @@ enum meanFieldIntegrator_t{
 enum oneBodyPotential_t{
     HARMONIC_OSCILLATOR_ONE_BODY, COULOMB_INTERACTION_NUCLEUS, SIMPLE_LASER, ANHARMONIC_DOUBLE_WELL
 };
+
+#define BLOCK_LOW(id,p,n) ((id)*(n)/(p))
+#define BLOCK_HIGH(id,p,n) (BLOCK_LOW((id)+1,p,n)-1)
+#define BLOCK_SIZE(id,p,n) (BLOCK_HIGH(id,p,n)-BLOCK_LOW(id,p,n)+1)
+#define BLOCK_OWNER(i,p,n) (((p)*((i)+1)-1)/(n))
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#define CEILING(i,j) (((i)+(j)-1)/(j))
 
 #endif // DEFINES_H

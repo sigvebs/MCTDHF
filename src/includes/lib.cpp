@@ -401,7 +401,7 @@ void rk4(double *y, double *dydx, int n, double x, double h, double *yout,
 void ludcmp(double **a, int n, int *indx, double *d) {
     int i, imax, j, k;
     double big, dum, sum, temp, *vv;
-
+    imax = -1;
     vv = new(nothrow) double [n];
     if (!vv) {
         printf("\n\nError in function ludcm():");
@@ -1133,6 +1133,7 @@ double zbrent(double (*func)(double), double x1, double x2, double xacc) {
         printf("\nRoot must be bracketed in zbrent()\n");
         exit(1);
     }
+    e = 1.0; // TMP to remove compiler warnings
 
     fc = fb;
     for (iter = 1; iter <= MAXIT; iter++) {

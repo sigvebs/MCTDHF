@@ -18,15 +18,14 @@ public:
     void saveGrid();
     void loadGrid();
     const vec at(int i) const;
-//    double x(int i) const;
 
-    int nGrid = 0;
-    int nGridX = 0;
-    int nGridY = 0;
-    int nGridZ = 0;
-    double DX = 0;
-    double DY = 0;
-    double DZ = 0;
+    int nGrid;
+    int nGridX;
+    int nGridY;
+    int nGridZ;
+    double DX;
+    double DY;
+    double DZ;
 protected:
     mat R;
     int dim;

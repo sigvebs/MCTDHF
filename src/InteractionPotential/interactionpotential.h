@@ -25,6 +25,7 @@ protected:
     const Grid &grid;
     int nGrid;
     int dim;
+
     Config* cfg;
 };
 

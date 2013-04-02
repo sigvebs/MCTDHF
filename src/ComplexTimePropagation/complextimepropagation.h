@@ -9,6 +9,7 @@
 // Libary incldues
 #include <armadillo>
 #include <libconfig.h++>
+#include <mpi.h>
 
 using namespace std;
 using namespace libconfig;
@@ -70,6 +71,9 @@ protected:
 
     bool printProgress;
     bool saveEveryTimeStep;
+
+    int myRank, nNodes;
+    bool isMaster;
 };
 
 #endif // COMPLEXTIMEPROPAGATION_H

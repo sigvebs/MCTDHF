@@ -32,6 +32,7 @@
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifference1d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.h>
+#include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint2d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h>
 
 // One body operators
@@ -63,6 +64,12 @@
 #include <cstdlib>
 #include <libconfig.h++>
 #include <sstream>
+// disable annoying unused parameter warnings from the MPI library which we don't have any control over
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#include <mpi.h>
+// Enable warnings again
+#pragma GCC diagnostic warning "-Wunused-parameter"
+
 
 using namespace std;
 using namespace libconfig;

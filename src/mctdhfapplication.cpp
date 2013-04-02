@@ -29,6 +29,16 @@ MctdhfApplication::MctdhfApplication(string configFilename)
 void MctdhfApplication::run()
 {
     //--------------------------------------------------------------------------
+    // Setting up MPI
+    //--------------------------------------------------------------------------
+    int myRank, nNodes;
+    MPI_Init(NULL, NULL);
+    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nNodes);
+
+    cx_mat C;
+    Basis *orbitalBasis;
+    //--------------------------------------------------------------------------
     // Setting up the spatial discretization
     //--------------------------------------------------------------------------
     Grid grid(&cfg);
@@ -42,7 +52,7 @@ void MctdhfApplication::run()
     //--------------------------------------------------------------------------
     // Setting up the orbitals
     //--------------------------------------------------------------------------
-    Basis *orbitalBasis = setBasis();
+    orbitalBasis = setBasis();
     orbitalBasis->setGrid(&grid);
 
     if(loadDataset){
@@ -52,8 +62,11 @@ void MctdhfApplication::run()
         orbitalBasis->createInitalDiscretization();
     }
     const vector<vec> orbitals = orbitalBasis->getBasis();
-    cx_mat C = orbitalBasis->getOrbitals();
-    C.save("../DATA/C.mat");
+
+    C = orbitalBasis->getOrbitals();
+    if(myRank == 0){
+        C.save("../DATA/C.mat");
+    }
     delete orbitalBasis;
 
     //--------------------------------------------------------------------------
@@ -95,7 +108,6 @@ void MctdhfApplication::run()
     //--------------------------------------------------------------------------
     cout << "Setting up the Orbital equation" << endl;
     OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
-//    exit(1);
 
     //--------------------------------------------------------------------------
     // Setting up and performing complex time integration
@@ -112,6 +124,7 @@ void MctdhfApplication::run()
         delete complexTimePropagation;
     }
 
+    MPI_Finalize();
     //--------------------------------------------------------------------------
     // Time integration
     //--------------------------------------------------------------------------
@@ -138,7 +151,7 @@ void MctdhfApplication::setInteractionPotentials(Interaction &V, const Grid &gri
         I = new HarmonicOscillatorInteraction(&cfg, grid);
         V.addPotential(I);
         break;
-    case IP_SHEILDED_COULOMB:
+    case IP_SHIELDED_COULOMB:
         I = new ScreenedCoulombInteraction(&cfg, grid);
         V.addPotential(I);
         break;
@@ -257,11 +270,14 @@ DifferentialOperator* MctdhfApplication::setDifferentialOpertor(const Grid &grid
     case DO_FINITE_DIFFERENCE_FIVE_POINT_1D:
         I = new FiniteDifferenceFivePoint1d(&cfg, grid);
         break;
-    case DO_SPECTRAL_1D:
+    case DO_FOURIER_1D:
         I = new Spectral1d(&cfg, grid);
         break;
     case DO_FINITE_DIFFERENCE_2d:
         I = new FiniteDifference2d(&cfg, grid);
+        break;
+    case DO_FiniteDifferenceFivePoint2d:
+        I = new FiniteDifferenceFivePoint2d(&cfg, grid);
         break;
     default:
         cerr << "Differential Operator not implemented:: " << differentialOperator << endl;

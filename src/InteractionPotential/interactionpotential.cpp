@@ -1,8 +1,8 @@
 #include "interactionpotential.h"
 //------------------------------------------------------------------------------
 InteractionPotential::InteractionPotential(Config *cfg,  const Grid &grid):
-    cfg(cfg),
-    grid(grid)
+    grid(grid),
+    cfg(cfg)
 {
     try{
         dim = cfg->lookup("system.dim");

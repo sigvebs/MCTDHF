@@ -2,8 +2,8 @@
 
 //------------------------------------------------------------------------------
 DifferentialOperator::DifferentialOperator(Config *cfg, const Grid &grid):
-    cfg(cfg),
-    grid(grid)
+    grid(grid),
+    cfg(cfg)
 {
      try{
          nGrid = cfg->lookup("spatialDiscretization.nGrid");

@@ -12,6 +12,14 @@ Grid::Grid(Config *cfg):
         cerr << "Grid(Config *cfg)::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
+
+    nGrid = 0;
+    nGridX = 0;
+    nGridY = 0;
+    nGridZ = 0;
+    DX = 0;
+    DY = 0;
+    DZ = 0;
 }
 //------------------------------------------------------------------------------
 void Grid::createInitalDiscretization()

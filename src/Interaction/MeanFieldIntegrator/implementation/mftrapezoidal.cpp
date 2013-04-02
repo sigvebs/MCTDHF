@@ -14,6 +14,7 @@ void MfTrapezoidal::initialize()
         Vxy += potential[i]->computeInteractionSpace();
     }
     Vxy_ = Vxy.memptr();
+    cleanUp();
 }
 //------------------------------------------------------------------------------
 void MfTrapezoidal::integrate(const int q, const int r, const cx_mat &C, cx_vec &V2)

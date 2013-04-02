@@ -3,14 +3,27 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-
-CONFIG += warn_on
-CONFIG += wall
-
 cluster{
     INCLUDEPATH += /home/sigve/usr/local/include
     INCLUDEPATH += /home/sigve/usr/include
 }
+abel{
+    INCLUDEPATH += /usit/abel/u1/sigve/usr/lib
+    INCLUDEPATH += /usit/abel/u1/sigve/usr/lib64
+    INCLUDEPATH += /usit/abel/u1/sigve/usr/include
+}
+
+# MPI Settings
+QMAKE_CXX = mpicxx
+QMAKE_CXX_RELEASE = $$QMAKE_CXX
+QMAKE_CXX_DEBUG = $$QMAKE_CXX
+QMAKE_LINK = $$QMAKE_CXX
+QMAKE_CC = mpicc
+
+QMAKE_CFLAGS = $$system(mpicc --showme:compile)
+QMAKE_LFLAGS = $$system(mpicxx --showme:link)
+QMAKE_CXXFLAGS = $$system(mpicxx --showme:compile) -DMPICH_IGNORE_CXX_SEEK
+QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS
 
 SOURCES += main.cpp \
     src/mctdhfapplication.cpp \
@@ -51,7 +64,8 @@ SOURCES += main.cpp \
     src/Basis/implementation/randomunitarymatrix.cpp \
     src/TimePropagation/implementation/rungekuttafehlberg.cpp \
     src/Grid/grid.cpp \
-    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.cpp
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.cpp \
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint2d.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -93,7 +107,8 @@ HEADERS += \
     src/Basis/implementation/randomunitarymatrix.h \
     src/TimePropagation/implementation/rungekuttafehlberg.h \
     src/Grid/grid.h \
-    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.h
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.h \
+    src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint2d.h
 
 OTHER_FILES += \
     ../config.cfg \
@@ -101,6 +116,10 @@ OTHER_FILES += \
 
 default{
     LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
+}
+
+abel{
+    LIBS += -L/usit/abel/u1/sigve/usr/lib -lconfig++ -llapack -lblas -larmadillo -L/usit/abel/u1/sigve/usr/lib -lfftw3 -lm
 }
 
 cluster{
@@ -118,8 +137,7 @@ UIO{
 #    -L$(MKLROOT)/lib/intel64 -mkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread \
 }
 
-QMAKE_CXXFLAGS_DEBUG += -std=c++0x
-QMAKE_CXXFLAGS_RELEASE += -std=c++0x
+QMAKE_CXXFLAGS += -std=c++0x
 
 CONFIG(debug, debug|release) {
 #    DEFINES += DEBUG
