@@ -64,11 +64,13 @@
 #include <cstdlib>
 #include <libconfig.h++>
 #include <sstream>
+#ifdef USE_MPI
 // disable annoying unused parameter warnings from the MPI library which we don't have any control over
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <mpi.h>
 // Enable warnings again
 #pragma GCC diagnostic warning "-Wunused-parameter"
+#endif
 
 
 using namespace std;

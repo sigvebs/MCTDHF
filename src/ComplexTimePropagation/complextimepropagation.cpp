@@ -30,11 +30,13 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
     filenameRho = filePath + "/rho.mat";
     filenameCorrelation = filePath + "/K.mat";
 
+    isMaster = true;
+#ifdef USE_MPI
     MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
     MPI_Comm_size(MPI_COMM_WORLD, &nNodes);
 
     isMaster = (bool)(myRank == 0);
-
+#endif
 #ifdef DEBUG
     cout << "ComplexTimePropagation::ComplexTimePropagation(Config *cfg)::" << endl
          << "dt \t= " << dt << endl

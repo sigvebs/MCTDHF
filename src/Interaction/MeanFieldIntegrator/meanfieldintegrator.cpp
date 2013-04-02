@@ -20,9 +20,13 @@ MeanFieldIntegrator::MeanFieldIntegrator(Config *cfg):
         }
     }
 
+    myRank = 0;
+    nNodes = 1;
+#ifdef USE_MPI
     // MPI-------------------------------------------
     MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
     MPI_Comm_size(MPI_COMM_WORLD, &nNodes);
+#endif
 
     int tot = 0.5*nOrbitals*(nOrbitals + 1);
 
@@ -42,20 +46,6 @@ MeanFieldIntegrator::MeanFieldIntegrator(Config *cfg):
             }
         }
     }
-
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    for(pair<int,int>qr: myQR){
-        cout << myRank << " " << qr.first << " " << qr.second << endl;
-    }
-
-    if(myRank == 0){
-        cout << "nOrbitals = " << nOrbitals << endl;
-        cout << "tot = " << tot << endl;
-        cout << allQR << endl;
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-//    exit(1);
 }
 //------------------------------------------------------------------------------
 void MeanFieldIntegrator::computeMeanField(const cx_mat &C)
@@ -69,8 +59,10 @@ void MeanFieldIntegrator::computeMeanField(const cx_mat &C)
 
     for (int q = 0; q < nOrbitals; q++) {
         for (int r = q; r < nOrbitals; r++) {
+#ifdef MPI
             MPI_Bcast( V2(q,r).memptr(), nGrid , MPI_DOUBLE_COMPLEX, allQR(q,r), MPI_COMM_WORLD ) ;
-            V2(r, q) = conj(V2(q, r));
+#endif
+            V2(r, q) = arma::conj(V2(q, r));
         }
     }
 
@@ -92,7 +84,7 @@ void MeanFieldIntegrator::computeMeanField(const cx_mat &C)
 
 //        for (int r = q+1; r < nOrbitals; r++) {
 //            integrate(q, r, C, V2(q,r));
-//            V2(r,q) = conj(V2(q,r));
+//            V2(r,q) = arma::conj(V2(q,r));
 //        }
     //    }
 }

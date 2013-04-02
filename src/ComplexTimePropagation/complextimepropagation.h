@@ -9,7 +9,10 @@
 // Libary incldues
 #include <armadillo>
 #include <libconfig.h++>
+
+#ifdef USE_MPI
 #include <mpi.h>
+#endif
 
 using namespace std;
 using namespace libconfig;

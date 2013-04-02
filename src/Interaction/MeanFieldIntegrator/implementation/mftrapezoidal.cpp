@@ -34,11 +34,11 @@ void MfTrapezoidal::integrate(const int q, const int r, const cx_mat &C, cx_vec 
         uint inGrid = i*nGrid;
 
         // Integrations using the trapezodial rule.
-        integral = 0.5*(conj(C_[qnGrid])*Vxy_[inGrid]*C_[rnGrid]
-                        + conj( C_[nGrid-1 + q*nGrid])*Vxy_[nGrid-1 + inGrid]*C_[nGrid-1 + rnGrid]);
+        integral = 0.5*(std::conj(C_[qnGrid])*Vxy_[inGrid]*C_[rnGrid]
+                        + std::conj( C_[nGrid-1 + q*nGrid])*Vxy_[nGrid-1 + inGrid]*C_[nGrid-1 + rnGrid]);
 
         for(int j=1; j<nGrid-1; j++){
-            integral += conj( C_[j + qnGrid] ) * Vxy_[j + inGrid] * C_[j + rnGrid];
+            integral += std::conj( C_[j + qnGrid] ) * Vxy_[j + inGrid] * C_[j + rnGrid];
         }
 
         V2_[i] = integral;
@@ -48,11 +48,11 @@ void MfTrapezoidal::integrate(const int q, const int r, const cx_mat &C, cx_vec 
 
         // Integrations using the trapezodial rule.
         // Enpoints
-        integral = 0.5*(conj(C(0,q))*Vxy(0,i)*C(0,r)
-                        + conj(C(nGrid-1,q))*Vxy(nGrid-1,i)*C(nGrid-1,r));
+        integral = 0.5*(std::conj(C(0,q))*Vxy(0,i)*C(0,r)
+                        + std::conj(C(nGrid-1,q))*Vxy(nGrid-1,i)*C(nGrid-1,r));
 
         for(int j=1; j<nGrid-1; j++){
-            integral += conj(C(j,q))*Vxy(j,i)*C(j,r);
+            integral += std::conj(C(j,q))*Vxy(j,i)*C(j,r);
         }
 
         V2(i) = integral;
@@ -65,10 +65,10 @@ cx_double MfTrapezoidal::integrate(const int p, const int q, const int r, const 
     // Integrations using the trapezodial rule.
 
     // Enpoints
-    cx_double integral = 0.5*(conj(C(0,p))*V2(q,s)(0)*C(0,r) + conj(C(nGrid-1,p))*V2(q,s)(nGrid-1)*C(nGrid-1,r));
+    cx_double integral = 0.5*(std::conj(C(0,p))*V2(q,s)(0)*C(0,r) + std::conj(C(nGrid-1,p))*V2(q,s)(nGrid-1)*C(nGrid-1,r));
 
     for(int i=1; i<nGrid-1; i++){
-        integral += conj(C(i,p))*V2(q,s)(i)*C(i,r);
+        integral += std::conj(C(i,p))*V2(q,s)(i)*C(i,r);
     }
 
     return integral;

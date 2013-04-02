@@ -31,11 +31,11 @@ void MctdhfApplication::run()
     //--------------------------------------------------------------------------
     // Setting up MPI
     //--------------------------------------------------------------------------
-    int myRank, nNodes;
+    int myRank = 0;
+#ifdef USE_MPI
     MPI_Init(NULL, NULL);
     MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nNodes);
-
+#endif
     cx_mat C;
     Basis *orbitalBasis;
     //--------------------------------------------------------------------------
@@ -123,8 +123,9 @@ void MctdhfApplication::run()
         C = complexTimePropagation->getCurrentC();
         delete complexTimePropagation;
     }
-
+#ifdef USE_MPI
     MPI_Finalize();
+#endif
     //--------------------------------------------------------------------------
     // Time integration
     //--------------------------------------------------------------------------

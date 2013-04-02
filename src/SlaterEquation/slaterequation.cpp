@@ -101,7 +101,7 @@ void SlaterEquation::computeHamiltonianMatrix()
             }
             //------------------------------------------------------------------
             if(m != n){
-                H(n, m) = conj(H(m,n));
+                H(n, m) = std::conj(H(m,n));
             }
         }
     }

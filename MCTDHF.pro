@@ -1,3 +1,6 @@
+CONFIG+=MPI
+DEFINES += USE_MPI
+
 TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
@@ -6,24 +9,59 @@ CONFIG -= qt
 cluster{
     INCLUDEPATH += /home/sigve/usr/local/include
     INCLUDEPATH += /home/sigve/usr/include
+    LIBS += -L/home/sigve/usr/local/lib -lconfig++ -llapack -lblas -larmadillo -L/home/sigve/usr/lib -lfftw3 -lm
 }
+
 abel{
+    QMAKE_CXX = mpicxx
+    QMAKE_CXX_RELEASE = $$QMAKE_CXX
+    QMAKE_CXX_DEBUG = $$QMAKE_CXX
+    QMAKE_LINK = $$QMAKE_CXX
+    QMAKE_CC = mpicc
+
+    LIBS += -L/usit/abel/u1/sigve/usr/lib -lconfig++ -L/usit/abel/u1/sigve/usr/lib64 -larmadillo -L/usit/abel/u1/sigve/usr/lib -lfftw3 \
+        -L$(MKLROOT)/lib/intel64 -lpthread  -mkl_intel_lp64 -liomp5
+
+    QMAKE_CXXFLAGS += -DMKL_LP64 -I/cluster/software/VERSIONS/intel-2013.2/mkl/include -I$HOME/libs/armadillo/usr/include -openmp
+    QMAKE_CXXFLAGS -= -m64
     INCLUDEPATH += /usit/abel/u1/sigve/usr/lib
     INCLUDEPATH += /usit/abel/u1/sigve/usr/lib64
     INCLUDEPATH += /usit/abel/u1/sigve/usr/include
 }
 
-# MPI Settings
-QMAKE_CXX = mpicxx
-QMAKE_CXX_RELEASE = $$QMAKE_CXX
-QMAKE_CXX_DEBUG = $$QMAKE_CXX
-QMAKE_LINK = $$QMAKE_CXX
-QMAKE_CC = mpicc
+MPI{
+    QMAKE_CXX = mpicxx
+    QMAKE_CXX_RELEASE = $$QMAKE_CXX
+    QMAKE_CXX_DEBUG = $$QMAKE_CXX
+    QMAKE_LINK = $$QMAKE_CXX
+    QMAKE_CC = mpicc
 
-QMAKE_CFLAGS = $$system(mpicc --showme:compile)
-QMAKE_LFLAGS = $$system(mpicxx --showme:link)
-QMAKE_CXXFLAGS = $$system(mpicxx --showme:compile) -DMPICH_IGNORE_CXX_SEEK
-QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS
+    QMAKE_CFLAGS = $$system(mpicc --showme:compile)
+    QMAKE_LFLAGS = $$system(mpicxx --showme:link)
+    QMAKE_CXXFLAGS = $$system(mpicxx --showme:compile) -DMPICH_IGNORE_CXX_SEEK
+    QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS
+}
+
+default{
+    LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
+}
+
+CONFIG(debug, debug|release) {
+#    DEFINES += DEBUG
+}
+
+release {
+    # Remoing other O flags
+    QMAKE_CXXFLAGS_RELEASE -= -O
+    QMAKE_CXXFLAGS_RELEASE -= -O1
+    QMAKE_CXXFLAGS_RELEASE -= -O2
+
+    # add the desired -O3 if not present
+    QMAKE_CXXFLAGS_RELEASE *= -O3
+    DEFINES += ARMA_NO_DEBUG
+}
+
+QMAKE_CXXFLAGS += -std=c++0x
 
 SOURCES += main.cpp \
     src/mctdhfapplication.cpp \
@@ -114,43 +152,3 @@ OTHER_FILES += \
     ../config.cfg \
     README.md \
     ../config.cfg
-
-default{
-    LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
-}
-
-abel{
-    LIBS += -L/usit/abel/u1/sigve/usr/lib -lconfig++ -llapack -lblas -larmadillo -L/usit/abel/u1/sigve/usr/lib -lfftw3 -lm
-}
-
-cluster{
-    LIBS += -L/home/sigve/usr/local/lib -lconfig++ -llapack -lblas -larmadillo -L/home/sigve/usr/lib -lfftw3 -lm
-}
-
-home{
-    LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
-}
-UIO_noIntel{
-    LIBS += -fopenmp -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm
-}
-UIO{
-    LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm \
-#    -L$(MKLROOT)/lib/intel64 -mkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread \
-}
-
-QMAKE_CXXFLAGS += -std=c++0x
-
-CONFIG(debug, debug|release) {
-#    DEFINES += DEBUG
-}
-
-release {
-    # Remoing other O flags
-    QMAKE_CXXFLAGS_RELEASE -= -O
-    QMAKE_CXXFLAGS_RELEASE -= -O1
-    QMAKE_CXXFLAGS_RELEASE -= -O2
-
-    # add the desired -O3 if not present
-    QMAKE_CXXFLAGS_RELEASE *= -O3
-    DEFINES += ARMA_NO_DEBUG
-}

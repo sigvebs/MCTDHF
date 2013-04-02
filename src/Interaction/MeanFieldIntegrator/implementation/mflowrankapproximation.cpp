@@ -120,7 +120,7 @@ cx_vec MfLowRankApproximation::integrate(const int q, const int r, const cx_mat 
 
     for(int m=0; m<M; m++){
         for(int j=0; j<nGrid; j++){
-            Vm(m) += conj(C(j,q))*U(j,m)*C(j,r);
+            Vm(m) += std::conj(C(j,q))*U(j,m)*C(j,r);
         }
     }
 
@@ -139,7 +139,7 @@ void MfLowRankApproximation::integrate(const int q, const int r, const cx_mat &C
 
     for(int m=0; m<M; m++){
         for(int j=0; j<nGrid; j++){
-            Vm(m) += conj(C(j,q))*U(j,m)*C(j,r);
+            Vm(m) += std::conj(C(j,q))*U(j,m)*C(j,r);
         }
     }
 
@@ -155,12 +155,12 @@ cx_double MfLowRankApproximation::integrate(const int p, const int q, const int 
     // Integrations using the trapezodial rule.
     cx_double integral = 0;
     for(int i=1; i<nGrid-1; i++){
-        integral += conj(C(i,p))*V2(q,s)(i)*C(i,r);
+        integral += std::conj(C(i,p))*V2(q,s)(i)*C(i,r);
     }
     integral *= 2;
 
     // Enpoints
-    integral += conj(C(0,p))*V2(q,s)(0)*C(0,r) + conj(C(nGrid-1,p))*V2(q,s)(nGrid-1)*C(nGrid-1,r);
+    integral += std::conj(C(0,p))*V2(q,s)(0)*C(0,r) + std::conj(C(nGrid-1,p))*V2(q,s)(nGrid-1)*C(nGrid-1,r);
 
     return 0.5*integral;
 }
