@@ -12,7 +12,6 @@ Grid::Grid(Config *cfg):
         cerr << "Grid(Config *cfg)::Error reading from config object." << endl;
         exit(EXIT_FAILURE);
     }
-
     nGrid = 0;
     nGridX = 0;
     nGridY = 0;

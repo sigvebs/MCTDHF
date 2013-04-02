@@ -112,7 +112,8 @@ HEADERS += \
 
 OTHER_FILES += \
     ../config.cfg \
-    README.md
+    README.md \
+    ../config.cfg
 
 default{
     LIBS += -lconfig++ -llapack -lblas -larmadillo -lfftw3 -lm

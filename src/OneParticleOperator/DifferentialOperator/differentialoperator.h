@@ -22,14 +22,13 @@ public:
     virtual cx_vec secondDerivative(const cx_vec &phi) = 0;
 protected:
     const Grid &grid;
+    int nGrid;
     double dx;
     double dy;
     double dz;
     double dxdx;
     double dydy;
     double dzdz;
-    int nGrid;
-
     Config* cfg;
 };
 
