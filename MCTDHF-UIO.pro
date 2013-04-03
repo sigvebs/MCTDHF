@@ -1,4 +1,4 @@
 
-#CONFIG += UIO_noIntel
-CONFIG += UIO
+#CONFIG += UIO
+CONFIG += default
 include(MCTDHF.pro)

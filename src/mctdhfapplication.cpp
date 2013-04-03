@@ -64,9 +64,6 @@ void MctdhfApplication::run()
     const vector<vec> orbitals = orbitalBasis->getBasis();
 
     C = orbitalBasis->getOrbitals();
-    if(myRank == 0){
-        C.save("../DATA/C.mat");
-    }
     delete orbitalBasis;
 
     //--------------------------------------------------------------------------

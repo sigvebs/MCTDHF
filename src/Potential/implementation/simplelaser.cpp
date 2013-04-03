@@ -15,9 +15,11 @@ simpleLaser::simpleLaser(Config *cfg, const Grid &grid):
              << "::Error reading from config object." << endl;
     }
     w *= W;
-    int nGridX = grid.nGridX;
-    potential = vec(nGridX);
-    for(int i=0; i<nGridX; i++){
+
+    potential = vec(nGrid);
+
+    // The laser is applied only in the x-direction.
+    for(int i=0; i<nGrid; i++){
         vec r = grid.at(i);
         potential = r(0)*e0;
     }
