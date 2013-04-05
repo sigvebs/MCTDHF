@@ -37,7 +37,7 @@ void MfTrapezoidal::integrate(const int q, const int r, const cx_mat &C, cx_vec 
     for(int i=0; i<nGrid; i++){
         uint inGrid = i*nGrid;
 
-        // Integrations using the trapezodial rule.
+        // Integration using the trapezodial rule.
         integral = 0.5*(std::conj(C_[qnGrid])*Vxy[inGrid]*C_[rnGrid]
                         + std::conj( C_[nGrid-1 + q*nGrid])*Vxy[nGrid-1 + inGrid]*C_[nGrid-1 + rnGrid]);
 

@@ -31,8 +31,8 @@ public:
     const cx_mat &reCalculateRho1(const cx_vec &A);
     vec getSvdRho1();
 protected:
-    cx_double findRho2(int p,int q, int r, int s);
     void computeProjector(const cx_mat &C);
+    cx_double findRho2(int p,int q, int r, int s);
     void computeUMatrix(const cx_mat &C);
     void computeOneParticleReducedDensity();
     void computeOneParticleReducedDensityWithSpin();
@@ -63,6 +63,12 @@ protected:
 
     cx_mat rightHandSide;
     cx_mat rho1; // TMP
+
+    // MPI
+    imat allRH;
+    int myRank, nNodes;
+    vector<pair<int,int> > myRij;
+    ivec sizeRij;
 };
 
 #endif // ORBITALEQUATION_H

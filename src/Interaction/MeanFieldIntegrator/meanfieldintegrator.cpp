@@ -65,28 +65,6 @@ void MeanFieldIntegrator::computeMeanField(const cx_mat &C)
             V2(r, q) = arma::conj(V2(q, r));
         }
     }
-
-//    if(myRank == 1){
-//        for (int q = 0; q < nOrbitals; q++) {
-//            for (int r = q; r < nOrbitals; r++) {
-//                cout << V2(q,r) << endl;
-//            }
-//        }
-//    }
-//    MPI_Barrier(MPI_COMM_WORLD);
-//    exit(1);
-
-//    MPI_Barrier(MPI_COMM_WORLD);
-//    exit(1);
-
-//    for (int q = 0; q < nOrbitals; q++) {
-//        integrate(q, q, C, V2(q,q));
-
-//        for (int r = q+1; r < nOrbitals; r++) {
-//            integrate(q, r, C, V2(q,r));
-//            V2(r,q) = arma::conj(V2(q,r));
-//        }
-    //    }
 }
 
 //------------------------------------------------------------------------------

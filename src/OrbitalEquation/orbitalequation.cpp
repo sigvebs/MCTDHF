@@ -23,9 +23,46 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
     invRho = cx_mat(nOrbitals, nOrbitals);
 
     U = zeros<cx_mat>(nGrid, nOrbitals);
-    Q = cx_mat(nGrid, nGrid);
+    rightHandSide = zeros<cx_mat>(nGrid, nOrbitals);
+//    Q = cx_mat(nGrid, nGrid);
 
     rho1 = zeros<cx_mat>(2*nOrbitals, 2*nOrbitals); // TMP
+
+    myRank = 0;
+    nNodes = 1;
+#ifdef USE_MPI
+    // MPI-------------------------------------------
+    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nNodes);
+#endif
+    sizeRij = ivec(nNodes);
+
+    int tot = nGrid*nOrbitals;
+
+    allRH = imat(nGrid, nOrbitals);
+    int node = 0;
+    int s = 0;
+    for (int j = 0; j < nOrbitals; j++) {
+        for (int i = 0; i < nGrid; i++) {
+            if (myRank == node){
+                myRij.push_back(pair<int, int>(i,j));
+            }
+            allRH(i,j) = node;
+            s++;
+            if(s >= BLOCK_SIZE(node, nNodes, tot)){
+                sizeRij(node) = BLOCK_SIZE(node, nNodes, tot);
+                s = 0;
+                node++;
+            }
+        }
+    }
+//    cout << allRH << endl;
+
+//    for(pair<int,int> ij :myRij){
+//        cout << ij.first << " " << ij.second << endl;
+//    }
+//    cout << sizeRij << endl;
+//    exit(1);
 }
 //------------------------------------------------------------------------------
 const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
@@ -34,14 +71,56 @@ const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_ve
     hC = &(h->getHspatial());
     rho2.clear();
 
-    computeProjector(C);
     computeOneParticleReducedDensity();
     invRho = inv(invRho);
     computeTwoParticleReducedDensity();
     computeUMatrix(C);
 
+#if 1
     // Computing the right hand side of the equation
-    rightHandSide = Q*U;
+    //--------------------------------------------------------------------------
+    // TMP trying M-M multiply of the projection
+    //--------------------------------------------------------------------------
+//    wall_clock timer;
+    cx_double RH_ij;
+    cx_double Qik;
+    const cx_double *C_ = C.memptr();
+    cx_double *U_ = U.memptr();
+    cx_double *RH_ = rightHandSide.memptr();
+
+    int i, j;
+    for(pair<int,int> ij :myRij){
+        i = ij.first;
+        j = ij.second;
+
+        RH_ij = 0;
+        for(int k=0; k<nGrid; k++){
+
+            // Calculating the projector
+            Qik = 0;
+            if(i == k)
+                Qik = 1;
+            for(int l=0; l<nOrbitals; l++){
+                Qik -= C_[i + l*nGrid]*conj(C_[k + l*nGrid]);
+            }
+            // END projector
+            RH_ij += Qik*U_[k + j*nGrid];
+        }
+        RH_[i + j*nGrid] = RH_ij;
+    }
+
+#ifdef USE_MPI
+    i = 0;
+    for(uint n=0; n<sizeRij.n_elem; n++){
+        MPI_Bcast( &RH_[i], sizeRij(n) , MPI_DOUBLE_COMPLEX, n, MPI_COMM_WORLD );
+        i += sizeRij(n);
+    }
+#endif
+    //--------------------------------------------------------------------------
+//#elif
+//    computeProjector(C);
+//    rightHandSide = Q*U;
+#endif
     return rightHandSide;
 }
 //------------------------------------------------------------------------------
