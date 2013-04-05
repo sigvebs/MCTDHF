@@ -18,6 +18,7 @@ abel{
     QMAKE_CXX_DEBUG = $$QMAKE_CXX
     QMAKE_LINK = $$QMAKE_CXX
     QMAKE_CC = mpicc
+    CONFIG-=MPI
 
     LIBS += -L/usit/abel/u1/sigve/usr/lib -lconfig++ -L/usit/abel/u1/sigve/usr/lib64 -larmadillo -L/usit/abel/u1/sigve/usr/lib -lfftw3 \
         -L$(MKLROOT)/lib/intel64 -lpthread  -mkl_intel_lp64 -liomp5
