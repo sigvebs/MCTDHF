@@ -24,8 +24,8 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
 
     U = zeros<cx_mat>(nGrid, nOrbitals);
     rightHandSide = zeros<cx_mat>(nGrid, nOrbitals);
-//    Q = cx_mat(nGrid, nGrid);
 
+//    Q = cx_mat(nGrid, nGrid);
     rho1 = zeros<cx_mat>(2*nOrbitals, 2*nOrbitals); // TMP
 
     myRank = 0;
@@ -36,7 +36,6 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
     MPI_Comm_size(MPI_COMM_WORLD, &nNodes);
 #endif
     sizeRij = ivec(nNodes);
-
     int tot = nGrid*nOrbitals;
 
     allRH = imat(nGrid, nOrbitals);
@@ -56,13 +55,6 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
             }
         }
     }
-//    cout << allRH << endl;
-
-//    for(pair<int,int> ij :myRij){
-//        cout << ij.first << " " << ij.second << endl;
-//    }
-//    cout << sizeRij << endl;
-//    exit(1);
 }
 //------------------------------------------------------------------------------
 const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)
@@ -76,12 +68,9 @@ const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_ve
     computeTwoParticleReducedDensity();
     computeUMatrix(C);
 
-#if 1
-    // Computing the right hand side of the equation
     //--------------------------------------------------------------------------
-    // TMP trying M-M multiply of the projection
+    // Hardcoding of the matrirx-matrix product: R.H = Q*U
     //--------------------------------------------------------------------------
-//    wall_clock timer;
     cx_double RH_ij;
     cx_double Qik;
     const cx_double *C_ = C.memptr();
@@ -115,11 +104,6 @@ const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_ve
         MPI_Bcast( &RH_[i], sizeRij(n) , MPI_DOUBLE_COMPLEX, n, MPI_COMM_WORLD );
         i += sizeRij(n);
     }
-#endif
-    //--------------------------------------------------------------------------
-//#elif
-//    computeProjector(C);
-//    rightHandSide = Q*U;
 #endif
     return rightHandSide;
 }

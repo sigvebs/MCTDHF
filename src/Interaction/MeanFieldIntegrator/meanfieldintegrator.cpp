@@ -22,8 +22,8 @@ MeanFieldIntegrator::MeanFieldIntegrator(Config *cfg):
 
     myRank = 0;
     nNodes = 1;
+    // MPI----------------------------------------------------------------------
 #ifdef USE_MPI
-    // MPI-------------------------------------------
     MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
     MPI_Comm_size(MPI_COMM_WORLD, &nNodes);
 #endif
@@ -59,7 +59,7 @@ void MeanFieldIntegrator::computeMeanField(const cx_mat &C)
 
     for (int q = 0; q < nOrbitals; q++) {
         for (int r = q; r < nOrbitals; r++) {
-#ifdef MPI
+#ifdef USE_MPI
             MPI_Bcast( V2(q,r).memptr(), nGrid , MPI_DOUBLE_COMPLEX, allQR(q,r), MPI_COMM_WORLD ) ;
 #endif
             V2(r, q) = arma::conj(V2(q, r));
