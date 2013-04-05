@@ -10,10 +10,14 @@ void MfTrapezoidal::initialize()
 {
     Vxy = zeros(nGrid, nGrid);
 
-    for(uint i=0; i<potential.size(); i++){
-        Vxy += potential[i]->computeInteractionSpace();
+    for(uint p=0; p<potential.size(); p++){
+        for(int i=0; i<nGrid; i++){
+            for(int j=0; j<nGrid; j++){
+                Vxy(i, j) += potential[p]->evaluate(i, j);
+            }
+        }
     }
-    Vxy_ = Vxy.memptr();
+
     cleanUp();
 }
 //------------------------------------------------------------------------------
@@ -34,11 +38,11 @@ void MfTrapezoidal::integrate(const int q, const int r, const cx_mat &C, cx_vec 
         uint inGrid = i*nGrid;
 
         // Integrations using the trapezodial rule.
-        integral = 0.5*(std::conj(C_[qnGrid])*Vxy_[inGrid]*C_[rnGrid]
-                        + std::conj( C_[nGrid-1 + q*nGrid])*Vxy_[nGrid-1 + inGrid]*C_[nGrid-1 + rnGrid]);
+        integral = 0.5*(std::conj(C_[qnGrid])*Vxy[inGrid]*C_[rnGrid]
+                        + std::conj( C_[nGrid-1 + q*nGrid])*Vxy[nGrid-1 + inGrid]*C_[nGrid-1 + rnGrid]);
 
         for(int j=1; j<nGrid-1; j++){
-            integral += std::conj( C_[j + qnGrid] ) * Vxy_[j + inGrid] * C_[j + rnGrid];
+            integral += std::conj( C_[j + qnGrid] ) * Vxy[j + inGrid] * C_[j + rnGrid];
         }
 
         V2_[i] = integral;

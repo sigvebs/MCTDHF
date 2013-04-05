@@ -11,25 +11,18 @@ ScreenedCoulombInteraction::ScreenedCoulombInteraction(Config *cfg, const Grid &
         cerr << "ScreenedCoulombInteraction(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
-    interactionSpace = zeros(nGrid, nGrid);
 }
 //------------------------------------------------------------------------------
-mat ScreenedCoulombInteraction::computeInteractionSpace()
+double ScreenedCoulombInteraction::evaluate(uint i, uint j)
 {
-    for(int i=0; i<nGrid; i++){
-        for(int j=0; j<nGrid; j++){
-            const vec& r_i = grid.at(i);
-            const vec& r_j = grid.at(j);
+    const vec &r_i = grid.at(i);
+    const vec &r_j = grid.at(j);
 
-            double denominator = 0;
-            for(int d=0; d<dim; d++){
-                denominator += pow(r_i(d) - r_j(d), 2);
-            }
-            denominator += aa;
-
-            interactionSpace(i,j) = lambda/sqrt(denominator);
-        }
+    double denominator = 0;
+    for(int d=0; d<dim; d++){
+        denominator += pow(r_i(d) - r_j(d), 2);
     }
-    return interactionSpace;
+    denominator += aa;
+    return lambda/sqrt(denominator);
 }
 //------------------------------------------------------------------------------

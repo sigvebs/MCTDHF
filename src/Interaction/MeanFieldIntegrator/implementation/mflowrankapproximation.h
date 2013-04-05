@@ -14,7 +14,7 @@ public:
     virtual cx_double integrate(const int p, const int q, const int r, const int s, const cx_mat &C);
 protected:
     mat U;
-    mat V_;
+    mat Vxy;
     int M;
     vec eigenval;
     cx_vec Vtmp;

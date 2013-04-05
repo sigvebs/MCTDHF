@@ -11,19 +11,12 @@ HarmonicOscillatorInteraction::HarmonicOscillatorInteraction(Config *cfg, const 
         cerr << "ScreenedCoulombInteraction(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
-    interactionSpace = zeros(nGrid, nGrid);
 }
 //------------------------------------------------------------------------------
-mat HarmonicOscillatorInteraction::computeInteractionSpace()
+double HarmonicOscillatorInteraction::evaluate(uint i, uint j)
 {
-    for(int i=0; i<nGrid; i++){
-        for(int j=0; j<nGrid; j++){
-            ri = grid.at(i);
-            rj = grid.at(j);
-            interactionSpace(i,j) = -epsilon*pow(fabs(ri(0) - rj(0)), 2);
-        }
-    }
-
-    return interactionSpace;
+    const vec &r_i = grid.at(i);
+    const vec &r_j = grid.at(j);
+    return -epsilon*pow(fabs(r_i(0) - r_j(0)), 2);
 }
 //------------------------------------------------------------------------------

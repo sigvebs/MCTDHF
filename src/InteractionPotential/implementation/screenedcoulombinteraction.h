@@ -7,7 +7,7 @@ class ScreenedCoulombInteraction: public InteractionPotential
 {
 public:
     ScreenedCoulombInteraction(Config* cfg, const Grid &grid);
-    virtual mat computeInteractionSpace();
+    virtual double evaluate(uint i, uint j);
 protected:
     double aa;
     double lambda;

@@ -13,7 +13,6 @@ public:
     virtual cx_double integrate(const int p, const int q, const int r, const int s, const cx_mat &C);
 protected:
     mat Vxy;
-    const double *Vxy_;
 };
 
 #endif // MFTRAPEZOIDAL_H

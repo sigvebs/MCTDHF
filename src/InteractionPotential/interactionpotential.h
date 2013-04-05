@@ -16,12 +16,8 @@ class InteractionPotential
 {
 public:
     InteractionPotential(Config* cfg, const Grid &grid);
-    virtual mat computeInteractionSpace() = 0;
+    virtual double evaluate(uint i, uint j) = 0;
 protected:
-    mat interactionSpace;
-    vec ri;
-    vec rj;
-
     const Grid &grid;
     int nGrid;
     int dim;

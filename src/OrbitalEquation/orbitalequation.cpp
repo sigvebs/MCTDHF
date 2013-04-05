@@ -26,7 +26,6 @@ OrbitalEquation::OrbitalEquation(Config *cfg,
     Q = cx_mat(nGrid, nGrid);
 
     rho1 = zeros<cx_mat>(2*nOrbitals, 2*nOrbitals); // TMP
-    cout << "done" << endl;
 }
 //------------------------------------------------------------------------------
 const cx_mat &OrbitalEquation::computeRightHandSide(const cx_mat &C, const cx_vec &A)

@@ -48,7 +48,6 @@ void MctdhfApplication::run()
         grid.createInitalDiscretization();
     }
     grid.saveGrid();
-
     //--------------------------------------------------------------------------
     // Setting up the orbitals
     //--------------------------------------------------------------------------
@@ -86,6 +85,7 @@ void MctdhfApplication::run()
     cout << "Setting up the interaction operator" << endl;
     Interaction V(&cfg, setMeanFieldIntegrator());
     setInteractionPotentials(V, grid);
+//    exit(1);
 
     //--------------------------------------------------------------------------
     // Setting the single particle operator

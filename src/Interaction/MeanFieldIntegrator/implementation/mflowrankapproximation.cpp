@@ -28,10 +28,14 @@ void MfLowRankApproximation::initialize()
 
     int nConst = constEnd/dx;
     int constCenter = nGrid/2;
-    V_ = zeros(nGrid, nGrid);
+    Vxy = zeros(nGrid, nGrid);
 
-    for(uint i=0; i<potential.size(); i++){
-        V_ += potential[i]->computeInteractionSpace();
+    for(uint p=0; p<potential.size(); p++){
+        for(int i=0; i<nGrid; i++){
+            for(int j=0; j<nGrid; j++){
+                Vxy(i, j) += potential[p]->evaluate(i, j);
+            }
+        }
     }
 
     // Using a simple discretization equal to the discretization of
@@ -47,7 +51,7 @@ void MfLowRankApproximation::initialize()
 
     vec lambda;
     mat eigvec;
-    eig_sym(lambda, eigvec, inv(C.t())*V_*inv(C));
+    eig_sym(lambda, eigvec, inv(C.t())*Vxy*inv(C));
     mat Ut = C.t()*eigvec;
 
     mat QU = inv(Q)*Ut;
@@ -100,12 +104,12 @@ void MfLowRankApproximation::initialize()
         }
     }
 //    mat diffV = abs(V_ - appV)/abs(V_);
-    mat diffV = abs(V_ - appV);
-    cout << "max_err = " << max(max(abs(V_ - appV))) << endl;
+    mat diffV = abs(Vxy - appV);
+    cout << "max_err = " << max(max(abs(Vxy - appV))) << endl;
 
     diffV.save("../DATA/diffV.mat", arma_ascii);
     appV.save("../DATA/Vapp.mat", arma_ascii);
-    V_.save("../DATA/Vex.mat", arma_ascii);
+    Vxy.save("../DATA/Vex.mat", arma_ascii);
     cout << nGrid << endl;
     exit(EXIT_SUCCESS);
 #endif
