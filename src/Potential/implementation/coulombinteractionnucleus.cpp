@@ -19,7 +19,12 @@ CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg, const Grid &gr
     // Setting the potential
     for(int j=0; j<nGrid; j++){
         vec r = grid.at(j);
-        potential(j) = - Z/sqrt(r(0)*r(0) + b*b);
+
+        double r2 = 0;
+        for(int i=0; i<dim; i++){
+            r2 += r(i)*r(i);
+        }
+        potential(j) = - Z/sqrt(r2 + b*b);
     }
 }
 //------------------------------------------------------------------------------
