@@ -62,7 +62,7 @@ void ComplexTimePropagation::doComplexTimePropagation()
             h->computeNewElements(C);
 
 #ifdef USE_MPI
-//            MPI_Bcast( C.memptr(), C.n_elem , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD );
+            MPI_Bcast( C.memptr(), C.n_elem , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD );
 #endif
             // Collecting data
             if(isMaster){

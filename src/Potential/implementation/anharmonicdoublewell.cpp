@@ -17,7 +17,8 @@ AnharmonicDoubleWell::AnharmonicDoubleWell(Config *cfg, const Grid &grid):
     // Setting the potential
     for(int j=0; j<nGrid; j++){
         vec r = grid.at(j);
-        potential(j) = pow(r(0) - 0.5*d, 2) * pow(r(0) + 0.5*d, 2);
+        double rNorm = norm(r,2);
+        potential(j) = pow(rNorm - 0.5*d, 2) * pow(rNorm + 0.5*d, 2);
     }
 
     potential *= 1.0/(2*d*d);
