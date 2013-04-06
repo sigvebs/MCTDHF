@@ -41,6 +41,7 @@
 #include <src/Potential/implementation/coulombinteractionnucleus.h>
 #include <src/Potential/implementation/simplelaser.h>
 #include <src/Potential/implementation/anharmonicdoublewell.h>
+#include <src/Potential/implementation/finiteharmonicoscillator_ob.h>
 
 #include <src/SlaterEquation/slaterequation.h>
 #include <src/OrbitalEquation/orbitalequation.h>
@@ -96,6 +97,10 @@ protected:
     string loadDatasetPath;
     bool doTimeIntegration;
     bool doComplexTimeIntegration;
+
+    // MPI
+    bool isMaster;
+    int myRank;
 };
 
 #endif // MCTDHFAPPLICATION_H

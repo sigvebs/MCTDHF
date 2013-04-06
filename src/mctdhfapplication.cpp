@@ -3,6 +3,16 @@
 //------------------------------------------------------------------------------
 MctdhfApplication::MctdhfApplication(string configFilename)
 {
+    //--------------------------------------------------------------------------
+    // Setting up MPI
+    //--------------------------------------------------------------------------
+    myRank = 0;
+#ifdef USE_MPI
+    MPI_Init(NULL, NULL);
+    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+#endif
+    isMaster = (bool)(myRank == 0);
+
     cout << "Loading " << configFilename << endl;
 
     try {
@@ -29,16 +39,6 @@ MctdhfApplication::MctdhfApplication(string configFilename)
 void MctdhfApplication::run()
 {
     //--------------------------------------------------------------------------
-    // Setting up MPI
-    //--------------------------------------------------------------------------
-    int myRank = 0;
-#ifdef USE_MPI
-    MPI_Init(NULL, NULL);
-    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
-#endif
-    cx_mat C;
-    Basis *orbitalBasis;
-    //--------------------------------------------------------------------------
     // Setting up the spatial discretization
     //--------------------------------------------------------------------------
     Grid grid(&cfg);
@@ -47,10 +47,15 @@ void MctdhfApplication::run()
     }else{
         grid.createInitalDiscretization();
     }
-    grid.saveGrid();
+    if(isMaster)
+        grid.saveGrid();
+
     //--------------------------------------------------------------------------
     // Setting up the orbitals
     //--------------------------------------------------------------------------
+    Basis *orbitalBasis;
+    cx_mat C;
+
     orbitalBasis = setBasis();
     orbitalBasis->setGrid(&grid);
 
@@ -82,28 +87,31 @@ void MctdhfApplication::run()
     //--------------------------------------------------------------------------
     // Interaction operator
     //--------------------------------------------------------------------------
-    cout << "Setting up the interaction operator" << endl;
+    if(isMaster)
+        cout << "Setting up the interaction operator" << endl;
     Interaction V(&cfg, setMeanFieldIntegrator());
     setInteractionPotentials(V, grid);
-//    exit(1);
 
     //--------------------------------------------------------------------------
     // Setting the single particle operator
     //--------------------------------------------------------------------------
-    cout << "Setting up the single particle operator" << endl;
+    if(isMaster)
+        cout << "Setting up the single particle operator" << endl;
     SingleParticleOperator h(&cfg, setDifferentialOpertor(grid));
     setOneBodyPotentials(h, grid);
 
     //--------------------------------------------------------------------------
     // Setting up the Slater equation
     //--------------------------------------------------------------------------
-    cout << "Setting up the Slater determiant equation" << endl;
+    if(isMaster)
+        cout << "Setting up the Slater determiant equation" << endl;
     SlaterEquation slaterEquation(&cfg, slaterDeterminants, &V, &h);
 
     //--------------------------------------------------------------------------
     // Setting up the orbital equation
     //--------------------------------------------------------------------------
-    cout << "Setting up the Orbital equation" << endl;
+    if(isMaster)
+        cout << "Setting up the Orbital equation" << endl;
     OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
 
     //--------------------------------------------------------------------------
@@ -120,9 +128,7 @@ void MctdhfApplication::run()
         C = complexTimePropagation->getCurrentC();
         delete complexTimePropagation;
     }
-#ifdef USE_MPI
-    MPI_Finalize();
-#endif
+
     //--------------------------------------------------------------------------
     // Time integration
     //--------------------------------------------------------------------------
@@ -137,6 +143,9 @@ void MctdhfApplication::run()
         delete timePropagator;
     }
     //--------------------------------------------------------------------------
+#ifdef USE_MPI
+    MPI_Finalize();
+#endif
 }
 //------------------------------------------------------------------------------
 void MctdhfApplication::setInteractionPotentials(Interaction &V, const Grid &grid)
@@ -171,16 +180,20 @@ void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h, const Gr
     for(int i=0; i<nPotentials; i++){
         int potential = oneBodyPotentials[i];
         switch (potential) {
-        case HARMONIC_OSCILLATOR_ONE_BODY:
+        case OB_HARMONIC_OSCILLATOR:
             I = new HarmonicOscillatorOneBody(&cfg, grid);
             h.addPotential(I);
             break;
-        case COULOMB_INTERACTION_NUCLEUS:
+        case OB_COULOMB_INTERACTION_NUCLEUS:
             I = new CoulombInteractionNucleus(&cfg, grid);
             h.addPotential(I);
             break;
-        case ANHARMONIC_DOUBLE_WELL:
+        case OB_ANHARMONIC_DOUBLE_WELL:
             I = new AnharmonicDoubleWell(&cfg, grid);
+            h.addPotential(I);
+            break;
+        case OB_FINITE_HARMONIC_OSCILLATOR:
+            I = new FiniteHarmonicOscillator_OB(&cfg, grid);
             h.addPotential(I);
             break;
         default:
@@ -202,7 +215,7 @@ void MctdhfApplication::setTimeDepOneBodyPotentials(SingleParticleOperator &h, c
         int potential = oneBodyPotentials[i];
 
         switch (potential) {
-        case SIMPLE_LASER:
+        case OB_SIMPLE_LASER:
             I = new simpleLaser(&cfg, grid);
             h.addPotential(I);
             break;
