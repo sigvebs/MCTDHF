@@ -35,6 +35,8 @@ FiniteHarmonicOscillator_OB::FiniteHarmonicOscillator_OB(Config *cfg, const Grid
 //------------------------------------------------------------------------------
 cx_vec FiniteHarmonicOscillator_OB::evaluate(const cx_vec &psi, double t)
 {
+//    cx_vec pot(potential,potential);
+//    return pot;
     return potential % psi;
 }
 //------------------------------------------------------------------------------

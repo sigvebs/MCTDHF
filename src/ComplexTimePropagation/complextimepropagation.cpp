@@ -22,6 +22,7 @@ ComplexTimePropagation::ComplexTimePropagation(Config *cfg):
     dE = zeros(N/saveToFileInterval+1);
     K = vec(1);
     Eprev = 99;
+
     filenameOrbitals = filePath + "/C.mat";
     filenameSlaterDet = filePath + "/A.mat";
     filenameEnergy = filePath + "/E.mat";
@@ -57,13 +58,14 @@ void ComplexTimePropagation::doComplexTimePropagation()
         // Saving C and A to disk
         if((step % saveToFileInterval == 0 || step == N-1) && accepted){
 
+#ifdef USE_MPI
+            MPI_Bcast( C.memptr(), C.n_elem , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD );
+#endif
+
             // Updating the one-body- and interaction-elements
             V->computeNewElements(C);
             h->computeNewElements(C);
 
-#ifdef USE_MPI
-            MPI_Bcast( C.memptr(), C.n_elem , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD );
-#endif
             // Collecting data
             if(isMaster){
                 E(counter) = slater->getEnergy(A) ;

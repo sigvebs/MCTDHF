@@ -16,6 +16,7 @@ TimePropagation::TimePropagation(Config *cfg):
         cerr << "TimePropagation::TimePropagation(Config *cfg)::Error reading parameter from config object." << endl;
         exit(EXIT_FAILURE);
     }
+
     step = 0;
     t = 0;
     E = zeros(N);
@@ -31,6 +32,13 @@ TimePropagation::TimePropagation(Config *cfg):
     filenameCorrelation = filePath + "/K.mat";
     filenameT = filePath + "/time.mat";
 
+    isMaster = true;
+#ifdef USE_MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nNodes);
+
+    isMaster = (bool)(myRank == 0);
+#endif
 #ifdef DEBUG
     cout << "TimePropagation::TimePropagation(Config *cfg)::" << endl
          << "dt \t= " << dt << endl
@@ -50,18 +58,24 @@ void TimePropagation::doTimePropagation()
         if(accepted){
             time(step) = t;
 
+#ifdef USE_MPI
+            MPI_Bcast( C.memptr(), C.n_elem , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD );
+#endif
+
             // Updating the one-body- and interaction-elements
             V->computeNewElements(C);
             h->computeNewElements(C, t);
 
             // Collecting data
-            E(step) = slater->getEnergy(A);
-            rho = &orbital->reCalculateRho1(A);
-            K = orbital->getCorrelation();
-            svdRho = orbital->getSvdRho1();
+            if(isMaster){
+                E(step) = slater->getEnergy(A);
+                rho = &orbital->reCalculateRho1(A);
+                K = orbital->getCorrelation();
+                svdRho = orbital->getSvdRho1();
 
-            saveProgress(step);
-            printProgressToScreen(step);
+                saveProgress(step);
+                printProgressToScreen(step);
+            }
             t += dt;
         }
     }

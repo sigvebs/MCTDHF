@@ -72,6 +72,10 @@ protected:
 
     bool printProgress;
     bool saveEveryTimeStep;
+
+    // MPI
+    int myRank, nNodes;
+    bool isMaster;
 };
 
 #endif // TIMEPROPAGATION_H
