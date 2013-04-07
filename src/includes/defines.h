@@ -20,7 +20,7 @@ enum coordinateTypes_t {
 };
 enum differentialOpertor {
     DO_FINITE_DIFFERENCE_1d, DO_FINITE_DIFFERENCE_FIVE_POINT_1D, DO_FOURIER_1D,
-    DO_FINITE_DIFFERENCE_2d, DO_FiniteDifferenceFivePoint2d
+    DO_FINITE_DIFFERENCE_2d, DO_FiniteDifferenceFivePoint2d, DO_FOURIER_2D
 };
 enum orbitalBasisType_t{
     OBT_HARMONIC_OSCILLATOR, OBT_HYDROGEN_LIKE, OBT_RAND_UNITARY_MATRIX

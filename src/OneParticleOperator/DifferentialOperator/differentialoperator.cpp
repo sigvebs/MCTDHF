@@ -6,7 +6,7 @@ DifferentialOperator::DifferentialOperator(Config *cfg, const Grid &grid):
     cfg(cfg)
 {
      try{
-         nGrid = cfg->lookup("spatialDiscretization.nGrid");
+        nGrid = cfg->lookup("spatialDiscretization.nGrid");
      } catch (const SettingNotFoundException &nfex) {
          cerr << "DifferentialOperator::DifferentialOperator(Config *cfg)"
               << "::Error reading from config object." << endl;

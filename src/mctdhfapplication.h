@@ -34,6 +34,7 @@
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint1d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint2d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h>
+#include <src/OneParticleOperator/DifferentialOperator/implementation/fourier2d.h>
 
 // One body operators
 #include <src/Potential/potential.h>
