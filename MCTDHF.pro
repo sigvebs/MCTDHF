@@ -105,7 +105,8 @@ SOURCES += main.cpp \
     src/Grid/grid.cpp \
     src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.cpp \
     src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint2d.cpp \
-    src/Potential/implementation/finiteharmonicoscillator_ob.cpp
+    src/Potential/implementation/finiteharmonicoscillator_ob.cpp \
+    src/OneParticleOperator/DifferentialOperator/implementation/fourier2d.cpp
 
 HEADERS += \
     src/mctdhfapplication.h \
@@ -149,7 +150,8 @@ HEADERS += \
     src/Grid/grid.h \
     src/OneParticleOperator/DifferentialOperator/implementation/finitedifference2d.h \
     src/OneParticleOperator/DifferentialOperator/implementation/finitedifferencefivepoint2d.h \
-    src/Potential/implementation/finiteharmonicoscillator_ob.h
+    src/Potential/implementation/finiteharmonicoscillator_ob.h \
+    src/OneParticleOperator/DifferentialOperator/implementation/fourier2d.h
 
 OTHER_FILES += \
     ../config.cfg \
