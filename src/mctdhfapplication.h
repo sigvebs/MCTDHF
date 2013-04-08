@@ -36,13 +36,14 @@
 #include <src/OneParticleOperator/DifferentialOperator/implementation/spectral1d.h>
 #include <src/OneParticleOperator/DifferentialOperator/implementation/fourier2d.h>
 
-// One body operators
+// One body potential
 #include <src/Potential/potential.h>
 #include <src/Potential/implementation/harmonicoscillatoronebody.h>
 #include <src/Potential/implementation/coulombinteractionnucleus.h>
 #include <src/Potential/implementation/simplelaser.h>
 #include <src/Potential/implementation/anharmonicdoublewell.h>
 #include <src/Potential/implementation/finiteharmonicoscillator_ob.h>
+#include <src/Potential/implementation/gaussiandoublewell.h>
 
 #include <src/SlaterEquation/slaterequation.h>
 #include <src/OrbitalEquation/orbitalequation.h>

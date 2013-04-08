@@ -196,6 +196,10 @@ void MctdhfApplication::setOneBodyPotentials(SingleParticleOperator &h, const Gr
             I = new FiniteHarmonicOscillator_OB(&cfg, grid);
             h.addPotential(I);
             break;
+        case OB_GAUSSIAN_DOUBLE_WELL:
+            I = new GaussianDoubleWell(&cfg, grid);
+            h.addPotential(I);
+            break;
         default:
             cerr << "Potential not implemented:: " << potential << endl;
             exit(EXIT_FAILURE);
