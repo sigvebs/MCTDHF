@@ -151,20 +151,26 @@ void MctdhfApplication::run()
 void MctdhfApplication::setInteractionPotentials(Interaction &V, const Grid &grid)
 {
     InteractionPotential* I;
-    int interactionType = cfg.lookup("interactionPotential.interactionType");
+    const Setting& root = cfg.getRoot();
+    const Setting &interactionPotentials = root["interactionPotential"]["interactionType"];
+    int nPotentials = interactionPotentials.getLength();
+//    int interactionType = cfg.lookup("interactionPotential.interactionType");
 
-    switch (interactionType) {
-    case IP_HARMONIC_OSCILLATOR:
-        I = new HarmonicOscillatorInteraction(&cfg, grid);
-        V.addPotential(I);
-        break;
-    case IP_SHIELDED_COULOMB:
-        I = new ScreenedCoulombInteraction(&cfg, grid);
-        V.addPotential(I);
-        break;
-    default:
-        cerr << "Interaction not implemented:: " << interactionType << endl;
-        exit(EXIT_FAILURE);
+    for(int i=0; i<nPotentials; i++){
+        int interactionType = interactionPotentials[i];
+        switch (interactionType) {
+        case IP_HARMONIC_OSCILLATOR:
+            I = new HarmonicOscillatorInteraction(&cfg, grid);
+            V.addPotential(I);
+            break;
+        case IP_SHIELDED_COULOMB:
+            I = new ScreenedCoulombInteraction(&cfg, grid);
+            V.addPotential(I);
+            break;
+        default:
+            cerr << "Interaction not implemented:: " << interactionType << endl;
+            exit(EXIT_FAILURE);
+        }
     }
 
     V.updatePositionBasisElements();

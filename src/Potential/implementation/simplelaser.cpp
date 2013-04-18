@@ -6,10 +6,12 @@ simpleLaser::simpleLaser(Config *cfg, const Grid &grid):
 {
     double W = 1;
     double e0 = 1;
+    int axis = 0;
     try{
         w = cfg->lookup("oneBodyPotential.simpleLaser.w");
         W = cfg->lookup("oneBodyPotential.harmonicOscillatorBinding.w");
         e0 = cfg->lookup("oneBodyPotential.simpleLaser.e0");
+        axis = cfg->lookup("oneBodyPotential.simpleLaser.axis");
     } catch (const SettingNotFoundException &nfex) {
         cerr << "HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg)"
              << "::Error reading from config object." << endl;
@@ -21,7 +23,7 @@ simpleLaser::simpleLaser(Config *cfg, const Grid &grid):
     // The laser is applied only in the x-direction.
     for(int i=0; i<nGrid; i++){
         vec r = grid.at(i);
-        potential(i) = r(0)*e0;
+        potential(i) = r(axis)*e0;
     }
 }
 //------------------------------------------------------------------------------

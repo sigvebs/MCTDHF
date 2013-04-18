@@ -16,7 +16,6 @@ GaussianDoubleWell::GaussianDoubleWell(Config *cfg, const Grid &grid):
         Lby = cfg->lookup("oneBodyPotential.GaussianDoubleWell.Lby");
         a = cfg->lookup("oneBodyPotential.GaussianDoubleWell.a");
 
-        V2 = V2*V1;
         Lx *= Lx;
         Ly *= Ly;
         Lbx *= Lbx;
@@ -42,7 +41,7 @@ GaussianDoubleWell::GaussianDoubleWell(Config *cfg, const Grid &grid):
 //------------------------------------------------------------------------------
 cx_vec GaussianDoubleWell::evaluate(const cx_vec &psi, double t)
 {
-//    cx_vec pot(potential, potential);
+//    cx_vec pot(potential, zeros(nGrid));
 //    return pot;
     return potential % psi;
 }

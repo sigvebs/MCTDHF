@@ -92,9 +92,9 @@ void Grid::twoDimDiscretization()
         DX = 2.0*Lx/(double)(nGridX);
         DY = 2.0*Ly/(double)(nGridY);
         X = linspace<vec>(-Lx, Lx - DX, nGridX);
-        Y = linspace<vec>(-Lx, Lx - DY, nGridY);
+        Y = linspace<vec>(-Ly, Ly - DY, nGridY);
     }else{
-        X = linspace<vec>(-Ly, Ly, nGridX);
+        X = linspace<vec>(-Lx, Lx, nGridX);
         Y = linspace<vec>(-Ly, Ly, nGridY);
         DX = X(1) - X(0);
         DY = Y(1) - Y(0);
