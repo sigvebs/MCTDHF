@@ -140,7 +140,7 @@ void Grid::loadGrid()
         exit(EXIT_FAILURE);
     }
 
-    R.load(filenameR);
+    R.load(loadPath + "/" + filenameR);
 
     switch (dim) {
     case 1:
@@ -156,10 +156,14 @@ void Grid::loadGrid()
         DZ = R(2,1) - R(2,0);
         break;
     }
+    nGrid = (int)R.n_cols;
+    cout << nGrid << endl;
 
     Setting &root = cfg->getRoot();
     Setting &tmp = root["spatialDiscretization"];
     tmp.remove("nGrid");
-    tmp.add("nGrid", Setting::TypeInt) = (int)R.n_elem;
+    tmp.add("nGrid", Setting::TypeInt) = nGrid;
+
+    R.save(path + "/r.mat");
 }
 //------------------------------------------------------------------------------

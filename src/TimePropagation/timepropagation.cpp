@@ -9,7 +9,7 @@ TimePropagation::TimePropagation(Config *cfg):
         N = cfg->lookup("timeIntegration.N");
         cfg->lookupValue("systemSettings.filePath", filePath);
         cfg->lookupValue("systemSettings.filePath", filePath);
-        saveToFileInterval = cfg->lookup("systemSettings.saveToFileInterval");
+        saveToFileInterval = cfg->lookup("systemSettings.saveToFileIntervalTime");
         printProgress  = cfg->lookup("systemSettings.printProgress");
         saveEveryTimeStep = cfg->lookup("systemSettings.saveEveryTimeStep");
     } catch (const SettingNotFoundException &nfex) {
@@ -19,7 +19,7 @@ TimePropagation::TimePropagation(Config *cfg):
 
     step = 0;
     t = 0;
-    E = zeros(N);
+    E = zeros(N/saveToFileInterval+1);
     K = vec(1);
     time = zeros(N);
 
@@ -48,7 +48,7 @@ TimePropagation::TimePropagation(Config *cfg):
 //------------------------------------------------------------------------------
 void TimePropagation::doTimePropagation()
 {
-    cout << "\n" << endl;
+    int counter = 0;
     bool accepted;
 
     for(step=0; step < N; step++){
@@ -56,25 +56,28 @@ void TimePropagation::doTimePropagation()
 
         // Saving C and A to disk
         if(accepted){
-            time(step) = t;
+            if((step % saveToFileInterval == 0 || step == N-1) ){
+                time(counter) = t;
 
 #ifdef USE_MPI
-            MPI_Bcast( C.memptr(), C.n_elem , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD );
+                MPI_Bcast( C.memptr(), C.n_elem , MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD );
 #endif
 
-            // Updating the one-body- and interaction-elements
-            V->computeNewElements(C);
-            h->computeNewElements(C, t);
+                // Updating the one-body- and interaction-elements
+                V->computeNewElements(C);
+                h->computeNewElements(C, t);
 
-            // Collecting data
-            if(isMaster){
-                E(step) = slater->getEnergy(A);
-                rho = &orbital->reCalculateRho1(A);
-                K = orbital->getCorrelation();
-                svdRho = orbital->getSvdRho1();
+                // Collecting data
+                if(isMaster){
+                    E(counter) = slater->getEnergy(A);
+                    rho = &orbital->reCalculateRho1(A);
+                    K = orbital->getCorrelation();
+                    svdRho = orbital->getSvdRho1();
 
-                saveProgress(step);
-                printProgressToScreen(step);
+                    saveProgress(counter);
+                    printProgressToScreen(counter);
+                }
+                counter++;
             }
             t += dt;
         }

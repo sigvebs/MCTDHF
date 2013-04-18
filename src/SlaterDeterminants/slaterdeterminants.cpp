@@ -204,8 +204,8 @@ void SlaterDeterminants::load()
         exit(EXIT_FAILURE);
     }
 
-
     // Loading the coefficients
     A.load(loadPath + "/" + filenameA);
+    saveSlaterDeterminantsToDisk();
 }
 //------------------------------------------------------------------------------

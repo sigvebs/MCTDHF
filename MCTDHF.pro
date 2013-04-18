@@ -59,7 +59,7 @@ release {
 
     # add the desired -O3 if not present
     QMAKE_CXXFLAGS_RELEASE *= -O3
-    DEFINES += ARMA_NO_DEBUG
+#    DEFINES += ARMA_NO_DEBUG
 }
 
 QMAKE_CXXFLAGS += -std=c++0x

@@ -16,7 +16,7 @@ ComplexTimeRungeKuttaFehlberg::ComplexTimeRungeKuttaFehlberg(Config *cfg):
 //------------------------------------------------------------------------------
 bool ComplexTimeRungeKuttaFehlberg::stepForward()
 {
-    cx_vec k1, k2, k3, k4,k5, k6;
+    cx_vec k1, k2, k3, k4, k5, k6;
     cx_mat m1, m2, m3, m4, m5, m6;
     cx_vec A_, A_1;
     cx_mat C_, C_1;

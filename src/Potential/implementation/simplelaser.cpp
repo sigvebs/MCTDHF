@@ -21,7 +21,7 @@ simpleLaser::simpleLaser(Config *cfg, const Grid &grid):
     // The laser is applied only in the x-direction.
     for(int i=0; i<nGrid; i++){
         vec r = grid.at(i);
-        potential = r(0)*e0;
+        potential(i) = r(0)*e0;
     }
 }
 //------------------------------------------------------------------------------

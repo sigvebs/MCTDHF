@@ -10,6 +10,7 @@ Fourier2d::Fourier2d(Config* cfg, const Grid &grid):
     } catch (const SettingNotFoundException &nfex) {
         cerr << "DifferentialOperator::DifferentialOperator(Config *cfg)"
              << "::Error reading from config object." << endl;
+        exit(EXIT_FAILURE);
     }
 
     // Setting up the frequencies.
