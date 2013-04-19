@@ -52,7 +52,6 @@ void SlaterDeterminants::createSlaterDeterminants()
 
     cout << binStates.size()  << " Slater determinants created." << endl;
 
-    saveSlaterDeterminantsToDisk();
 #ifdef DEBUG
     cout << "SlaterDeterminants::createSlaterDeterminants()" << endl;
     for(int i=0; i<(int)binStates.size(); i++){
@@ -206,6 +205,5 @@ void SlaterDeterminants::load()
 
     // Loading the coefficients
     A.load(loadPath + "/" + filenameA);
-    saveSlaterDeterminantsToDisk();
 }
 //------------------------------------------------------------------------------

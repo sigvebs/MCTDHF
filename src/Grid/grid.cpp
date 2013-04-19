@@ -135,6 +135,8 @@ void Grid::loadGrid()
     try{
         cfg->lookupValue("loadDataset.loadDatasetPath", loadPath);
         cfg->lookupValue("loadDataset.R", filenameR);
+        nGridX = cfg->lookup("spatialDiscretization.twoD.nGridX");
+        nGridY = cfg->lookup("spatialDiscretization.twoD.nGridY");
     }catch (const SettingNotFoundException &fioex) {
         cerr << "Basis::loadOrbitals(string path)::Loadpath not found in config file." << endl;
         exit(EXIT_FAILURE);
@@ -147,7 +149,7 @@ void Grid::loadGrid()
         DX = R(0,1) - R(0,0);
         break;
     case 2:
-        DX = R(0,1) - R(0,0);
+        DX = R(0,nGridX) - R(0,0);
         DY = R(1,1) - R(1,0);
         break;
     case 3:
@@ -157,13 +159,17 @@ void Grid::loadGrid()
         break;
     }
     nGrid = (int)R.n_cols;
-    cout << nGrid << endl;
-
     Setting &root = cfg->getRoot();
     Setting &tmp = root["spatialDiscretization"];
     tmp.remove("nGrid");
     tmp.add("nGrid", Setting::TypeInt) = nGrid;
 
     R.save(path + "/r.mat");
+//    cout << nGrid << endl;
+//    cout << nGridX << endl;
+//    cout << nGridY << endl;
+//    cout << dim << endl;
+//    cout << DX << endl;
+//    cout << DY << endl;
 }
 //------------------------------------------------------------------------------

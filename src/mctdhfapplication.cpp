@@ -47,6 +47,10 @@ void MctdhfApplication::run()
     }else{
         grid.createInitalDiscretization();
     }
+
+#ifdef USE_MPI
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
     if(isMaster)
         grid.saveGrid();
 
@@ -81,6 +85,13 @@ void MctdhfApplication::run()
         slater.createSlaterDeterminants();
         slater.createInitialState();
     }
+
+#ifdef USE_MPI
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
+    if(isMaster)
+        slater.saveSlaterDeterminantsToDisk();
+
     const vector<bitset<BITS> > &slaterDeterminants = slater.getSlaterDeterminants();
     cx_vec A = slater.getCoefficients();
 
@@ -113,7 +124,11 @@ void MctdhfApplication::run()
     if(isMaster)
         cout << "Setting up the Orbital equation" << endl;
     OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
-
+//    MPI_Finalize();
+//    exit(1);
+//#ifdef USE_MPI
+//    MPI_Barrier(MPI_COMM_WORLD);
+//#endif
     //--------------------------------------------------------------------------
     // Setting up and performing complex time integration
     //--------------------------------------------------------------------------

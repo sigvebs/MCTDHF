@@ -189,16 +189,16 @@ void Basis::loadOrbitals()
     }
 
     C.load(loadPath + "/" + filenameC);
+//    Setting &root = cfg->getRoot();
+//    Setting &tmp2 = root["system"];
+//    tmp2.remove("shells");
+//    tmp2.add("shells", Setting::TypeInt) = (int)C.n_cols - 1;
 
-    Setting &root = cfg->getRoot();
-    Setting &tmp2 = root["system"];
-    tmp2.remove("shells");
-    tmp2.add("shells", Setting::TypeInt) = (int)C.n_cols - 1;
-    nBasis =  (int)C.n_cols - 1;
-    if(dim >= 2){
-        cerr << "Basis::loadOrbitals()::Load function not completed for 2D" << endl;
-        exit(EXIT_FAILURE);
-    }
+//    nBasis =  (int)C.n_cols - 1;
+//    if(dim >= 2){
+//        cerr << "Basis::loadOrbitals()::Load function not completed for 2D" << endl;
+//        exit(EXIT_FAILURE);
+//    }
 
     // Recreating the orbital states.
     this->createBasis();
