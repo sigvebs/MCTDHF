@@ -12,7 +12,7 @@ FiniteHarmonicOscillator_OB::FiniteHarmonicOscillator_OB(Config *cfg, const Grid
         r2Cut *= r2Cut;
 
     } catch (const SettingNotFoundException &nfex) {
-        cerr << "HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg)"
+        cerr << "FiniteHarmonicOscillator_OB::FiniteHarmonicOscillator_OB(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
     potential = vec(nGrid);

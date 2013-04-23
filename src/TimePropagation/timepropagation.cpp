@@ -84,7 +84,8 @@ void TimePropagation::doTimePropagation()
     }
 
     // Saving results
-    time.save(filenameT, arma_ascii);
+    if(isMaster)
+        time.save(filenameT, arma_ascii);
 }
 //------------------------------------------------------------------------------
 void TimePropagation::setDependencies(SlaterEquation *slater,

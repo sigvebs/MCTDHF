@@ -10,7 +10,7 @@ CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg, const Grid &gr
         b = cfg->lookup("oneBodyPotential.coulombInteractionNucleus.b");
         Z = cfg->lookup("oneBodyPotential.coulombInteractionNucleus.Z");
     } catch (const SettingNotFoundException &nfex) {
-        cerr << "HarmonicOscillatorOneBody::HarmonicOscillatorOneBody(Config *cfg)"
+        cerr << "CoulombInteractionNucleus::CoulombInteractionNucleus(Config *cfg)"
              << "::Error reading from config object." << endl;
     }
 
