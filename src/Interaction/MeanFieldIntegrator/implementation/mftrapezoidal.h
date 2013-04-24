@@ -7,7 +7,7 @@
 class MfTrapezoidal: public MeanFieldIntegrator
 {
 public:
-    MfTrapezoidal(Config* cfg);
+    MfTrapezoidal(Config* cfg, const Grid &grid);
     virtual void initialize();
     virtual void integrate(const int q, const int r, const cx_mat &C, cx_vec &V2);
     virtual cx_double integrate(const int p, const int q, const int r, const int s, const cx_mat &C);

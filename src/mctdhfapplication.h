@@ -91,7 +91,7 @@ protected:
     TimePropagation* setTimeIntegrator();
     ComplexTimePropagation *setComplexTimeIntegrator();
     DifferentialOperator* setDifferentialOpertor(const Grid &grid);
-    MeanFieldIntegrator* setMeanFieldIntegrator();
+    MeanFieldIntegrator* setMeanFieldIntegrator(const Grid &grid);
     Basis* setBasis();
     Config cfg;
 

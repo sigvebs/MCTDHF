@@ -1,8 +1,8 @@
 #include "mflowrankapproximation.h"
 
 //------------------------------------------------------------------------------
-MfLowRankApproximation::MfLowRankApproximation(Config *cfg):
-    MeanFieldIntegrator(cfg)
+MfLowRankApproximation::MfLowRankApproximation(Config *cfg, const Grid &grid):
+    MeanFieldIntegrator(cfg, grid)
 {
 }
 //------------------------------------------------------------------------------
@@ -13,8 +13,10 @@ void MfLowRankApproximation::initialize()
     double endValue;
     double constEnd;
     double epsilon;
+
+
+    dx = grid.DX;
     try {
-        dx = cfg->lookup("spatialDiscretization.gridSpacing");
         nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");
         constEnd = cfg->lookup("meanFieldIntegrator.lowRankApproximation.constEnd");
         constValue = cfg->lookup("meanFieldIntegrator.lowRankApproximation.constValue");
@@ -24,7 +26,6 @@ void MfLowRankApproximation::initialize()
         cerr << "MfLowRankApproximation::Error reading entry from config object." << endl;
         exit(EXIT_FAILURE);
     }
-
 
     int nConst = constEnd/dx;
     int constCenter = nGrid/2;
@@ -103,17 +104,17 @@ void MfLowRankApproximation::initialize()
             }
         }
     }
-//    mat diffV = abs(V_ - appV)/abs(V_);
     mat diffV = abs(Vxy - appV);
     cout << "max_err = " << max(max(abs(Vxy - appV))) << endl;
 
-    diffV.save("../DATA/diffV.mat", arma_ascii);
-    appV.save("../DATA/Vapp.mat", arma_ascii);
-    Vxy.save("../DATA/Vex.mat", arma_ascii);
+    diffV.save("../DATA/diffV.mat");
+    appV.save("../DATA/Vapp.mat");
+    Vxy.save("../DATA/Vex.mat");
     cout << nGrid << endl;
-    exit(EXIT_SUCCESS);
-#endif
+//    exit(EXIT_SUCCESS);
 
+#endif
+    cout << "test" << endl;
     Vm = zeros<cx_vec>(M);
     Vqr = zeros<cx_vec>(nGrid);
 }
@@ -139,6 +140,7 @@ cx_vec MfLowRankApproximation::integrate(const int q, const int r, const cx_mat 
 //------------------------------------------------------------------------------
 void MfLowRankApproximation::integrate(const int q, const int r, const cx_mat &C, cx_vec &V2)
 {
+    Vm.zeros();
     V2.zeros();
 
     for(int m=0; m<M; m++){

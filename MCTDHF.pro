@@ -158,4 +158,5 @@ HEADERS += \
 OTHER_FILES += \
     ../config.cfg \
     README.md \
-    ../config.cfg
+    ../config.cfg \
+    ../test2.cfg

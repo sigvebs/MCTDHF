@@ -1,8 +1,9 @@
 #include "interaction.h"
 //------------------------------------------------------------------------------
-Interaction::Interaction(Config *cfg, MeanFieldIntegrator *mfIntegrator):
+Interaction::Interaction(Config *cfg, MeanFieldIntegrator *mfIntegrator, const Grid &grid):
     cfg(cfg),
-    mfIntegrator(mfIntegrator)
+    mfIntegrator(mfIntegrator),
+    grid(grid)
 {
     try{
         nOrbitals = cfg->lookup("spatialDiscretization.nSpatialOrbitals");

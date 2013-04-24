@@ -7,7 +7,7 @@
 class MfLowRankApproximation: public MeanFieldIntegrator
 {
 public:
-    MfLowRankApproximation(Config* cfg);
+    MfLowRankApproximation(Config* cfg, const Grid &grid);
     virtual void initialize();
     virtual cx_vec integrate(const int q, const int r, const cx_mat &C);
     virtual void integrate(const int q, const int r, const cx_mat &C, cx_vec & V2);

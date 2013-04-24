@@ -1,8 +1,8 @@
 #include "mftrapezoidal.h"
 
 //------------------------------------------------------------------------------
-MfTrapezoidal::MfTrapezoidal(Config *cfg):
-    MeanFieldIntegrator(cfg)
+MfTrapezoidal::MfTrapezoidal(Config *cfg, const Grid &grid):
+    MeanFieldIntegrator(cfg, grid)
 {
 }
 //------------------------------------------------------------------------------

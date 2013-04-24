@@ -100,7 +100,7 @@ void MctdhfApplication::run()
     //--------------------------------------------------------------------------
     if(isMaster)
         cout << "Setting up the interaction operator" << endl;
-    Interaction V(&cfg, setMeanFieldIntegrator());
+    Interaction V(&cfg, setMeanFieldIntegrator(grid), grid);
     setInteractionPotentials(V, grid);
 
     //--------------------------------------------------------------------------
@@ -124,11 +124,7 @@ void MctdhfApplication::run()
     if(isMaster)
         cout << "Setting up the Orbital equation" << endl;
     OrbitalEquation orbEq(&cfg, slaterDeterminants, &V, &h);
-//    MPI_Finalize();
-//    exit(1);
-//#ifdef USE_MPI
-//    MPI_Barrier(MPI_COMM_WORLD);
-//#endif
+
     //--------------------------------------------------------------------------
     // Setting up and performing complex time integration
     //--------------------------------------------------------------------------
@@ -325,17 +321,17 @@ DifferentialOperator* MctdhfApplication::setDifferentialOpertor(const Grid &grid
     return I;
 }
 //------------------------------------------------------------------------------
-MeanFieldIntegrator *MctdhfApplication::setMeanFieldIntegrator()
+MeanFieldIntegrator *MctdhfApplication::setMeanFieldIntegrator(const Grid &grid)
 {
     MeanFieldIntegrator* I;
     int meanFieldIntegrator = cfg.lookup("meanFieldIntegrator.integratorType");
 
     switch (meanFieldIntegrator) {
     case MF_TRAPEZODIAL:
-        I = new MfTrapezoidal(&cfg);
+        I = new MfTrapezoidal(&cfg, grid);
         break;
     case MF_LOW_RANK_APPROXIMATION:
-        I = new MfLowRankApproximation(&cfg);
+        I = new MfLowRankApproximation(&cfg, grid);
         break;
     default:
         cerr << "Mean Field integrator not implemented:: " << meanFieldIntegrator << endl;

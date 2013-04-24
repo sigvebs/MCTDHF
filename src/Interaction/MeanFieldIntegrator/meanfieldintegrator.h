@@ -25,7 +25,7 @@ using namespace arma;
 class MeanFieldIntegrator
 {
 public:
-    MeanFieldIntegrator(Config* cfg);
+    MeanFieldIntegrator(Config* cfg, const Grid &grid);
     ~MeanFieldIntegrator();
     void addPotential(InteractionPotential* interactionPot);
     const cx_vec& getMeanField(const int p, const int q);
@@ -38,6 +38,7 @@ protected:
     vector<InteractionPotential*> potential;
 
     Config* cfg;
+    const Grid &grid;
 
     field<cx_vec> V2;
     int nGrid;

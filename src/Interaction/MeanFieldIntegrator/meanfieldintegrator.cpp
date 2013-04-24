@@ -1,8 +1,8 @@
 #include "meanfieldintegrator.h"
 
 //------------------------------------------------------------------------------
-MeanFieldIntegrator::MeanFieldIntegrator(Config *cfg):
-    cfg(cfg)
+MeanFieldIntegrator::MeanFieldIntegrator(Config *cfg, const Grid &grid):
+    cfg(cfg), grid(grid)
 {
     try{
         nGrid = cfg->lookup("spatialDiscretization.nGrid");

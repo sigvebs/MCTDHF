@@ -192,7 +192,7 @@ double SlaterEquation::getEnergy(const cx_vec& A)
 {
     computeHamiltonianMatrix();
 //    vec eigval = eig_sym(H);
-//    cout << "min(eigval) = " << min(eigval) << endl;
+//    cout << "Energy spectra = " << eigval.t() << endl;
 
     return real(cdot(A, H*A)/cdot(A,A));
 }

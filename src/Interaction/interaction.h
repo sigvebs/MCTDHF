@@ -4,6 +4,7 @@
 // Local includes
 #include <src/includes/defines.h>
 #include <src/includes/lib.h>
+#include <src/Grid/grid.h>
 #include <src/Interaction/MeanFieldIntegrator/meanfieldintegrator.h>
 
 // Library includes
@@ -19,7 +20,7 @@ using namespace arma;
 class Interaction
 {
 public:
-    Interaction(Config* cfg, MeanFieldIntegrator* mfIntegrator);
+    Interaction(Config* cfg, MeanFieldIntegrator* mfIntegrator, const Grid &grid);
     void computeNewElements(const cx_mat &C);
     const cx_double at(const int p, const int q, const int r, const int s);
     const cx_vec &meanField(const int p, const int q);
@@ -31,6 +32,7 @@ protected:
     void computeInteractionelements(const cx_mat &C);
 
     Config* cfg;
+    const Grid &grid;
     MeanFieldIntegrator* mfIntegrator;
 
     int nOrbitals;

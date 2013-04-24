@@ -4,12 +4,12 @@
 GaussianDoubleWell::GaussianDoubleWell(Config *cfg, const Grid &grid):
     Potential(cfg, grid)
 {
-    double V1, V2, Vb, Lx, Ly, Lbx, Lby, a;
+    double VA, VB, VC, Lx, Ly, Lbx, Lby, a;
 
     try{
-        V1 = cfg->lookup("oneBodyPotential.GaussianDoubleWell.V1");
-        V2 = cfg->lookup("oneBodyPotential.GaussianDoubleWell.V2");
-        Vb = cfg->lookup("oneBodyPotential.GaussianDoubleWell.Vb");
+        VA = cfg->lookup("oneBodyPotential.GaussianDoubleWell.VA");
+        VB = cfg->lookup("oneBodyPotential.GaussianDoubleWell.VB");
+        VC = cfg->lookup("oneBodyPotential.GaussianDoubleWell.VC");
         Lx = cfg->lookup("oneBodyPotential.GaussianDoubleWell.Lx");
         Ly = cfg->lookup("oneBodyPotential.GaussianDoubleWell.Ly");
         Lbx = cfg->lookup("oneBodyPotential.GaussianDoubleWell.Lbx");
@@ -34,8 +34,8 @@ GaussianDoubleWell::GaussianDoubleWell(Config *cfg, const Grid &grid):
         double x = r(0);
         double y = r(1);
 
-        potential(j) =(V1*exp(-pow(x-a,2)/Lx ) + V2*exp(-pow(x+a,2)/Lx) )*exp(-y*y/Ly)
-                + Vb*exp(-x*x/Lbx)*exp(-y*y/Lby);
+        potential(j) =(VA*exp(-pow(x-a,2)/Lx ) + VB*exp(-pow(x+a,2)/Lx) )*exp(-y*y/Ly)
+                + VC*exp(-x*x/Lbx)*exp(-y*y/Lby);
     }
 }
 //------------------------------------------------------------------------------
