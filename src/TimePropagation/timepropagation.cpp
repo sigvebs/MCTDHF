@@ -131,7 +131,7 @@ void TimePropagation::setInititalTime()
     time.load(loadPath + "/" + filenameT);
 
     offset = time.n_elem;
-    t = time(offset);
+    t = time(offset-1);
 }
 //------------------------------------------------------------------------------
 cx_mat TimePropagation::getCurrentC()
