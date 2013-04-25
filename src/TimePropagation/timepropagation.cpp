@@ -19,6 +19,7 @@ TimePropagation::TimePropagation(Config *cfg):
 
     step = 0;
     t = 0;
+    offset = 0;
     E = zeros(N/saveToFileInterval+1);
     K = vec(1);
     time = zeros(N);
@@ -115,6 +116,24 @@ void TimePropagation::renormalize(cx_mat &D)
     D = X*Y.t();
 }
 //------------------------------------------------------------------------------
+void TimePropagation::setInititalTime()
+{
+    string loadPath;
+    string filenameT;
+    try{
+        cfg->lookupValue("loadDataset.loadDatasetPath", loadPath);
+        cfg->lookupValue("loadDataset.time", filenameT);
+    }catch (const SettingNotFoundException &fioex) {
+        cerr << "Basis::loadOrbitals(string path)::Loadpath not found in config file." << endl;
+        exit(EXIT_FAILURE);
+    }
+    vec time;
+    time.load(loadPath + "/" + filenameT);
+
+    offset = time.n_elem;
+    t = time(offset);
+}
+//------------------------------------------------------------------------------
 cx_mat TimePropagation::getCurrentC()
 {
     return C;
@@ -145,13 +164,13 @@ void TimePropagation::saveProgress(uint counter)
     E.save(filePath + "/t_E.mat", arma_ascii);
     if(saveEveryTimeStep){
         stringstream fileName;
-        fileName << filePath << "/t_C" << counter << ".mat";
+        fileName << filePath << "/t_C" << counter + offset << ".mat";
         C.save(fileName.str());
         fileName.str("");
-        fileName << filePath << "/t_A" << counter << ".mat";
+        fileName << filePath << "/t_A" << counter + offset << ".mat";
         A.save(fileName.str());
         fileName.str("");
-        fileName << filePath << "/t_rho" << counter << ".mat";
+        fileName << filePath << "/t_rho" << counter + offset << ".mat";
          (*rho).save(fileName.str());
     }
 }

@@ -149,6 +149,10 @@ void MctdhfApplication::run()
         timePropagator->setDependencies(&slaterEquation, &orbEq, &V, &h);
         timePropagator->setInititalState(A, C);
 
+        if(loadDataset){
+            timePropagator->setInititalTime();
+        }
+
         cout << "Starting time propagation" << endl;
         timePropagator->doTimePropagation();
         delete timePropagator;

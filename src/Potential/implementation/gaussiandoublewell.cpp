@@ -4,9 +4,10 @@
 GaussianDoubleWell::GaussianDoubleWell(Config *cfg, const Grid &grid):
     Potential(cfg, grid)
 {
-    double VA, VB, VC, Lx, Ly, Lbx, Lby, a;
+    double V0, VA, VB, VC, Lx, Ly, Lbx, Lby, a;
 
     try{
+        V0 = cfg->lookup("oneBodyPotential.GaussianDoubleWell.V0");
         VA = cfg->lookup("oneBodyPotential.GaussianDoubleWell.VA");
         VB = cfg->lookup("oneBodyPotential.GaussianDoubleWell.VB");
         VC = cfg->lookup("oneBodyPotential.GaussianDoubleWell.VC");
@@ -37,12 +38,12 @@ GaussianDoubleWell::GaussianDoubleWell(Config *cfg, const Grid &grid):
         potential(j) =(VA*exp(-pow(x-a,2)/Lx ) + VB*exp(-pow(x+a,2)/Lx) )*exp(-y*y/Ly)
                 + VC*exp(-x*x/Lbx)*exp(-y*y/Lby);
     }
+
+    potential += V0; // Shift to make the potential positive.
 }
 //------------------------------------------------------------------------------
 cx_vec GaussianDoubleWell::evaluate(const cx_vec &psi, double t)
 {
-//    cx_vec pot(potential, zeros(nGrid));
-//    return pot;
     return potential % psi;
 }
 //------------------------------------------------------------------------------
