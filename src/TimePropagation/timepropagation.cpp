@@ -128,10 +128,13 @@ void TimePropagation::setInititalTime()
         exit(EXIT_FAILURE);
     }
     vec time;
-    time.load(loadPath + "/" + filenameT);
-
-    offset = time.n_elem;
-    t = time(offset-1);
+    if( time.load(loadPath + "/" + filenameT)){
+        offset = time.n_elem;
+        t = max(time);
+    }else{
+        offset = 0;
+        t = 0;
+    }
 }
 //------------------------------------------------------------------------------
 cx_mat TimePropagation::getCurrentC()
