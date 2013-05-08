@@ -1,3 +1,5 @@
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/1c500bbb72eae087bbf0d1feae8369ca "githalytics.com")](http://githalytics.com/sigvebs/MCTDHF)
+
 MCTDHF
 ================
 A test implementation of MCTDHF. To compile the following libraries are needed:
