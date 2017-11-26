@@ -1,2 +1,6 @@
 # User spesific files
 *.user
+.qmake.cache
+.qmake.conf
+MCTDHF-*.pro
+
