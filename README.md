@@ -7,10 +7,10 @@ An implementation of the Multiconfigurational Time Dependent Hartree-Fock method
 - Blas
 - FFTW
 
-To compile run "qmake CONFIG+=default' and then make. To run the program execute 'MCTDHF PATH-CONFIG'
-where 'PATH-CONFIG' is the path to a file spesifying the configuration. Editing of the code is best done using QtCreator.
+To compile run "qmake CONFIG+=default' and then 'make'. To run the program execute 'MCTDHF PATH-CONFIG'
+where 'PATH-CONFIG' is the path to a configuration file.
 
-Example of config file:
+An example config file:
 ```
 #-------------------------------
 # Example of configuration file
