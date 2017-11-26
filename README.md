@@ -1,6 +1,6 @@
 MCTDHF
 ================
-An implementation of the Multi Cofigurational Time Dependent Hartree-Fock method(MCTDHF). To compile the following libraries are needed:
+An implementation of the Multiconfigurational Time Dependent Hartree-Fock method(MCTDHF) for solving time-dependent many-body problems in quantum mechanics. To compile the following libraries are needed:
 - Armadillo
 - Libconfig
 - Lapack
